@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  private apiUrl = environment.apiUrl || 'http://localhost:3000/api';
+  private apiUrl = process.env.NG_APP_API_URL ?? 'http://localhost:3500/api';
 
   private readonly headers = new HttpHeaders({
     'Content-Type': 'application/json',

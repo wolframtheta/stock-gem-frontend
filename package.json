@@ -2,11 +2,12 @@
   "name": "stock-gem-frontend",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "ng": "node scripts/ng-with-env.mjs",
+    "start": "node scripts/ng-with-env.mjs serve --configuration development",
+    "build": "node scripts/ng-with-env.mjs build",
+    "build:dev": "node scripts/ng-with-env.mjs build --configuration development",
+    "watch": "node scripts/ng-with-env.mjs build --watch --configuration development",
+    "test": "node scripts/ng-with-env.mjs test"
   },
   "prettier": {
     "printWidth": 100,
@@ -45,6 +46,7 @@
     "@angular/compiler-cli": "^21.0.0",
     "@tailwindcss/postcss": "^4.1.12",
     "@types/jasmine": "^5.1.4",
+    "dotenv": "^17.3.1",
     "jasmine-core": "^5.4.0",
     "karma": "^6.4.4",
     "karma-chrome-launcher": "^3.2.0",

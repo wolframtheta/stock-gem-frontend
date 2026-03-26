@@ -6,6 +6,12 @@
 /out-tsc
 /bazel-out
 
+# Env (see .env.example, .env.pro.example)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
 # Node
 /node_modules
 npm-debug.log

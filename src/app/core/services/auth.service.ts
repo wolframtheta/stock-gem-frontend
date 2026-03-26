@@ -2,7 +2,6 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, of, shareReplay } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import type { AuthResponse, AuthUser } from '../models/auth.model';
 
 const TOKEN_KEY = 'token';
@@ -13,7 +12,7 @@ const USER_KEY = 'user';
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly apiUrl = `${environment.apiUrl}/auth`;
+  private readonly apiUrl = `${process.env.NG_APP_API_URL ?? 'http://localhost:3500/api'}/auth`;
 
   private readonly tokenSignal = signal<string | null>(
     typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null,
