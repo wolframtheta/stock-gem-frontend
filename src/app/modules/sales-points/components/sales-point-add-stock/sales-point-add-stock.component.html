@@ -1,0 +1,97 @@
+<div class="add-stock-container">
+  <div class="header-section">
+    <div class="header-content">
+      <button type="button" class="btn-back" (click)="router.navigate(['/sales-points', salesPoint()?.id, 'stock'])">
+        <i class="pi pi-arrow-left"></i>
+        Tornar
+      </button>
+      <h1>
+        <i class="pi pi-plus-circle"></i>
+        Afegir stock a {{ salesPoint()?.name || '...' }}
+      </h1>
+      <p class="subtitle">
+        {{ isWarehouse() ? 'Selecciona els articles sense assignar i les quantitats per al magatzem' : 'Selecciona els articles del magatzem i les quantitats que vols assignar' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="content-wrapper">
+    @if (loading()) {
+      <div class="loading-state">
+        <i class="pi pi-spin pi-spinner"></i>
+        <p>Carregant...</p>
+      </div>
+    } @else if (rows().length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-inbox"></i>
+        <p>{{ isWarehouse() ? 'No hi ha stock sense assignar' : 'No hi ha stock al magatzem per assignar' }}</p>
+        <button type="button" class="btn-secondary" (click)="router.navigate(['/sales-points'])">
+          Tornar als punts de venta
+        </button>
+      </div>
+    } @else {
+      <div class="table-section">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th style="width: 48px"></th>
+              <th>Article</th>
+              <th>Ref.</th>
+              <th class="qty-col">{{ isWarehouse() ? 'Disponible (sense assignar)' : 'Al magatzem' }}</th>
+              <th class="qty-col">{{ isWarehouse() ? 'Al magatzem' : 'A la botiga' }}</th>
+              <th class="qty-col">Quantitat a afegir</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.articleId) {
+              <tr [class.selected]="row.selected">
+                <td>
+                  <p-checkbox
+                    [binary]="true"
+                    [ngModel]="row.selected"
+                    (ngModelChange)="toggleRow(row)"
+                    [ngModelOptions]="{ standalone: true }"
+                  />
+                </td>
+                <td>{{ row.description }}</td>
+                <td><code>{{ row.ownReference }}</code></td>
+                <td class="qty-col">{{ row.quantityAvailable }}</td>
+                <td class="qty-col">{{ row.quantityAtDestination }}</td>
+                <td class="qty-col">
+                  <input
+                    type="number"
+                    [min]="0"
+                    [max]="row.quantityAvailable"
+                    [value]="row.quantityToAdd"
+                    (input)="setQuantityToAdd(row, $any($event.target).valueAsNumber)"
+                    [disabled]="!row.selected"
+                    class="qty-input"
+                  />
+                  @if (row.selected && row.quantityToAdd > row.quantityAvailable) {
+                    <small class="form-warning">Màx: {{ row.quantityAvailable }}</small>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <div class="actions">
+          <button
+            type="button"
+            class="btn-primary"
+            (click)="onSubmit()"
+            [disabled]="!hasAnySelected() || submitting() || hasAnyOverMax()"
+          >
+            @if (submitting()) {
+              <i class="pi pi-spin pi-spinner"></i>
+            } @else {
+              <i class="pi pi-check"></i>
+            }
+            Assignar stock seleccionat
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,118 @@
+<div class="composturas-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button class="btn-back" (click)="router.navigate(['/'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-hammer"></i>
+        Compostures
+      </h1>
+      <p class="subtitle">Gestiona les reparacions de joies</p>
+    </div>
+    <button class="btn-primary" (click)="router.navigate(['/composturas/new'])">
+      <i class="pi pi-plus"></i>
+      Nova Compostura
+    </button>
+  </div>
+
+  <div class="search-section">
+    <div class="search-box">
+      <i class="pi pi-search"></i>
+      <input
+        type="text"
+        placeholder="Cercar per codi..."
+        [(ngModel)]="searchText"
+        (keyup.enter)="search()"
+        class="search-input"
+      />
+    </div>
+    <div class="search-actions">
+      <button class="btn-search" (click)="search()">
+        <i class="pi pi-search"></i>
+        Cercar
+      </button>
+      <button class="btn-clear" (click)="clearSearch()">
+        <i class="pi pi-times"></i>
+        Netejar
+      </button>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner text-brand-primary" style="font-size: 2rem"></i>
+      <p>Carregant compostures...</p>
+    </div>
+  } @else if (composturas.length === 0) {
+    <app-empty-state
+      icon="pi pi-hammer"
+      title="No hi ha compostures"
+      description="Comença afegint la teva primera compostura"
+      buttonText="Afegir Primera Compostura"
+      [buttonRoute]="'/composturas/new'"
+    ></app-empty-state>
+  } @else {
+    <div class="composturas-grid">
+      @for (compostura of composturas; track compostura.id) {
+        <div class="compostura-card">
+          <div class="card-header-section">
+            <div class="compostura-icon">
+              <i class="pi pi-hammer"></i>
+            </div>
+            <div class="compostura-actions">
+              <button class="btn-icon" (click)="editCompostura(compostura)" title="Editar">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="btn-icon btn-danger" (click)="confirmDelete(compostura)" title="Eliminar">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="card-body">
+            <h3>{{ compostura.code }}</h3>
+            <p class="description">{{ compostura.description }}</p>
+            
+            <div class="compostura-details">
+              <div class="detail-item">
+                <i class="pi pi-user"></i>
+                <span>{{ compostura.client.name }} {{ compostura.client.surname }}</span>
+              </div>
+              
+              @if (compostura.workshop) {
+                <div class="detail-item">
+                  <i class="pi pi-wrench"></i>
+                  <span>{{ compostura.workshop.name }}</span>
+                </div>
+              }
+              
+              <div class="detail-item">
+                <i class="pi pi-calendar"></i>
+                <span>Entrada: {{ formatDate(compostura.entryDate) }}</span>
+              </div>
+              
+              @if (compostura.deliveryToClientDate) {
+                <div class="detail-item">
+                  <i class="pi pi-check-circle"></i>
+                  <span>Lliurada: {{ formatDate(compostura.deliveryToClientDate) }}</span>
+                </div>
+              }
+              
+              <div class="detail-item price">
+                <i class="pi pi-euro"></i>
+                <span>PVP: {{ compostura.pvp.toFixed(2) }}€</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<p-confirmDialog></p-confirmDialog>
+

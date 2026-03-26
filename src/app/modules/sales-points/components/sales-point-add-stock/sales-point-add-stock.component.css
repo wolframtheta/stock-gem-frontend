@@ -1,0 +1,138 @@
+.add-stock-container {
+  min-height: 100vh;
+  background: var(--gradient-page);
+  padding: 2rem 1rem;
+}
+
+.header-section {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+}
+
+.btn-back {
+  background: transparent;
+  border: 2px solid #e2e8f0;
+  color: #475569;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background: #f1f5f9;
+  border-color: var(--color-brand-secondary);
+  color: var(--color-brand-secondary);
+}
+
+.header-content h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-content h1 i {
+  color: var(--color-brand-secondary);
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #475569;
+  margin: 0;
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.loading-state,
+.empty-state {
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  text-align: center;
+}
+
+.loading-state i,
+.empty-state i {
+  font-size: 3rem;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  margin-bottom: 1rem;
+  color: #64748b;
+}
+
+.table-section {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+}
+
+.stock-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+.stock-table th,
+.stock-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.stock-table th {
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.875rem;
+}
+
+.stock-table tr.selected {
+  background: #f0f9ff;
+}
+
+.qty-col {
+  width: 120px;
+}
+
+.qty-input {
+  width: 70px;
+  padding: 0.35rem 0.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.qty-input:focus {
+  outline: none;
+  border-color: var(--color-brand-secondary);
+}
+
+.form-warning {
+  display: block;
+  font-size: 0.75rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+

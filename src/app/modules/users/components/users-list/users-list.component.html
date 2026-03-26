@@ -1,0 +1,76 @@
+<div class="users-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button class="btn-back" (click)="router.navigate(['/'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-users"></i>
+        Usuaris
+      </h1>
+      <p class="subtitle">Gestiona els usuaris i els seus rols (Botiga o Administrador)</p>
+    </div>
+    <button class="btn-primary" (click)="router.navigate(['/users/new'])">
+      <i class="pi pi-plus"></i>
+      Afegir Usuari
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner text-brand-primary" style="font-size: 2rem"></i>
+      <p>Carregant usuaris...</p>
+    </div>
+  } @else if (users().length === 0) {
+    <app-empty-state
+      icon="pi pi-users"
+      title="No hi ha usuaris"
+      description="Comença afegint el primer usuari"
+      buttonText="Afegir Primer Usuari"
+      [buttonRoute]="'/users/new'"
+    ></app-empty-state>
+  } @else {
+    <div class="users-grid">
+      @for (u of users(); track u.id) {
+        <div class="user-card">
+          <div class="card-header-section">
+            <div class="user-icon">
+              <i class="pi pi-user"></i>
+            </div>
+            <div class="user-actions">
+              <button class="btn-icon" (click)="editUser(u)" title="Editar">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="btn-icon btn-danger" (click)="confirmDelete(u)" title="Eliminar">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <h3>{{ u.name }}</h3>
+            <span class="user-email">{{ u.email }}</span>
+
+            <div class="detail-item">
+              <i class="pi pi-shield"></i>
+              <span class="role-badge" [class.role-admin]="u.role === 'admin'">
+                {{ roleLabels[u.role] }}
+              </span>
+            </div>
+            @if (u.fairName) {
+              <div class="detail-item">
+                <i class="pi pi-calendar"></i>
+                <span>{{ u.fairName }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<p-confirmDialog></p-confirmDialog>

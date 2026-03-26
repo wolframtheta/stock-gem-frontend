@@ -1,0 +1,84 @@
+<div class="home-container">
+  <div class="welcome-section">
+    <div class="welcome-content">
+      <div class="header-row">
+        <h1>
+          <i class="pi pi-sparkles"></i>
+          Benvingut a Stock Gem
+        </h1>
+        <button
+          pButton
+          icon="pi pi-sign-out"
+          label="Sortir"
+          class="p-button-text p-button-secondary"
+          (click)="logout()"
+        ></button>
+      </div>
+      <p class="welcome-text">
+        Gestiona la teva joieria de forma senzilla. Selecciona una opció per començar:
+      </p>
+    </div>
+  </div>
+
+  <div class="featured-section">
+    <h2 class="section-title">Accions Principals</h2>
+    <div class="featured-grid">
+      @if (mainSalesPointRoute()) {
+        <div class="menu-card featured-card" [routerLink]="mainSalesPointRoute()!">
+          <div class="card-icon-wrapper" [style.background-color]="mainSalesPointIconBg">
+            <i class="pi pi-shop"></i>
+          </div>
+          <div class="card-body">
+            <h2>{{ mainSalesPointName() }}</h2>
+            <p>Accedeix directament al stock del punt de venta principal</p>
+          </div>
+          <div class="card-arrow">
+            <i class="pi pi-arrow-right"></i>
+          </div>
+        </div>
+      }
+      @for (card of featuredCards; track card.route) {
+        <div class="menu-card featured-card" [routerLink]="card.route">
+          <div class="card-icon-wrapper" [style.background-color]="card.color">
+            <i [ngClass]="card.iconClasses"></i>
+          </div>
+          <div class="card-body">
+            <h2>{{ card.title }}</h2>
+            <p>{{ card.description }}</p>
+          </div>
+          <div class="card-arrow">
+            <i class="pi pi-arrow-right"></i>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="regular-section">
+    <h2 class="section-title">Gestió</h2>
+    <div class="cards-grid">
+      @for (card of menuCards; track card.route) {
+        <div class="menu-card" [routerLink]="card.route">
+          <div class="card-icon-wrapper" [style.background-color]="card.color">
+            <i [ngClass]="card.iconClasses"></i>
+          </div>
+          <div class="card-body">
+            <h2>{{ card.title }}</h2>
+            <p>{{ card.description }}</p>
+          </div>
+          <div class="card-arrow">
+            <i class="pi pi-arrow-right"></i>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="help-section">
+    <p class="help-text">
+      <i class="pi pi-info-circle"></i>
+      Necessites ajuda? Fes clic en qualsevol targeta per accedir a aquesta secció.
+    </p>
+  </div>
+</div>
+

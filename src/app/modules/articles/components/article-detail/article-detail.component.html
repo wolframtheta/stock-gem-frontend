@@ -1,0 +1,249 @@
+<div class="detail-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" (click)="router.navigate(['/articles'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      @if (article(); as a) {
+        <div class="article-header">
+          <div class="article-icon">
+            <i class="pi pi-sparkles"></i>
+          </div>
+          <div class="article-info">
+            <h1>{{ a.ownReference }}</h1>
+            <p class="description">{{ a.description }}</p>
+            @if (a.supplierReference) {
+              <span class="meta">Ref. proveïdor: {{ a.supplierReference }}</span>
+            }
+            @if (a.collection?.name || a.articleType?.name) {
+              <span class="meta">
+                {{ a.collection?.name || '' }}{{ a.collection?.name && a.articleType?.name ? ' · ' : '' }}{{ a.articleType?.name || '' }}
+              </span>
+            }
+            @if (a.family) {
+              <span class="meta">{{ a.family }}{{ a.subfamily ? ' / ' + a.subfamily : '' }}</span>
+            }
+          </div>
+          @if (!isBotiga()) {
+            <div class="header-actions">
+              <button type="button" class="btn-primary" (click)="router.navigate(['/articles', a.id, 'edit'])">
+                <i class="pi pi-pencil"></i>
+                Editar
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner"></i>
+      <p>Carregant...</p>
+    </div>
+  } @else if (!article()) {
+    <div class="empty-state">
+      <i class="pi pi-exclamation-circle"></i>
+      <p>Article no trobat</p>
+    </div>
+  } @else {
+    <div class="content-wrapper">
+      <div class="stock-section">
+        <h2>
+          <i class="pi pi-box"></i>
+          Stock
+        </h2>
+
+        @if (stockBreakdown(); as breakdown) {
+          <div class="stock-summary">
+            <div class="summary-card total">
+              <span class="label">{{ isBotiga() ? 'A la fira' : 'Total en stock' }}</span>
+              <span class="value">{{ breakdown.total }} unitats</span>
+            </div>
+            @if (!isBotiga()) {
+              <div class="summary-card unassigned">
+                <span class="label">Sense assignar</span>
+                <span class="value">{{ breakdown.unassigned }} unitats</span>
+              </div>
+            }
+          </div>
+
+          <div class="stock-table-wrapper">
+            <h3>{{ isBotiga() ? 'Stock a la fira' : 'Stock per punt de venta' }}</h3>
+            @if (breakdown.bySalesPoint.length === 0 && !isBotiga()) {
+              <div class="empty-stock">
+                <i class="pi pi-inbox"></i>
+                <p>No hi ha stock assignat a cap punt de venta</p>
+                <a [routerLink]="['/sales-points']" class="link">Gestionar punts de venta</a>
+              </div>
+            } @else if (breakdown.bySalesPoint.length > 0) {
+              <table class="stock-table">
+                <thead>
+                  <tr>
+                    <th>Nom del punt de venta</th>
+                    <th>Codi</th>
+                    <th>Quantitat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of breakdown.bySalesPoint; track item.salesPointId) {
+                    <tr>
+                      <td>{{ getSalesPointName(item.salesPointCode, item.salesPointName) }}</td>
+                      <td><code>{{ item.salesPointCode }}</code></td>
+                      <td class="quantity-cell">{{ item.quantity }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </div>
+
+          @if (!isBotiga() && breakdown.byFair.length) {
+            <div class="stock-table-wrapper">
+              <h3>Stock a les fires</h3>
+              <table class="stock-table">
+                <thead>
+                  <tr>
+                    <th>Fira</th>
+                    <th>Quantitat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of breakdown.byFair; track item.fairId) {
+                    <tr>
+                      <td>
+                        <a [routerLink]="['/fairs', item.fairId, 'stock']">{{ item.fairName }}</a>
+                      </td>
+                      <td class="quantity-cell">{{ item.quantity }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        } @else {
+          <div class="loading-state small">
+            <i class="pi pi-spin pi-spinner"></i>
+            <p>Carregant desglossament d'stock...</p>
+          </div>
+        }
+      </div>
+
+      @if (article(); as a) {
+        <div class="prices-section">
+          <h2>
+            <i class="pi pi-euro"></i>
+            Preus
+          </h2>
+          <div class="price-row">
+            <span class="price-label">Cost:</span>
+            <span class="price-value">{{ formatCurrency(a.cost) }}</span>
+          </div>
+          <div class="price-row">
+            <span class="price-label">PVP:</span>
+            <span class="price-value price-sale">{{ formatCurrency(a.pvp) }}</span>
+          </div>
+          @if (priceHistory().length > 1) {
+            <div class="chart-container">
+              <h3>Evolució del preu</h3>
+              <div class="price-history-list">
+                @for (h of priceHistory(); track h.id) {
+                  <div class="price-history-item">
+                    <span>{{ h.changedAt.split('T')[0] }}</span>
+                    <span>{{ formatCurrency(h.price) }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (!isBotiga()) {
+        <div class="stock-history-section">
+          <div class="stock-history-header">
+            <h2>
+              <i class="pi pi-box"></i>
+              Fabricació
+            </h2>
+            <button type="button" class="btn-primary" (click)="openAddStock()" [disabled]="loading()">
+              <i class="pi pi-plus"></i>
+              Fabricar quantitats
+            </button>
+          </div>
+          <div class="year-filter">
+            <label>Any:</label>
+            <input
+              type="number"
+              [(ngModel)]="stockHistoryYear"
+              (ngModelChange)="onStockHistoryYearChange()"
+              min="2020"
+              max="2030"
+            />
+          </div>
+          @if (stockHistory().length === 0) {
+            <p class="empty-text">Cap fabricació registrada aquest any</p>
+          } @else {
+            @if (manufacturingChartData(); as chartData) {
+              <div class="manufacturing-chart">
+                <h3>Quantitats fabricades per dia</h3>
+                <p-chart type="bar" [data]="chartData" [options]="chartOptions" />
+              </div>
+            }
+            <h3>Històric per dia</h3>
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Quantitat fabricada</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (day of manufacturingByDay(); track day.date) {
+                  <tr>
+                    <td>{{ day.date }}</td>
+                    <td>{{ day.quantity }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </div>
+        }
+      }
+    </div>
+  }
+</div>
+
+<p-dialog
+  header="Fabricar quantitats"
+  [(visible)]="addStockVisible"
+  [modal]="true"
+  [style]="{ width: '350px' }"
+>
+  <div class="add-stock-form">
+    <div class="form-group">
+      <label>Quantitat</label>
+      <div class="quantity-stepper">
+        <button type="button" class="btn-stepper" (click)="addStockQtyChange(-1)" title="Disminuir">
+          <i class="pi pi-minus"></i>
+        </button>
+        <p-inputNumber [(ngModel)]="addStockQty" [min]="1" [inputStyle]="{ width: '70px', textAlign: 'center' }" />
+        <button type="button" class="btn-stepper" (click)="addStockQtyChange(1)" title="Augmentar">
+          <i class="pi pi-plus"></i>
+        </button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Data</label>
+      <input type="date" [(ngModel)]="addStockDate" />
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button type="button" pButton label="Cancel·lar" class="p-button-text" (click)="addStockVisible = false"></button>
+    <button type="button" pButton label="Fabricar" (click)="submitAddStock()" [disabled]="addStockQty < 1"></button>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,450 @@
+<div class="sale-form-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" (click)="router.navigate(['/sales'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-money-bill"></i>
+        {{ saleId && saleId !== 'new' ? 'Editar Venda' : 'Nova Venda' }}
+      </h1>
+      <p class="subtitle">
+        {{ saleId && saleId !== 'new' ? 'Modifica la informació de la venda' : 'Crea una nova venda' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="form-wrapper">
+    <form [formGroup]="form" (ngSubmit)="onSubmit($event)" class="sale-form">
+      <div class="form-section">
+        <h2>Informació de la Venda</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="salesPointId">Punt de Venta *</label>
+            <select
+              id="salesPointId"
+              formControlName="salesPointId"
+              [class.ng-invalid]="form.get('salesPointId')?.invalid && form.get('salesPointId')?.touched"
+            >
+              <option value="">Seleccionar punt de venta</option>
+              @for (sp of salesPoints; track sp.id) {
+                <option [value]="sp.id">{{ sp.name }} ({{ sp.code }})</option>
+              }
+            </select>
+            @if (form.get('salesPointId')?.invalid && form.get('salesPointId')?.touched) {
+              <small class="p-error">El punt de venta és obligatori</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="ticketNumber">Número de Ticket</label>
+            <input
+              id="ticketNumber"
+              type="text"
+              formControlName="ticketNumber"
+              readonly
+              class="readonly"
+            />
+            <small class="form-hint">Generat automàticament</small>
+          </div>
+
+          <div class="form-group">
+            <label for="clientId">Client</label>
+            <select
+              id="clientId"
+              formControlName="clientId"
+            >
+              <option value="">Sense client</option>
+              @for (client of clients; track client.id) {
+                <option [value]="client.id">
+                  {{ client.name }} {{ client.surname }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group payment-pills-group">
+            <label>Tipus de Pagament *</label>
+            <div class="payment-pills" role="group">
+              @for (type of paymentTypes; track type.value) {
+                <button
+                  type="button"
+                  class="payment-pill"
+                  [class.selected]="form.get('paymentType')?.value === type.value"
+                  (click)="form.get('paymentType')?.setValue(type.value); form.get('paymentType')?.markAsTouched()"
+                >
+                  {{ type.label }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="saleDate">Data *</label>
+            <input
+              id="saleDate"
+              type="date"
+              formControlName="saleDate"
+              [class.ng-invalid]="form.get('saleDate')?.invalid && form.get('saleDate')?.touched"
+            />
+            @if (form.get('saleDate')?.invalid && form.get('saleDate')?.touched) {
+              <small class="p-error">La data és obligatòria</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="saleTime">Hora</label>
+            <input
+              id="saleTime"
+              type="time"
+              formControlName="saleTime"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-header">
+          <h2>Articles de la Venda</h2>
+          <button type="button" class="btn-add-item" (click)="openAddItemModal()">
+            <i class="pi pi-plus"></i>
+            Afegir Article
+          </button>
+        </div>
+
+        @if (itemsFormArray.length === 0) {
+          <div class="empty-items">
+            <i class="pi pi-info-circle"></i>
+            <p>No hi ha articles afegits. Fes clic a "Afegir Article" per començar.</p>
+          </div>
+        } @else {
+          <div class="items-list">
+            @for (item of itemsFormArray.controls; track $index) {
+              <div class="item-row" [formGroup]="$any(item)">
+                <div class="item-fields">
+                  <div class="form-group">
+                    <label>Article *</label>
+                    <select
+                      formControlName="articleId"
+                      [class.ng-invalid]="item.get('articleId')?.invalid && item.get('articleId')?.touched"
+                    >
+                      <option value="">Seleccionar article</option>
+                      @for (article of articles(); track article.id) {
+                        <option [value]="article.id">
+                          {{ article.ownReference }} - {{ article.description }} (Stock: {{ article.stock }})
+                        </option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Quantitat *</label>
+                    <input
+                      type="number"
+                      formControlName="quantity"
+                      min="1"
+                      [class.ng-invalid]="item.get('quantity')?.invalid && item.get('quantity')?.touched"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label>Preu Unitari *</label>
+                    <input
+                      type="number"
+                      formControlName="unitPrice"
+                      step="0.01"
+                      min="0"
+                      [class.ng-invalid]="item.get('unitPrice')?.invalid && item.get('unitPrice')?.touched"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label>Descompte</label>
+                    <input
+                      type="number"
+                      formControlName="discount"
+                      step="0.01"
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label>Total</label>
+                    <input
+                      type="number"
+                      formControlName="totalPrice"
+                      readonly
+                      class="readonly"
+                    />
+                  </div>
+
+                  <div class="form-group item-actions">
+                    <button type="button" class="btn-remove-item" (click)="removeItem($index)" title="Eliminar">
+                      <i class="pi pi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-section">
+        <h2>Resum</h2>
+        <div class="summary-grid">
+          <div class="form-group">
+            <label for="totalDiscount">Descompte Total</label>
+            <input
+              id="totalDiscount"
+              type="number"
+              formControlName="totalDiscount"
+              step="0.01"
+              min="0"
+              (input)="calculateTotals()"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="totalAmount">Total Venda *</label>
+            <input
+              id="totalAmount"
+              type="number"
+              formControlName="totalAmount"
+              step="0.01"
+              readonly
+              class="readonly total-amount-input"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="loading">
+          <i class="pi pi-times"></i>
+          Cancel·lar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || itemsFormArray.length === 0 || loading">
+          @if (loading) {
+            <i class="pi pi-spin pi-spinner"></i>
+          } @else {
+            <i class="pi pi-check"></i>
+          }
+          {{ saleId && saleId !== 'new' ? 'Actualitzar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<p-dialog
+  header="Afegir Article"
+  [(visible)]="addItemModalVisible"
+  [modal]="true"
+  [style]="{ width: '560px' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="closeAddItemModal()"
+>
+  <form [formGroup]="itemModalForm">
+    <div class="article-search-section">
+      <div class="search-row">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Cercar per nom, referència, col·lecció, tipus..."
+          [value]="articleSearchQuery()"
+          (input)="articleSearchQuery.set($any($event.target).value); triggerArticleSearch()"
+        />
+        @if (articleSearchLoading()) {
+          <i class="pi pi-spin pi-spinner search-spinner"></i>
+        }
+      </div>
+      <div class="filter-row">
+        <select
+          [value]="articleSearchCollectionId() ?? ''"
+          (change)="articleSearchCollectionId.set($any($event.target).value || null); triggerArticleSearch()"
+        >
+          <option value="">Totes les col·leccions</option>
+          @for (c of collections; track c.id) {
+            <option [value]="c.id">{{ c.name }}</option>
+          }
+        </select>
+        <select
+          [value]="articleSearchTypeId() ?? ''"
+          (change)="articleSearchTypeId.set($any($event.target).value || null); triggerArticleSearch()"
+        >
+          <option value="">Tots els tipus</option>
+          @for (t of articleTypes; track t.id) {
+            <option [value]="t.id">{{ t.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="article-results">
+      @if (articleSearchResults().length === 0 && !articleSearchLoading()) {
+        <p class="no-results">Escriu per cercar o selecciona filtres</p>
+      } @else {
+        <div class="results-list">
+          @for (article of articleSearchResults(); track article.id) {
+            <button
+              type="button"
+              class="result-item"
+              [class.selected]="selectedArticleForAdd()?.id === article.id"
+              (click)="selectArticleForAdd(article)"
+            >
+              <span class="result-label">{{ getArticleDisplayLabel(article) }}</span>
+              <span class="result-price">{{ formatCurrency(article.pvp) }}</span>
+              @if (article.stock !== undefined) {
+                <span class="result-stock">Stock: {{ article.stock }}</span>
+              }
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    @if (selectedArticleForAdd()) {
+      <div class="selected-article-details">
+        <div class="selected-header">
+          <span>{{ getArticleDisplayLabel(selectedArticleForAdd()!) }}</span>
+          <button type="button" class="btn-clear-selection" (click)="clearArticleSelection()">
+            <i class="pi pi-times"></i> Canviar
+          </button>
+        </div>
+        <div class="modal-form-grid">
+          <div class="form-group">
+            <label for="modalQuantity">Quantitat *</label>
+            <input
+              id="modalQuantity"
+              type="number"
+              formControlName="quantity"
+              min="1"
+              [class.ng-invalid]="itemModalForm.get('quantity')?.invalid && itemModalForm.get('quantity')?.touched"
+            />
+          </div>
+          <div class="form-group">
+            <label for="modalUnitPrice">Preu Unitari *</label>
+            <input
+              id="modalUnitPrice"
+              type="number"
+              formControlName="unitPrice"
+              step="0.01"
+              min="0"
+              [class.ng-invalid]="itemModalForm.get('unitPrice')?.invalid && itemModalForm.get('unitPrice')?.touched"
+            />
+          </div>
+          <div class="form-group">
+            <label for="modalDiscount">Descompte</label>
+            <input id="modalDiscount" type="number" formControlName="discount" step="0.01" min="0" />
+          </div>
+        </div>
+        <div class="modal-summary">
+          <h4>Resum a pagar</h4>
+          <div class="summary-row">
+            <span>Subtotal ({{ itemModalForm.get('quantity')?.value || 0 }} × {{ formatCurrency(itemModalForm.get('unitPrice')?.value || 0) }})</span>
+            <span>{{ formatCurrency(modalItemSubtotal) }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Descompte</span>
+            <span>- {{ formatCurrency(itemModalForm.get('discount')?.value || 0) }}</span>
+          </div>
+          <div class="summary-row summary-total">
+            <span>Total</span>
+            <span>{{ formatCurrency(modalItemTotal) }}</span>
+          </div>
+        </div>
+      </div>
+    }
+  </form>
+  <ng-template pTemplate="footer">
+    <button type="button" pButton label="Cancel·lar" class="p-button-text" (click)="closeAddItemModal()"></button>
+    <button type="button" pButton label="Afegir" (click)="confirmAddItem()" [disabled]="!selectedArticleForAdd() || itemModalForm.get('quantity')?.invalid || itemModalForm.get('unitPrice')?.invalid"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Confirmar Venda"
+  [(visible)]="confirmModalVisible"
+  [modal]="true"
+  [style]="{ width: '380px' }"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!loading"
+  (onHide)="closeConfirmModal()"
+>
+  <div class="ticket-summary">
+    <div class="ticket-header">
+      <div class="ticket-line">══════════════</div>
+      <div class="ticket-title">TICKET</div>
+      <div class="ticket-line">══════════════</div>
+    </div>
+    <div class="ticket-body">
+      <div class="ticket-row">
+        <span>Punt:</span>
+        <span>{{ getSalesPointName(form.get('salesPointId')?.value) }}</span>
+      </div>
+      <div class="ticket-row">
+        <span>Ticket:</span>
+        <span>{{ form.get('ticketNumber')?.value || '-' }}</span>
+      </div>
+      <div class="ticket-row">
+        <span>Data:</span>
+        <span>{{ form.get('saleDate')?.value }} {{ form.get('saleTime')?.value || '' }}</span>
+      </div>
+      <div class="ticket-row">
+        <span>Client:</span>
+        <span>{{ getClientName(form.get('clientId')?.value) || '-' }}</span>
+      </div>
+      <div class="ticket-line">──────────────────</div>
+      @for (item of itemsFormArray.controls; track $index) {
+        <div class="ticket-item">
+          <div class="ticket-item-desc">
+            {{ getArticleName(item.get('articleId')?.value) || 'Article' }}
+          </div>
+          <div class="ticket-item-detail">
+            {{ item.get('quantity')?.value }} × {{ formatCurrency(item.get('unitPrice')?.value || 0) }}
+            @if (item.get('discount')?.value) {
+              <span class="ticket-discount">-{{ formatCurrency(item.get('discount')?.value) }}</span>
+            }
+            = {{ formatCurrency(item.get('totalPrice')?.value || 0) }}
+          </div>
+        </div>
+      }
+      <div class="ticket-line">──────────────────</div>
+      <div class="ticket-row">
+        <span>Subtotal:</span>
+        <span>{{ formatCurrency(getTicketSubtotal()) }}</span>
+      </div>
+      @if ((form.get('totalDiscount')?.value || 0) > 0) {
+        <div class="ticket-row">
+          <span>Descompte:</span>
+          <span>- {{ formatCurrency(form.get('totalDiscount')?.value || 0) }}</span>
+        </div>
+      }
+      <div class="ticket-row ticket-total">
+        <span>TOTAL:</span>
+        <span>{{ formatCurrency(form.get('totalAmount')?.value || 0) }}</span>
+      </div>
+      <div class="ticket-line">──────────────────</div>
+      <div class="ticket-row">
+        <span>Pagament:</span>
+        <span>{{ getPaymentTypeLabel(form.get('paymentType')?.value) }}</span>
+      </div>
+    </div>
+    <div class="ticket-footer">
+      <div class="ticket-line">══════════════</div>
+      <div class="ticket-thanks">Gràcies per la seva compra!</div>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button type="button" pButton label="Cancel·lar" class="p-button-text" (click)="closeConfirmModal()" [disabled]="loading"></button>
+    <button type="button" pButton label="Confirmar Venda" icon="pi pi-check" (click)="confirmSale()" [disabled]="loading" [loading]="loading"></button>
+  </ng-template>
+</p-dialog>
+
+

@@ -1,0 +1,46 @@
+<div class="fair-form-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" (click)="router.navigate(['/fairs'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-calendar"></i>
+        {{ fairId && fairId !== 'new' ? 'Editar Fira' : 'Nova Fira' }}
+      </h1>
+      <p class="subtitle">
+        {{ fairId && fairId !== 'new' ? 'Modifica les dades de la fira' : 'Completa les dades de la nova fira' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="form-wrapper">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="fair-form">
+      <div class="form-group">
+        <label for="name">Nom *</label>
+        <input id="name" type="text" formControlName="name" placeholder="Ex: Fira de Tàrrega 2025" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startDate">Data inici *</label>
+          <input id="startDate" type="date" formControlName="startDate" />
+        </div>
+        <div class="form-group">
+          <label for="endDate">Data fi *</label>
+          <input id="endDate" type="date" formControlName="endDate" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="router.navigate(['/fairs'])">
+          Cancel·lar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || loading">
+          {{ fairId && fairId !== 'new' ? 'Actualitzar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

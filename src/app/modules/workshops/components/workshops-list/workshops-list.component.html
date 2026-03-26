@@ -1,0 +1,100 @@
+<div class="workshops-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button class="btn-back" (click)="router.navigate(['/'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-wrench"></i>
+        Els Teus Tallers
+      </h1>
+      <p class="subtitle">Gestiona els tallers on repares les joies</p>
+    </div>
+    <button class="btn-primary" (click)="router.navigate(['/workshops/new'])">
+      <i class="pi pi-plus"></i>
+      Afegir Taller
+    </button>
+  </div>
+
+  <div class="search-section">
+    <div class="search-box">
+      <i class="pi pi-search"></i>
+      <input
+        type="text"
+        placeholder="Cercar per nom o telèfon..."
+        [(ngModel)]="searchText"
+        (keyup.enter)="search()"
+        class="search-input"
+      />
+    </div>
+    <div class="search-actions">
+      <button class="btn-search" (click)="search()">
+        <i class="pi pi-search"></i>
+        Cercar
+      </button>
+      <button class="btn-clear" (click)="clearSearch()">
+        <i class="pi pi-times"></i>
+        Netejar
+      </button>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner text-brand-primary" style="font-size: 2rem"></i>
+      <p>Carregant tallers...</p>
+    </div>
+  } @else if (workshops.length === 0) {
+    <app-empty-state
+      icon="pi pi-wrench"
+      title="No hi ha tallers"
+      description="Comença afegint el teu primer taller"
+      buttonText="Afegir Primer Taller"
+      [buttonRoute]="'/workshops/new'"
+    ></app-empty-state>
+  } @else {
+    <div class="workshops-grid">
+      @for (workshop of workshops; track workshop.id) {
+        <div class="workshop-card">
+          <div class="card-header-section">
+            <div class="workshop-icon">
+              <i class="pi pi-wrench"></i>
+            </div>
+            <div class="workshop-actions">
+              <button class="btn-icon" (click)="editWorkshop(workshop)" title="Editar">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="btn-icon btn-danger" (click)="confirmDelete(workshop)" title="Eliminar">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="card-body">
+            <h3>{{ workshop.name }}</h3>
+            
+            <div class="workshop-details">
+              @if (workshop.phone) {
+                <div class="detail-item">
+                  <i class="pi pi-phone"></i>
+                  <span>{{ workshop.phone }}</span>
+                </div>
+              } @else {
+                <div class="detail-item no-info">
+                  <i class="pi pi-info-circle"></i>
+                  <span>Sense telèfon registrat</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<p-confirmDialog></p-confirmDialog>
+

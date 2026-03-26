@@ -1,0 +1,157 @@
+<div class="statistics-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button class="btn-back" routerLink="/">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-chart-line"></i>
+        Estadístiques
+      </h1>
+      <p class="subtitle">Evolució de vendes per botiga, article, fira (€) i fabricació (unitats)</p>
+    </div>
+  </div>
+
+  <div class="filter-section">
+    <div class="date-filters">
+      <div class="date-group">
+        <label for="from">Des de</label>
+        <input
+          id="from"
+          type="date"
+          [ngModel]="from()"
+          (ngModelChange)="from.set($event)"
+          class="date-input"
+        />
+      </div>
+      <div class="date-group">
+        <label for="to">Fins a</label>
+        <input
+          id="to"
+          type="date"
+          [ngModel]="to()"
+          (ngModelChange)="to.set($event)"
+          class="date-input"
+        />
+      </div>
+    </div>
+    <button
+      type="button"
+      class="btn-primary"
+      (click)="loadAll()"
+      [disabled]="loading()"
+    >
+      <i class="pi pi-refresh" [class.pi-spin]="loading()"></i>
+      Actualitzar
+    </button>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3><i class="pi pi-shop"></i> Vendes per botiga</h3>
+      @if (loading()) {
+        <div class="chart-placeholder">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>Carregant...</span>
+        </div>
+      } @else if (storeChartData(); as data) {
+        <div class="chart-wrapper">
+          <p-chart
+            type="line"
+            [data]="data"
+            [options]="lineChartOptions"
+          />
+        </div>
+        <div class="chart-summary">
+          Total: {{ formatCurrency(totalForSeries(storeTimeSeries())) }}
+        </div>
+      } @else {
+        <div class="chart-placeholder">
+          <i class="pi pi-inbox"></i>
+          <span>Cap dada en el període</span>
+        </div>
+      }
+    </div>
+
+    <div class="chart-card">
+      <h3><i class="pi pi-sparkles"></i> Vendes per article</h3>
+      @if (loading()) {
+        <div class="chart-placeholder">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>Carregant...</span>
+        </div>
+      } @else if (articleChartData(); as data) {
+        <div class="chart-wrapper">
+          <p-chart
+            type="line"
+            [data]="data"
+            [options]="lineChartOptions"
+          />
+        </div>
+        <div class="chart-summary">
+          Total: {{ formatCurrency(totalForSeries(articleTimeSeries())) }}
+        </div>
+      } @else {
+        <div class="chart-placeholder">
+          <i class="pi pi-inbox"></i>
+          <span>Cap dada en el període</span>
+        </div>
+      }
+    </div>
+
+    <div class="chart-card">
+      <h3><i class="pi pi-calendar"></i> Vendes per fira</h3>
+      @if (loading()) {
+        <div class="chart-placeholder">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>Carregant...</span>
+        </div>
+      } @else if (fairChartData(); as data) {
+        <div class="chart-wrapper">
+          <p-chart
+            type="line"
+            [data]="data"
+            [options]="lineChartOptions"
+          />
+        </div>
+        <div class="chart-summary">
+          Total: {{ formatCurrency(totalForSeries(fairTimeSeries())) }}
+        </div>
+      } @else {
+        <div class="chart-placeholder">
+          <i class="pi pi-inbox"></i>
+          <span>Cap dada en el període</span>
+        </div>
+      }
+    </div>
+
+    <div class="chart-card">
+      <h3><i class="pi pi-box"></i> Fabricació (unitats)</h3>
+      @if (loading()) {
+        <div class="chart-placeholder">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>Carregant...</span>
+        </div>
+      } @else if (manufacturingChartData(); as data) {
+        <div class="chart-wrapper">
+          <p-chart
+            type="line"
+            [data]="data"
+            [options]="manufacturingChartOptions"
+          />
+        </div>
+        <div class="chart-summary">
+          Total: {{ totalForSeries(manufacturingTimeSeries()) | number }} unitats
+        </div>
+      } @else {
+        <div class="chart-placeholder">
+          <i class="pi pi-inbox"></i>
+          <span>Cap dada en el període</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

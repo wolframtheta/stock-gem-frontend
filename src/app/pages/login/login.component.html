@@ -1,0 +1,63 @@
+<div class="login-container">
+  <div class="login-bg">
+    <div class="login-bg-shape shape-1"></div>
+    <div class="login-bg-shape shape-2"></div>
+    <div class="login-bg-shape shape-3"></div>
+    <div class="login-bg-grid"></div>
+  </div>
+
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-icon-wrap">
+        <i class="pi pi-sparkles"></i>
+      </div>
+      <h1>Stock Gem</h1>
+      <p>Gestió de joieria</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="field">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          pInputText
+          formControlName="email"
+          placeholder="email&#64;exemple.cat"
+          autocomplete="email"
+        />
+        @if (form.get('email')?.invalid && form.get('email')?.touched) {
+          <small class="error">Email vàlid requerit</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Contrasenya</label>
+        <p-password
+          id="password"
+          formControlName="password"
+          placeholder="Mínim 6 caràcters"
+          [feedback]="false"
+          [toggleMask]="true"
+          inputStyleClass="w-full"
+        />
+        @if (form.get('password')?.invalid && form.get('password')?.touched) {
+          <small class="error">Mínim 6 caràcters</small>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn-submit"
+        [disabled]="form.invalid || loading"
+      >
+        @if (loading) {
+          <span class="spinner"></span>
+        } @else {
+          <i class="pi pi-arrow-right"></i>
+        }
+        <span>Entrar</span>
+      </button>
+    </form>
+  </div>
+</div>

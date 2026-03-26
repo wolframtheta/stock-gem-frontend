@@ -1,0 +1,189 @@
+<div class="stock-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" (click)="router.navigate(['/sales-points'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-box"></i>
+        Stock - {{ salesPoint()?.name || '...' }}
+      </h1>
+      <p class="subtitle">
+        Assigna quantitats d'articles a aquest punt de venta
+      </p>
+    </div>
+  </div>
+
+  <div class="content-wrapper">
+    <div class="assign-section">
+      <h2>Stock</h2>
+      @if (!loading() && articles().length === 0) {
+        <div class="empty-articles">
+          <i class="pi pi-box"></i>
+          <p>No tens cap article. Crea articles primer per poder assignar stock.</p>
+          <a routerLink="/articles/new" class="btn-primary">Crear articles</a>
+        </div>
+      } @else {
+        <p class="assign-hint">
+          Per afegir o reajustar stock, obre la pàgina d'assignació.
+        </p>
+        <a
+          [routerLink]="['/sales-points', salesPoint()?.id, 'add-stock']"
+          class="btn-primary"
+        >
+          <i class="pi pi-plus"></i>
+          {{ salesPoint()?.isDefaultWarehouse ? 'Afegir stock al magatzem' : 'Afegir stock des del magatzem' }}
+        </a>
+      }
+    </div>
+
+    <div class="stock-list-section">
+      <div class="stock-list-header">
+        <h2>Stock Actual</h2>
+        @if (stockItems().length > 0) {
+          <button type="button" class="btn-secondary" (click)="openMoveModal()" [disabled]="loading()">
+            <i class="pi pi-arrow-right-arrow-left"></i>
+            Moure stock
+          </button>
+        }
+      </div>
+      @if (loading() && stockItems().length === 0) {
+        <div class="loading-state">
+          <i class="pi pi-spin pi-spinner"></i>
+          <p>Carregant stock...</p>
+        </div>
+      } @else if (stockItems().length === 0) {
+        <div class="empty-stock">
+          <i class="pi pi-inbox"></i>
+          <p>No hi ha stock assignat. Assigna articles amb el formulari de dalt.</p>
+        </div>
+      } @else {
+        <div class="stock-table-wrapper">
+          <table class="stock-table">
+            <thead>
+              <tr>
+                <th>Referència</th>
+                <th>Descripció</th>
+                <th>Quantitat</th>
+                <th>Accions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of stockItems(); track item.id) {
+                <tr>
+                  <td>{{ item.article?.ownReference || '-' }}</td>
+                  <td>{{ item.article?.description || '-' }}</td>
+                  <td class="quantity-cell">
+                    <div class="quantity-stepper">
+                      <button
+                        type="button"
+                        class="btn-stepper"
+                        (click)="decrementQuantity(item)"
+                        [disabled]="getDisplayQuantity(item) <= 1 || loading()"
+                        title="Disminuir"
+                      >
+                        <i class="pi pi-minus"></i>
+                      </button>
+                      <input
+                        type="number"
+                        class="quantity-input"
+                        [value]="getDisplayQuantity(item)"
+                        [min]="1"
+                        [max]="item.maxQuantity ?? item.quantity"
+                        (input)="setQuantityFromInput(item, $any($event.target).value)"
+                      />
+                      <button
+                        type="button"
+                        class="btn-stepper"
+                        (click)="incrementQuantity(item)"
+                        [disabled]="getDisplayQuantity(item) >= (item.maxQuantity ?? item.quantity) || loading()"
+                        title="Augmentar"
+                      >
+                        <i class="pi pi-plus"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-save"
+                        (click)="saveQuantity(item)"
+                        [disabled]="getDisplayQuantity(item) === item.quantity || loading()"
+                        title="Guardar"
+                      >
+                        <i class="pi pi-check"></i> Guardar
+                      </button>
+                    </div>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn-icon btn-danger"
+                      (click)="confirmRemove(item)"
+                      title="Eliminar del punt"
+                      [disabled]="loading()"
+                    >
+                      <i class="pi pi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  header="Moure stock"
+  [visible]="moveModalVisible()"
+  (visibleChange)="moveModalVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '500px' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="closeMoveModal()"
+>
+  <form [formGroup]="moveForm" (ngSubmit)="submitMove()">
+    <div class="form-group">
+      <label for="toId">Destí *</label>
+      <p-select
+        id="toId"
+        formControlName="toId"
+        [options]="moveTargetOptions()"
+        optionLabel="label"
+        optionValue="id"
+        placeholder="Seleccionar punt de venta"
+      />
+    </div>
+    <div class="move-items">
+      <h4>Articles a moure</h4>
+      @for (item of stockItems(); track item.id) {
+        <div class="move-item-row">
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="isMoveSelected(item.articleId)"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="toggleMoveItem(item, $event)"
+          />
+          <span class="move-item-label">{{ item.article?.ownReference }} - {{ item.article?.description }}</span>
+          <input
+            type="number"
+            [min]="1"
+            [max]="item.quantity"
+            [value]="getMoveQuantity(item.articleId) || (isMoveSelected(item.articleId) ? item.quantity : 0)"
+            (input)="setMoveQuantity(item.articleId, $any($event.target).valueAsNumber)"
+            [disabled]="!isMoveSelected(item.articleId)"
+          />
+          <span class="move-item-max">/ {{ item.quantity }}</span>
+        </div>
+      }
+    </div>
+  </form>
+  <ng-template pTemplate="footer">
+    <button type="button" pButton label="Cancel·lar" class="p-button-text" (click)="closeMoveModal()"></button>
+    <button type="button" pButton label="Moure" (click)="submitMove()" [disabled]="moveForm.invalid || loading()"></button>
+  </ng-template>
+</p-dialog>

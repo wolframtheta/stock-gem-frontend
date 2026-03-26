@@ -1,0 +1,143 @@
+.fairs-container {
+  min-height: 100vh;
+  background: var(--gradient-page);
+  padding: 2rem 1rem;
+}
+
+.header-section {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.header-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-content h1 i {
+  color: var(--color-brand-primary);
+}
+
+.header-top {
+  margin-bottom: 1rem;
+}
+
+.btn-back {
+  background: transparent;
+  border: 2px solid #e2e8f0;
+  color: #475569;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background: #f1f5f9;
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: #475569;
+  margin: 0;
+}
+
+.fairs-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.fair-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.fair-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.fair-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.fair-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.fair-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.btn-icon:hover {
+  color: var(--color-brand-primary);
+}
+
+.btn-icon.btn-danger:hover {
+  color: #ef4444;
+}
+
+.fair-dates {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.loading-state,
+.empty-state {
+  max-width: 1200px;
+  margin: 4rem auto;
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+}
+
+.loading-state p,
+.empty-state p {
+  color: #64748b;
+  font-size: 1.125rem;
+  margin-top: 1rem;
+}
+
+.empty-state a {
+  display: inline-block;
+  margin-top: 1rem;
+}

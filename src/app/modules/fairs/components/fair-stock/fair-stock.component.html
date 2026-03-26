@@ -1,0 +1,204 @@
+<div class="fair-stock-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" (click)="router.navigate(['/fairs'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-box"></i>
+        Stock - {{ fair()?.name || '...' }}
+      </h1>
+      <p class="subtitle">Stock que portes a la fira</p>
+      @if (fair()?.id) {
+        <a [routerLink]="['/fairs', fair()!.id]" class="link-detail">
+          <i class="pi pi-chart-line"></i> Estadístiques completes
+        </a>
+      }
+    </div>
+    @if (stockItems().length > 0) {
+      <button
+        type="button"
+        class="btn-finalize"
+        (click)="confirmFinalize()"
+        [disabled]="finalizing()"
+      >
+        <i class="pi pi-check-circle"></i>
+        {{ finalizing() ? 'Finalitzant...' : 'Finalitzar fira' }}
+      </button>
+    }
+  </div>
+
+  @if (fair() && stats()) {
+    <div class="stats-section">
+      <div class="stat-card">
+        <span class="stat-label">Vendes</span>
+        <span class="stat-value">{{ formatCurrency(stats()!.totalAmount) }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Nombre vendes</span>
+        <span class="stat-value">{{ stats()!.saleCount }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Cost</span>
+        <span class="stat-value">{{ formatCurrency(stats()!.totalCost) }}</span>
+      </div>
+      <div class="stat-card stat-profit">
+        <span class="stat-label">Benefici</span>
+        <span class="stat-value">{{ formatCurrency(stats()!.profit) }}</span>
+      </div>
+    </div>
+  }
+
+  @if (fair()) {
+    <div class="charts-section">
+      <h3 class="charts-title"><i class="pi pi-chart-line"></i> Estadístiques</h3>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h4><i class="pi pi-euro"></i> Vendes (€)</h4>
+          @if (chartsLoading()) {
+            <div class="chart-placeholder"><i class="pi pi-spin pi-spinner"></i> Carregant...</div>
+          } @else if (salesChartData(); as data) {
+            <div class="chart-wrapper">
+              <p-chart type="line" [data]="data" [options]="lineChartOptions" />
+            </div>
+            <div class="chart-summary">Total: {{ formatCurrency(totalForSeries(salesTimeSeries())) }}</div>
+          } @else {
+            <div class="chart-placeholder"><i class="pi pi-inbox"></i> Cap venda en el període</div>
+          }
+        </div>
+        <div class="chart-card">
+          <h4><i class="pi pi-sparkles"></i> Vendes per article (€)</h4>
+          @if (chartsLoading()) {
+            <div class="chart-placeholder"><i class="pi pi-spin pi-spinner"></i> Carregant...</div>
+          } @else if (articlesChartData(); as data) {
+            <div class="chart-wrapper">
+              <p-chart type="line" [data]="data" [options]="lineChartOptions" />
+            </div>
+            <div class="chart-summary">Total: {{ formatCurrency(totalForSeries(articlesTimeSeries())) }}</div>
+          } @else {
+            <div class="chart-placeholder"><i class="pi pi-inbox"></i> Cap article venut</div>
+          }
+        </div>
+        <div class="chart-card chart-card-full">
+          <h4><i class="pi pi-wrench"></i> Compostures</h4>
+          @if (chartsLoading()) {
+            <div class="chart-placeholder"><i class="pi pi-spin pi-spinner"></i> Carregant...</div>
+          } @else if (composturasChartData(); as data) {
+            <div class="chart-wrapper">
+              <p-chart type="line" [data]="data" [options]="composturasChartOptions" />
+            </div>
+            <div class="chart-summary">Total: {{ composturasCount() | number }} compostures</div>
+          } @else {
+            <div class="chart-placeholder"><i class="pi pi-inbox"></i> Cap compostura en el període</div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (loading() && stockItems().length === 0) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner"></i>
+      <p>Carregant...</p>
+    </div>
+  } @else if (stockItems().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-box"></i>
+      <p>La fira no té stock. Pots reobrir-la per importar el stock del magatzem.</p>
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="reopenFair()"
+        [disabled]="reopening()"
+      >
+        <i class="pi pi-refresh"></i>
+        {{ reopening() ? 'Reobrint...' : 'Reobrir fira' }}
+      </button>
+    </div>
+  } @else {
+    <div class="content-wrapper">
+    <div class="stock-section">
+      <div class="stock-actions">
+        <button type="button" class="btn-secondary" (click)="openMoveModal()" [disabled]="loading()">
+          <i class="pi pi-arrow-right-arrow-left"></i>
+          Moure stock
+        </button>
+      </div>
+      <table class="stock-table">
+        <thead>
+          <tr>
+            <th>Article</th>
+            <th>Quantitat</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of stockItems(); track item.id) {
+            <tr>
+              <td>{{ item.article?.ownReference }} - {{ item.article?.description }}</td>
+              <td>{{ item.quantity }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    </div>
+  }
+</div>
+
+<p-dialog
+  header="Moure stock"
+  [visible]="moveModalVisible()"
+  (visibleChange)="moveModalVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '500px' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="closeMoveModal()"
+>
+  <div class="move-form">
+    <div class="form-group">
+      <label>Destí *</label>
+      <p-select
+        [options]="moveTargetOptions()"
+        optionLabel="label"
+        optionValue="id"
+        placeholder="Seleccionar destí"
+        [ngModel]="moveToId()"
+        (ngModelChange)="moveToId.set($event)"
+        [ngModelOptions]="{ standalone: true }"
+      />
+    </div>
+    <div class="move-items">
+      <h4>Articles a moure</h4>
+      @for (item of stockItems(); track item.id) {
+        <div class="move-item-row">
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="isMoveSelected(item.articleId)"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="toggleMoveItem(item, $event)"
+          />
+          <span class="move-item-label">{{ item.article?.ownReference }} - {{ item.article?.description }}</span>
+          <input
+            type="number"
+            [min]="1"
+            [max]="item.quantity"
+            [value]="getMoveQuantity(item.articleId) || (isMoveSelected(item.articleId) ? item.quantity : 0)"
+            (input)="setMoveQuantity(item.articleId, $any($event.target).valueAsNumber)"
+            [disabled]="!isMoveSelected(item.articleId)"
+          />
+          <span class="move-item-max">/ {{ item.quantity }}</span>
+        </div>
+      }
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button type="button" pButton label="Cancel·lar" class="p-button-text" (click)="closeMoveModal()"></button>
+    <button type="button" pButton label="Moure" (click)="submitMove()" [disabled]="!moveToId() || loading()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>

@@ -1,0 +1,102 @@
+<div class="sales-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button class="btn-back" (click)="router.navigate(['/'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-money-bill"></i>
+        Les Teves Vendes
+      </h1>
+      <p class="subtitle">Gestiona les teves vendes i factures</p>
+    </div>
+    <button class="btn-primary" (click)="router.navigate(['/sales/new'])">
+      <i class="pi pi-plus"></i>
+      Nova Venda
+    </button>
+  </div>
+
+  <div class="search-section">
+    <div class="search-box">
+      <i class="pi pi-search"></i>
+      <input
+        type="text"
+        placeholder="Cercar per número de ticket..."
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="search()"
+        class="search-input"
+      />
+    </div>
+    <div class="search-actions">
+      <button class="btn-search" (click)="search()">
+        <i class="pi pi-search"></i>
+        Cercar
+      </button>
+      <button class="btn-clear" (click)="clearSearch()">
+        <i class="pi pi-times"></i>
+        Netejar
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner text-brand-primary" style="font-size: 2rem"></i>
+      <p>Carregant vendes...</p>
+    </div>
+  } @else if (sales().length === 0) {
+    <app-empty-state
+      icon="pi pi-money-bill"
+      title="No hi ha vendes"
+      description="Comença creant la teva primera venda"
+      buttonText="Nova Venda"
+      [buttonRoute]="'/sales/new'"
+    ></app-empty-state>
+  } @else {
+    <div class="table-wrapper">
+      <table class="sales-table">
+        <thead>
+          <tr>
+            <th>Ticket</th>
+            <th>Data</th>
+            <th>Punt de venda</th>
+            <th>Client</th>
+            <th>Pagament</th>
+            <th>Articles</th>
+            <th>Total</th>
+            <th>Accions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (sale of sales(); track sale.id) {
+            <tr>
+              <td>{{ sale.ticketNumber || '—' }}</td>
+              <td>{{ formatDate(sale.saleDate) }}</td>
+              <td>{{ sale.salesPoint?.name ?? '—' }}</td>
+              <td>{{ sale.client ? sale.client.name + ' ' + sale.client.surname : '—' }}</td>
+              <td>{{ getPaymentTypeLabel(sale.paymentType) }}</td>
+              <td>{{ sale.items?.length ?? 0 }}</td>
+              <td class="total-cell">{{ formatCurrency(sale.totalAmount) }}</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn-icon" (click)="viewSale(sale)" title="Veure">
+                    <i class="pi pi-eye"></i>
+                  </button>
+                  <button class="btn-icon btn-danger" (click)="confirmDelete(sale)" title="Eliminar">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<p-confirmDialog></p-confirmDialog>
+

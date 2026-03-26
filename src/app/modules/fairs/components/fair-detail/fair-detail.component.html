@@ -1,0 +1,166 @@
+<div class="fair-detail-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" routerLink="/fairs">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-calendar"></i>
+        {{ fair()?.name || '...' }}
+      </h1>
+      @if (fair()) {
+        <p class="subtitle">
+          {{ formatDate(fair()!.startDate) }} - {{ formatDate(fair()!.endDate) }}
+        </p>
+      }
+    </div>
+    <div class="header-actions">
+      <a [routerLink]="['/fairs', fair()?.id, 'stock']" class="btn-secondary">
+        <i class="pi pi-box"></i>
+        Stock
+      </a>
+      <a [routerLink]="['/fairs', fair()?.id, 'edit']" class="btn-primary">
+        <i class="pi pi-pencil"></i>
+        Editar
+      </a>
+    </div>
+  </div>
+
+  @if (fair() && stats()) {
+    <div class="stats-section">
+      <div class="stat-card">
+        <span class="stat-label">Vendes</span>
+        <span class="stat-value">{{ formatCurrency(stats()!.totalAmount) }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Nombre vendes</span>
+        <span class="stat-value">{{ stats()!.saleCount }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Cost</span>
+        <span class="stat-value">{{ formatCurrency(stats()!.totalCost) }}</span>
+      </div>
+      <div class="stat-card stat-profit">
+        <span class="stat-label">Benefici</span>
+        <span class="stat-value">{{ formatCurrency(stats()!.profit) }}</span>
+      </div>
+    </div>
+  }
+
+  <div class="filter-section">
+    <div class="date-filters">
+      <div class="date-group">
+        <label for="from">Des de</label>
+        <input
+          id="from"
+          type="date"
+          [ngModel]="from()"
+          (ngModelChange)="from.set($event)"
+          class="date-input"
+        />
+      </div>
+      <div class="date-group">
+        <label for="to">Fins a</label>
+        <input
+          id="to"
+          type="date"
+          [ngModel]="to()"
+          (ngModelChange)="to.set($event)"
+          class="date-input"
+        />
+      </div>
+    </div>
+    <button
+      type="button"
+      class="btn-primary"
+      (click)="refreshCharts()"
+      [disabled]="loading()"
+    >
+      <i class="pi pi-refresh" [class.pi-spin]="loading()"></i>
+      Actualitzar gràfiques
+    </button>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3><i class="pi pi-euro"></i> Vendes (€)</h3>
+      @if (loading()) {
+        <div class="chart-placeholder">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>Carregant...</span>
+        </div>
+      } @else if (salesChartData(); as data) {
+        <div class="chart-wrapper">
+          <p-chart
+            type="line"
+            [data]="data"
+            [options]="lineChartOptions"
+          />
+        </div>
+        <div class="chart-summary">
+          Total: {{ formatCurrency(totalForSeries(salesTimeSeries())) }}
+        </div>
+      } @else {
+        <div class="chart-placeholder">
+          <i class="pi pi-inbox"></i>
+          <span>Cap venda en el període</span>
+        </div>
+      }
+    </div>
+
+    <div class="chart-card">
+      <h3><i class="pi pi-sparkles"></i> Vendes per article (€)</h3>
+      @if (loading()) {
+        <div class="chart-placeholder">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>Carregant...</span>
+        </div>
+      } @else if (articlesChartData(); as data) {
+        <div class="chart-wrapper">
+          <p-chart
+            type="line"
+            [data]="data"
+            [options]="lineChartOptions"
+          />
+        </div>
+        <div class="chart-summary">
+          Total: {{ formatCurrency(totalForSeries(articlesTimeSeries())) }}
+        </div>
+      } @else {
+        <div class="chart-placeholder">
+          <i class="pi pi-inbox"></i>
+          <span>Cap article venut en el període</span>
+        </div>
+      }
+    </div>
+
+    <div class="chart-card chart-card-full">
+      <h3><i class="pi pi-wrench"></i> Compostures (entrades)</h3>
+      @if (loading()) {
+        <div class="chart-placeholder">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>Carregant...</span>
+        </div>
+      } @else if (composturasChartData(); as data) {
+        <div class="chart-wrapper">
+          <p-chart
+            type="line"
+            [data]="data"
+            [options]="composturasChartOptions"
+          />
+        </div>
+        <div class="chart-summary">
+          Total: {{ composturasCount() | number }} compostures
+        </div>
+      } @else {
+        <div class="chart-placeholder">
+          <i class="pi pi-inbox"></i>
+          <span>Cap compostura en el període</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

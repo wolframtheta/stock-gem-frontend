@@ -1,0 +1,114 @@
+<div class="user-form-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" (click)="router.navigate(['/users'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-users"></i>
+        {{ userId && userId !== 'new' ? 'Editar Usuari' : 'Afegir Usuari' }}
+      </h1>
+      <p class="subtitle">
+        {{ userId && userId !== 'new' ? 'Modifica les dades de l\'usuari' : 'Completa les dades del nou usuari' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="form-wrapper">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="user-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="Ex: usuari&#64;botiga.cat"
+            [class.ng-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
+          />
+          @if (form.get('email')?.invalid && form.get('email')?.touched) {
+            <small class="p-error">L'email és obligatori i ha de ser vàlid</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="password">{{ userId === 'new' ? 'Contrasenya *' : 'Nova contrasenya (deixar buit per mantenir)' }}</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="Mínim 6 caràcters"
+            [class.ng-invalid]="form.get('password')?.invalid && form.get('password')?.touched"
+          />
+          @if (form.get('password')?.invalid && form.get('password')?.touched) {
+            <small class="p-error">La contrasenya ha de tenir mínim 6 caràcters</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="name">Nom *</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            placeholder="Ex: Joan Garcia"
+            [class.ng-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
+          />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <small class="p-error">El nom és obligatori</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="role">Rol *</label>
+          <select
+            id="role"
+            formControlName="role"
+            [class.ng-invalid]="form.get('role')?.invalid && form.get('role')?.touched"
+          >
+            @for (r of roles; track r) {
+              <option [value]="r">{{ roleLabels[r] }}</option>
+            }
+          </select>
+          @if (form.get('role')?.invalid && form.get('role')?.touched) {
+            <small class="p-error">Selecciona un rol</small>
+          }
+        </div>
+
+        @if (form.get('role')?.value === 'botiga') {
+          <div class="form-group">
+            <label for="fairId">Fira</label>
+            <p-select
+              id="fairId"
+              formControlName="fairId"
+              [options]="fairOptions"
+              optionLabel="label"
+              optionValue="id"
+              placeholder="Seleccionar fira (opcional)"
+              [showClear]="true"
+            />
+            <small class="form-hint">Usuaris de botiga amb fira assignada només veuran vendes, articles i compostures d'aquesta fira.</small>
+          </div>
+        }
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="loading">
+          <i class="pi pi-times"></i>
+          Cancel·lar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || loading">
+          @if (loading) {
+            <i class="pi pi-spin pi-spinner"></i>
+          } @else {
+            <i class="pi pi-check"></i>
+          }
+          {{ userId && userId !== 'new' ? 'Actualitzar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

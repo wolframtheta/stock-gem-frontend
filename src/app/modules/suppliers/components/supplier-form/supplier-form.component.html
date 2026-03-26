@@ -1,0 +1,114 @@
+<div class="supplier-form-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" (click)="router.navigate(['/suppliers'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-building"></i>
+        {{ supplierId && supplierId !== 'new' ? 'Editar Proveïdor' : 'Afegir Proveïdor' }}
+      </h1>
+      <p class="subtitle">
+        {{ supplierId && supplierId !== 'new' ? 'Modifica la informació del proveïdor' : 'Completa les dades del nou proveïdor' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="form-wrapper">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="supplier-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="name">Nom *</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            [class.ng-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
+          />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <small class="p-error">El nom és obligatori</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="surname">Cognom *</label>
+          <input
+            id="surname"
+            type="text"
+            formControlName="surname"
+            [class.ng-invalid]="form.get('surname')?.invalid && form.get('surname')?.touched"
+          />
+          @if (form.get('surname')?.invalid && form.get('surname')?.touched) {
+            <small class="p-error">El cognom és obligatori</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="nif">NIF *</label>
+          <input
+            id="nif"
+            type="text"
+            formControlName="nif"
+            [class.ng-invalid]="form.get('nif')?.invalid && form.get('nif')?.touched"
+          />
+          @if (form.get('nif')?.invalid && form.get('nif')?.touched) {
+            <small class="p-error">El NIF és obligatori</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="exemple@email.com"
+            [class.ng-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
+          />
+          @if (form.get('email')?.invalid && form.get('email')?.touched) {
+            <small class="p-error">Format d'email invàlid</small>
+          }
+        </div>
+
+        <div class="form-group full-width">
+          <label for="address">Adreça</label>
+          <textarea
+            id="address"
+            formControlName="address"
+            rows="3"
+            placeholder="Carrer, número, ciutat, codi postal..."
+          ></textarea>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="phones">Telèfons</label>
+          <input
+            id="phones"
+            type="text"
+            formControlName="phones"
+            placeholder="Ex: 971234567, 612345678"
+          />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="loading">
+          <i class="pi pi-times"></i>
+          Cancel·lar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || loading">
+          @if (loading) {
+            <i class="pi pi-spin pi-spinner"></i>
+          } @else {
+            <i class="pi pi-check"></i>
+          }
+          {{ supplierId && supplierId !== 'new' ? 'Actualitzar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+

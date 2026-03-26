@@ -1,0 +1,64 @@
+<div class="workshop-form-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" (click)="router.navigate(['/workshops'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-wrench"></i>
+        {{ workshopId && workshopId !== 'new' ? 'Editar Taller' : 'Afegir Taller' }}
+      </h1>
+      <p class="subtitle">
+        {{ workshopId && workshopId !== 'new' ? 'Modifica la informació del taller' : 'Completa les dades del nou taller' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="form-wrapper">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="workshop-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="name">Nom *</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            [class.ng-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
+          />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <small class="p-error">El nom és obligatori</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Telèfon</label>
+          <input
+            id="phone"
+            type="text"
+            formControlName="phone"
+            placeholder="Ex: 971234567"
+          />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="loading">
+          <i class="pi pi-times"></i>
+          Cancel·lar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || loading">
+          @if (loading) {
+            <i class="pi pi-spin pi-spinner"></i>
+          } @else {
+            <i class="pi pi-check"></i>
+          }
+          {{ workshopId && workshopId !== 'new' ? 'Actualitzar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+

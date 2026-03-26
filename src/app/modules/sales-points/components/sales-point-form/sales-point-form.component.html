@@ -1,0 +1,90 @@
+<div class="sales-point-form-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" (click)="router.navigate(['/sales-points'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-shop"></i>
+        {{ salesPointId && salesPointId !== 'new' ? 'Editar Punt de Venta' : 'Afegir Punt de Venta' }}
+      </h1>
+      <p class="subtitle">
+        {{ salesPointId && salesPointId !== 'new' ? 'Modifica la informació del punt de venta' : 'Completa les dades del nou punt de venta' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="form-wrapper">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="sales-point-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="code">Codi *</label>
+          <input
+            id="code"
+            type="text"
+            formControlName="code"
+            placeholder="Ex: PRINCIPAL"
+            [class.ng-invalid]="form.get('code')?.invalid && form.get('code')?.touched"
+          />
+          @if (form.get('code')?.invalid && form.get('code')?.touched) {
+            <small class="p-error">El codi és obligatori</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="name">Nom *</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            placeholder="Ex: Botiga Principal"
+            [class.ng-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
+          />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <small class="p-error">El nom és obligatori</small>
+          }
+        </div>
+
+        <div class="form-group full-width">
+          <label for="address">Adreça</label>
+          <textarea
+            id="address"
+            formControlName="address"
+            rows="2"
+            placeholder="Adreça del punt de venta"
+          ></textarea>
+        </div>
+
+        @if (isAdmin) {
+          <div class="form-group full-width">
+            <label for="isDefaultWarehouse">Magatzem per defecte</label>
+            <p-toggleSwitch
+              id="isDefaultWarehouse"
+              formControlName="isDefaultWarehouse"
+              [disabled]="loading"
+            />
+            <small class="form-hint">El magatzem rep la resta d'stock que no està als altres punts</small>
+          </div>
+        }
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="loading">
+          <i class="pi pi-times"></i>
+          Cancel·lar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || loading">
+          @if (loading) {
+            <i class="pi pi-spin pi-spinner"></i>
+          } @else {
+            <i class="pi pi-check"></i>
+          }
+          {{ salesPointId && salesPointId !== 'new' ? 'Actualitzar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

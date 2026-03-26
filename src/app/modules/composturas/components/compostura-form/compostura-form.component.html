@@ -1,0 +1,231 @@
+<div class="compostura-form-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" (click)="router.navigate(['/composturas'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-hammer"></i>
+        {{ composturaId && composturaId !== 'new' ? 'Editar Compostura' : 'Nova Compostura' }}
+      </h1>
+      <p class="subtitle">
+        {{ composturaId && composturaId !== 'new' ? 'Modifica la informació de la compostura' : 'Completa les dades de la nova compostura' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="form-wrapper">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="compostura-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="code">Codi *</label>
+          <input
+            id="code"
+            type="text"
+            formControlName="code"
+            [class.ng-invalid]="form.get('code')?.invalid && form.get('code')?.touched"
+            placeholder="Ex: C2024001"
+          />
+          @if (form.get('code')?.invalid && form.get('code')?.touched) {
+            <small class="p-error">El codi és obligatori</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="clientId">Client *</label>
+          <select
+            id="clientId"
+            formControlName="clientId"
+            [class.ng-invalid]="form.get('clientId')?.invalid && form.get('clientId')?.touched"
+          >
+            <option value="">Selecciona un client</option>
+            @for (client of clients; track client.id) {
+              <option [value]="client.id">{{ client.name }} {{ client.surname }}</option>
+            }
+          </select>
+          @if (form.get('clientId')?.invalid && form.get('clientId')?.touched) {
+            <small class="p-error">El client és obligatori</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="workshopId">Taller</label>
+          <select
+            id="workshopId"
+            formControlName="workshopId"
+          >
+            <option value="">Sense taller</option>
+            @for (workshop of workshops; track workshop.id) {
+              <option [value]="workshop.id">{{ workshop.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="composturaTypeId">Tipus</label>
+          <p-select
+            id="composturaTypeId"
+            formControlName="composturaTypeId"
+            [options]="composturaTypes"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Seleccionar tipus"
+            [showClear]="true"
+          />
+        </div>
+
+        <div class="form-group full-width">
+          <label for="description">Descripció *</label>
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="3"
+            [class.ng-invalid]="form.get('description')?.invalid && form.get('description')?.touched"
+            placeholder="Descriu la reparació necessària..."
+          ></textarea>
+          @if (form.get('description')?.invalid && form.get('description')?.touched) {
+            <small class="p-error">La descripció és obligatòria</small>
+          }
+        </div>
+
+        <div class="form-group full-width">
+          <label for="workToDo">Feina a fer</label>
+          <textarea
+            id="workToDo"
+            formControlName="workToDo"
+            rows="2"
+            placeholder="Descriu el treball que s'ha de fer..."
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="entryDate">Data d'entrada *</label>
+          <input
+            id="entryDate"
+            type="date"
+            formControlName="entryDate"
+            [class.ng-invalid]="form.get('entryDate')?.invalid && form.get('entryDate')?.touched"
+          />
+          @if (form.get('entryDate')?.invalid && form.get('entryDate')?.touched) {
+            <small class="p-error">La data d'entrada és obligatòria</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="deliveryToWorkshopDate">Data entrega al taller</label>
+          <input
+            id="deliveryToWorkshopDate"
+            type="date"
+            formControlName="deliveryToWorkshopDate"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="exitFromWorkshopDate">Data sortida del taller</label>
+          <input
+            id="exitFromWorkshopDate"
+            type="date"
+            formControlName="exitFromWorkshopDate"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="deliveryToClientDate">Data lliurament al client</label>
+          <input
+            id="deliveryToClientDate"
+            type="date"
+            formControlName="deliveryToClientDate"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="cost">Cost (€)</label>
+          <input
+            id="cost"
+            type="number"
+            formControlName="cost"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="pvp">PVP (€) *</label>
+          <input
+            id="pvp"
+            type="number"
+            formControlName="pvp"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="paymentOnAccount">Pagament a compte (€)</label>
+          <input
+            id="paymentOnAccount"
+            type="number"
+            formControlName="paymentOnAccount"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+          />
+        </div>
+
+        <div class="form-group full-width">
+          <label for="photo">Foto</label>
+          
+          @if (showWebcam) {
+            <div class="webcam-container">
+              <video #webcamVideo autoplay playsinline></video>
+              <div class="webcam-actions">
+                <button type="button" class="btn-capture" (click)="capturePhoto()">
+                  <i class="pi pi-camera"></i>
+                  Capturar foto
+                </button>
+                <button type="button" class="btn-cancel-webcam" (click)="stopWebcam()">
+                  <i class="pi pi-times"></i>
+                  Cancel·lar
+                </button>
+              </div>
+            </div>
+          } @else if (capturedImage) {
+            <div class="photo-preview-container">
+              <img [src]="capturedImage" alt="Foto capturada" class="photo-preview" />
+              <button type="button" class="btn-remove-photo" (click)="removePhoto()">
+                <i class="pi pi-trash"></i>
+                Eliminar foto
+              </button>
+            </div>
+          } @else {
+            <button type="button" class="btn-start-webcam" (click)="startWebcam()">
+              <i class="pi pi-camera"></i>
+              Fer foto amb webcam
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="loading">
+          <i class="pi pi-times"></i>
+          Cancel·lar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || loading">
+          @if (loading) {
+            <i class="pi pi-spin pi-spinner"></i>
+          } @else {
+            <i class="pi pi-check"></i>
+          }
+          {{ composturaId && composturaId !== 'new' ? 'Actualitzar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+

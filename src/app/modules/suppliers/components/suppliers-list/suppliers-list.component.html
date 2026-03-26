@@ -1,0 +1,123 @@
+<div class="suppliers-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button class="btn-back" (click)="router.navigate(['/'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-building"></i>
+        Els Teus Proveïdors
+      </h1>
+      <p class="subtitle">Gestiona les empreses que et venen materials</p>
+    </div>
+    <button class="btn-primary" (click)="router.navigate(['/suppliers/new'])">
+      <i class="pi pi-plus"></i>
+      Afegir Proveïdor
+    </button>
+  </div>
+
+  <div class="search-section">
+    <div class="search-box">
+      <i class="pi pi-search"></i>
+      <input
+        type="text"
+        placeholder="Cercar per nom o telèfon..."
+        [(ngModel)]="searchText"
+        (keyup.enter)="search()"
+        class="search-input"
+      />
+    </div>
+    <div class="search-actions">
+      <button class="btn-search" (click)="search()">
+        <i class="pi pi-search"></i>
+        Cercar
+      </button>
+      <button class="btn-clear" (click)="clearSearch()">
+        <i class="pi pi-times"></i>
+        Netejar
+      </button>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner text-brand-primary" style="font-size: 2rem"></i>
+      <p>Carregant proveïdors...</p>
+    </div>
+  } @else if (suppliers.length === 0) {
+    <app-empty-state
+      icon="pi pi-building"
+      title="No hi ha proveïdors"
+      description="Comença afegint el teu primer proveïdor"
+      buttonText="Afegir Primer Proveïdor"
+      [buttonRoute]="'/suppliers/new'"
+    ></app-empty-state>
+  } @else {
+    <div class="suppliers-grid">
+      @for (supplier of suppliers; track supplier.id) {
+        <div class="supplier-card">
+          <div class="card-header-section">
+            <div class="supplier-icon">
+              <i class="pi pi-building"></i>
+            </div>
+            <div class="supplier-actions">
+              <button class="btn-icon" (click)="editSupplier(supplier)" title="Editar">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="btn-icon btn-danger" (click)="confirmDelete(supplier)" title="Eliminar">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="card-body">
+            <h3>{{ supplier.name }} {{ supplier.surname }}</h3>
+            
+            <div class="supplier-details">
+              @if (supplier.nif) {
+                <div class="detail-item">
+                  <i class="pi pi-id-card"></i>
+                  <span>NIF: {{ supplier.nif }}</span>
+                </div>
+              }
+              
+              @if (supplier.phones) {
+                <div class="detail-item">
+                  <i class="pi pi-phone"></i>
+                  <span>{{ supplier.phones }}</span>
+                </div>
+              }
+              
+              @if (supplier.email) {
+                <div class="detail-item">
+                  <i class="pi pi-envelope"></i>
+                  <span>{{ supplier.email }}</span>
+                </div>
+              }
+              
+              @if (supplier.address) {
+                <div class="detail-item">
+                  <i class="pi pi-map-marker"></i>
+                  <span>{{ supplier.address }}</span>
+                </div>
+              }
+              
+              @if (!supplier.nif && !supplier.phones && !supplier.email && !supplier.address) {
+                <div class="detail-item no-info">
+                  <i class="pi pi-info-circle"></i>
+                  <span>Informació bàsica registrada</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<p-confirmDialog></p-confirmDialog>
+

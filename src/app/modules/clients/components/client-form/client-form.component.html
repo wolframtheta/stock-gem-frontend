@@ -1,0 +1,87 @@
+<div class="client-form-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" (click)="router.navigate(['/clients'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-user"></i>
+        {{ clientId && clientId !== 'new' ? 'Editar Client' : 'Afegir Client' }}
+      </h1>
+      <p class="subtitle">
+        {{ clientId && clientId !== 'new' ? 'Modifica la informació del client' : 'Completa les dades del nou client' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="form-wrapper">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="client-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="name">Nom *</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            [class.ng-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
+          />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <small class="p-error">El nom és obligatori</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="surname">Cognom *</label>
+          <input
+            id="surname"
+            type="text"
+            formControlName="surname"
+            [class.ng-invalid]="form.get('surname')?.invalid && form.get('surname')?.touched"
+          />
+          @if (form.get('surname')?.invalid && form.get('surname')?.touched) {
+            <small class="p-error">El cognom és obligatori</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="mobilePhone">Telèfon Mòbil</label>
+          <input
+            id="mobilePhone"
+            type="text"
+            formControlName="mobilePhone"
+            placeholder="Ex: 612345678"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="landlinePhone">Telèfon Fix</label>
+          <input
+            id="landlinePhone"
+            type="text"
+            formControlName="landlinePhone"
+            placeholder="Ex: 971234567"
+          />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="loading">
+          <i class="pi pi-times"></i>
+          Cancel·lar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || loading">
+          @if (loading) {
+            <i class="pi pi-spin pi-spinner"></i>
+          } @else {
+            <i class="pi pi-check"></i>
+          }
+          {{ clientId && clientId !== 'new' ? 'Actualitzar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+

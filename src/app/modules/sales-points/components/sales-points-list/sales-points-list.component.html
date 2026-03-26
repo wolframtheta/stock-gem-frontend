@@ -1,0 +1,73 @@
+<div class="sales-points-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button class="btn-back" (click)="router.navigate(['/'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-shop"></i>
+        Punts de Venta
+      </h1>
+      <p class="subtitle">Gestiona les botigues i assigna l'stock per punt</p>
+    </div>
+    <button class="btn-primary" (click)="router.navigate(['/sales-points/new'])">
+      <i class="pi pi-plus"></i>
+      Afegir Punt de Venta
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner text-brand-primary" style="font-size: 2rem"></i>
+      <p>Carregant punts de venta...</p>
+    </div>
+  } @else if (salesPoints().length === 0) {
+    <app-empty-state
+      icon="pi pi-shop"
+      title="No hi ha punts de venta"
+      description="Comença afegint el teu primer punt de venta"
+      buttonText="Afegir Primer Punt de Venta"
+      [buttonRoute]="'/sales-points/new'"
+    ></app-empty-state>
+  } @else {
+    <div class="sales-points-grid">
+      @for (sp of salesPoints(); track sp.id) {
+        <div class="sales-point-card">
+          <div class="card-header-section">
+            <div class="sales-point-icon">
+              <i class="pi pi-shop"></i>
+            </div>
+            <div class="sales-point-actions">
+              <button class="btn-icon" (click)="manageStock(sp)" title="Gestionar stock">
+                <i class="pi pi-box"></i>
+              </button>
+              <button class="btn-icon" (click)="editSalesPoint(sp)" title="Editar">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="btn-icon btn-danger" (click)="confirmDelete(sp)" title="Eliminar">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <h3>{{ sp.name }}</h3>
+            <span class="sales-point-code">{{ sp.code }}</span>
+
+            @if (sp.address) {
+              <div class="detail-item">
+                <i class="pi pi-map-marker"></i>
+                <span>{{ sp.address }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<p-confirmDialog></p-confirmDialog>

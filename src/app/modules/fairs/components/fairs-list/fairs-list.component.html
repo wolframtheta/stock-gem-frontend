@@ -1,0 +1,53 @@
+<div class="fairs-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" routerLink="/">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1><i class="pi pi-calendar"></i> Fires</h1>
+      <p class="subtitle">Gestiona les fires i el stock que hi portes</p>
+    </div>
+    <button type="button" class="btn-primary" routerLink="/fairs/new">
+      <i class="pi pi-plus"></i>
+      Nova fira
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner text-brand-primary" style="font-size: 2rem"></i>
+      <p>Carregant...</p>
+    </div>
+  } @else if (fairs().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-calendar"></i>
+      <p>No hi ha fires. Crea una per començar.</p>
+      <a routerLink="/fairs/new" class="btn-primary">Nova fira</a>
+    </div>
+  } @else {
+    <div class="fairs-grid">
+      @for (fair of fairs(); track fair.id) {
+        <div class="fair-card" [routerLink]="['/fairs', fair.id]" role="button">
+          <div class="fair-header">
+            <h3>{{ fair.name }}</h3>
+            <div class="fair-actions" (click)="$event.stopPropagation()">
+              <button type="button" class="btn-icon" [routerLink]="['/fairs', fair.id, 'stock']" title="Stock">
+                <i class="pi pi-box"></i>
+              </button>
+              <button type="button" class="btn-icon" [routerLink]="['/fairs', fair.id, 'edit']" title="Editar">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button type="button" class="btn-icon btn-danger" (click)="deleteFair(fair.id)" title="Eliminar">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+          <p class="fair-dates">{{ formatDate(fair.startDate) }} - {{ formatDate(fair.endDate) }}</p>
+        </div>
+      }
+    </div>
+  }
+</div>

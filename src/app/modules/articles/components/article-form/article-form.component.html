@@ -1,0 +1,273 @@
+<div class="article-form-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" (click)="router.navigate(['/articles'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-sparkles"></i>
+        {{ articleId && articleId !== 'new' ? 'Editar Article' : 'Afegir Article' }}
+      </h1>
+      <p class="subtitle">
+        {{ articleId && articleId !== 'new' ? 'Modifica la informació de l\'article' : 'Completa les dades del nou article' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="form-wrapper">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="article-form">
+      <div class="form-grid">
+      <div class="form-group">
+        <label for="ownReference">Referència Pròpia *</label>
+        <input
+          id="ownReference"
+          type="text"
+          formControlName="ownReference"
+          [class.ng-invalid]="form.get('ownReference')?.invalid && form.get('ownReference')?.touched"
+        />
+        @if (form.get('ownReference')?.invalid && form.get('ownReference')?.touched) {
+          <small class="p-error">La referència pròpia és obligatòria</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="supplierReference">Referència Proveïdor</label>
+        <input
+          id="supplierReference"
+          type="text"
+          formControlName="supplierReference"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="family">Família</label>
+        <input
+          id="family"
+          type="text"
+          formControlName="family"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="subfamily">Subfamília</label>
+        <input
+          id="subfamily"
+          type="text"
+          formControlName="subfamily"
+        />
+      </div>
+
+      <div class="form-group full-width">
+        <label for="description">Descripció *</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          rows="3"
+          [class.ng-invalid]="form.get('description')?.invalid && form.get('description')?.touched"
+        ></textarea>
+        @if (form.get('description')?.invalid && form.get('description')?.touched) {
+          <small class="p-error">La descripció és obligatòria</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="shortDescription">Descripció Curta</label>
+        <input
+          id="shortDescription"
+          type="text"
+          formControlName="shortDescription"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="cost">Cost *</label>
+        <input
+          id="cost"
+          type="number"
+          step="0.01"
+          min="0"
+          formControlName="cost"
+          [class.ng-invalid]="form.get('cost')?.invalid && form.get('cost')?.touched"
+        />
+        @if (form.get('cost')?.invalid && form.get('cost')?.touched) {
+          <small class="p-error">El cost és obligatori i ha de ser major o igual a 0</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="pvp">PVP *</label>
+        <input
+          id="pvp"
+          type="number"
+          step="0.01"
+          min="0"
+          formControlName="pvp"
+          [class.ng-invalid]="form.get('pvp')?.invalid && form.get('pvp')?.touched"
+        />
+        @if (form.get('pvp')?.invalid && form.get('pvp')?.touched) {
+          <small class="p-error">El PVP és obligatori i ha de ser major o igual a 0</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="stock">Stock</label>
+        <input
+          id="stock"
+          type="number"
+          min="0"
+          formControlName="stock"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="weight">Pes/Quilats</label>
+        <input
+          id="weight"
+          type="number"
+          step="0.001"
+          min="0"
+          formControlName="weight"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="margin">Marge</label>
+        <input
+          id="margin"
+          type="number"
+          step="0.01"
+          formControlName="margin"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="taxBase">Base Imposable</label>
+        <input
+          id="taxBase"
+          type="number"
+          step="0.01"
+          min="0"
+          formControlName="taxBase"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="collectionId">Col·lecció</label>
+        <div class="select-with-add">
+          <div class="select-wrap">
+            <p-select
+              id="collectionId"
+              formControlName="collectionId"
+              [options]="collections"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Seleccionar col·lecció"
+              [showClear]="true"
+            />
+          </div>
+          <button type="button" class="btn-icon-add" (click)="openAddModal('collection')" title="Nova col·lecció">
+            <i class="pi pi-plus"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="articleTypeId">Tipus</label>
+        <div class="select-with-add">
+          <div class="select-wrap">
+            <p-select
+              id="articleTypeId"
+              formControlName="articleTypeId"
+              [options]="articleTypes"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Seleccionar tipus"
+              [showClear]="true"
+            />
+          </div>
+          <button type="button" class="btn-icon-add" (click)="openAddModal('articleType')" title="Nou tipus">
+            <i class="pi pi-plus"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="supplierId">Proveïdor</label>
+        <select
+          id="supplierId"
+          formControlName="supplierId"
+        >
+          <option [value]="null">Seleccionar proveïdor</option>
+          @for (supplier of suppliers; track supplier.id) {
+            <option [value]="supplier.id">
+              {{ supplier.name }} {{ supplier.surname }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="barcode">Codi de Barres</label>
+        <input
+          id="barcode"
+          type="text"
+          formControlName="barcode"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="photo">Foto (URL)</label>
+        <input
+          id="photo"
+          type="text"
+          formControlName="photo"
+        />
+      </div>
+
+      <div class="form-group full-width">
+        <label for="observations">Observacions</label>
+        <textarea
+          id="observations"
+          formControlName="observations"
+          rows="4"
+        ></textarea>
+      </div>
+    </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="loading">
+          <i class="pi pi-times"></i>
+          Cancel·lar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || loading">
+          @if (loading) {
+            <i class="pi pi-spin pi-spinner"></i>
+          } @else {
+            <i class="pi pi-check"></i>
+          }
+          {{ articleId && articleId !== 'new' ? 'Actualitzar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<p-dialog
+  [header]="addModalType === 'collection' ? 'Nova col·lecció' : 'Nou tipus'"
+  [visible]="addModalVisible"
+  (visibleChange)="addModalVisible = $event"
+  [modal]="true"
+  [style]="{ width: '350px' }"
+  (onHide)="closeAddModal()"
+>
+  <input type="text" pInputText [(ngModel)]="addModalName" placeholder="Nom" class="w-full" />
+  <ng-template pTemplate="footer">
+    <button type="button" pButton label="Cancel·lar" class="p-button-text" (click)="closeAddModal()"></button>
+    <button type="button" pButton label="Crear" (click)="saveAddModal()" [disabled]="!addModalName.trim()"></button>
+  </ng-template>
+</p-dialog>
+
+

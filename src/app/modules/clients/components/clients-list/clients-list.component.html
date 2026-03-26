@@ -1,0 +1,109 @@
+<div class="clients-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button class="btn-back" (click)="router.navigate(['/'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-user"></i>
+        Els Teus Clients
+      </h1>
+      <p class="subtitle">Gestiona la informació dels teus clients</p>
+    </div>
+    <button class="btn-primary" (click)="router.navigate(['/clients/new'])">
+      <i class="pi pi-plus"></i>
+      Afegir Client
+    </button>
+  </div>
+
+  <div class="search-section">
+    <div class="search-box">
+      <i class="pi pi-search"></i>
+      <input
+        type="text"
+        placeholder="Cercar per nom o telèfon..."
+        [(ngModel)]="searchText"
+        (keyup.enter)="search()"
+        class="search-input"
+      />
+    </div>
+    <div class="search-actions">
+      <button class="btn-search" (click)="search()">
+        <i class="pi pi-search"></i>
+        Cercar
+      </button>
+      <button class="btn-clear" (click)="clearSearch()">
+        <i class="pi pi-times"></i>
+        Netejar
+      </button>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner text-brand-primary" style="font-size: 2rem"></i>
+      <p>Carregant clients...</p>
+    </div>
+  } @else if (clients.length === 0) {
+    <app-empty-state
+      icon="pi pi-user"
+      title="No hi ha clients"
+      description="Comença afegint el teu primer client"
+      buttonText="Afegir Primer Client"
+      [buttonRoute]="'/clients/new'"
+    ></app-empty-state>
+  } @else {
+    <div class="clients-grid">
+      @for (client of clients; track client.id) {
+        <div class="client-card">
+          <div class="card-header-section">
+            <div class="client-icon">
+              <i class="pi pi-user"></i>
+            </div>
+            <div class="client-actions">
+              <button class="btn-icon" (click)="editClient(client)" title="Editar">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="btn-icon btn-danger" (click)="confirmDelete(client)" title="Eliminar">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="card-body">
+            <h3>{{ client.name }} {{ client.surname }}</h3>
+            
+            <div class="client-details">
+              @if (client.mobilePhone) {
+                <div class="detail-item">
+                  <i class="pi pi-mobile"></i>
+                  <span>{{ client.mobilePhone }}</span>
+                </div>
+              }
+              
+              @if (client.landlinePhone) {
+                <div class="detail-item">
+                  <i class="pi pi-phone"></i>
+                  <span>{{ client.landlinePhone }}</span>
+                </div>
+              }
+              
+              @if (!client.mobilePhone && !client.landlinePhone) {
+                <div class="detail-item no-info">
+                  <i class="pi pi-info-circle"></i>
+                  <span>Sense telèfon registrat</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<p-confirmDialog></p-confirmDialog>
+

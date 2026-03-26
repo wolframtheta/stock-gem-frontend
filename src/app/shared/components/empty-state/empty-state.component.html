@@ -1,0 +1,21 @@
+<div class="empty-state">
+  <i [class]="icon + ' text-brand-muted'" style="font-size: 4rem"></i>
+  <h2>{{ title }}</h2>
+  @if (description) {
+    <p>{{ description }}</p>
+  }
+  @if (showButton && buttonText) {
+    @if (buttonRoute) {
+      <button class="btn-primary" [routerLink]="buttonRoute">
+        <i class="pi pi-plus"></i>
+        {{ buttonText }}
+      </button>
+    } @else {
+      <button class="btn-primary" (click)="onButtonClick()">
+        <i class="pi pi-plus"></i>
+        {{ buttonText }}
+      </button>
+    }
+  }
+</div>
+

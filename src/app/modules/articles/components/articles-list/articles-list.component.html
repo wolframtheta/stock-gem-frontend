@@ -1,0 +1,135 @@
+<div class="articles-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button class="btn-back" (click)="router.navigate(['/'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-sparkles"></i>
+        Els Teus Articles
+      </h1>
+      <p class="subtitle">Gestiona les teves joies i productes</p>
+    </div>
+    @if (!isBotiga()) {
+      <button class="btn-primary" (click)="router.navigate(['/articles/new'])">
+        <i class="pi pi-plus"></i>
+        Afegir Article
+      </button>
+    }
+  </div>
+
+  <div class="search-section">
+    <div class="search-box">
+      <i class="pi pi-search"></i>
+      <input
+        type="text"
+        placeholder="Cercar per referència..."
+        [(ngModel)]="searchOwnRef"
+        (keyup.enter)="search()"
+        class="search-input"
+      />
+    </div>
+    <div class="search-actions">
+      <button class="btn-search" (click)="search()">
+        <i class="pi pi-search"></i>
+        Cercar
+      </button>
+      <button class="btn-clear" (click)="clearSearch()">
+        <i class="pi pi-times"></i>
+        Netejar
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner text-brand-primary" style="font-size: 2rem"></i>
+      <p>Carregant articles...</p>
+    </div>
+  } @else if (articles().length === 0) {
+    <app-empty-state
+      icon="pi pi-sparkles"
+      title="No hi ha articles"
+      description="Comença afegint el teu primer article"
+      buttonText="Afegir Primer Article"
+      [buttonRoute]="'/articles/new'"
+    ></app-empty-state>
+  } @else {
+    <div class="articles-grid">
+      @for (article of articles(); track article.id) {
+        <div class="article-card" (click)="viewArticle(article)" role="button" tabindex="0" (keydown.enter)="viewArticle(article)">
+          <div class="card-header-section">
+            <div class="article-icon">
+              <i class="pi pi-sparkles"></i>
+            </div>
+            @if (!isBotiga()) {
+              <div class="article-actions">
+                <button type="button" class="btn-icon" (click)="editArticle(article); $event.stopPropagation()" title="Editar">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button type="button" class="btn-icon btn-danger" (click)="confirmDelete(article); $event.stopPropagation()" title="Eliminar">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+            }
+          </div>
+          
+          <div class="card-body">
+            <h3>{{ article.ownReference }}</h3>
+            <p class="description">{{ article.description }}</p>
+            
+            <div class="article-details">
+              @if (article.supplierReference) {
+                <div class="detail-item">
+                  <i class="pi pi-tag"></i>
+                  <span>Ref. Proveïdor: {{ article.supplierReference }}</span>
+                </div>
+              }
+              
+              @if (article.family) {
+                <div class="detail-item">
+                  <i class="pi pi-folder"></i>
+                  <span>{{ article.family }}</span>
+                  @if (article.subfamily) {
+                    <span class="subfamily"> / {{ article.subfamily }}</span>
+                  }
+                </div>
+              }
+              
+              @if (article.supplier) {
+                <div class="detail-item">
+                  <i class="pi pi-building"></i>
+                  <span>{{ article.supplier.name }} {{ article.supplier.surname }}</span>
+                </div>
+              }
+            </div>
+            
+            <div class="article-footer">
+              <div class="price-info">
+                <div class="price-item">
+                  <span class="price-label">Cost:</span>
+                  <span class="price-value">{{ formatCurrency(article.cost) }}</span>
+                </div>
+                <div class="price-item">
+                  <span class="price-label">Preu:</span>
+                  <span class="price-value price-sale">{{ formatCurrency(article.pvp) }}</span>
+                </div>
+              </div>
+              
+              <div class="stock-badge" [class.stock-ok]="getDisplayQuantity(article) > 0" [class.stock-zero]="getDisplayQuantity(article) === 0">
+                <i class="pi pi-box"></i>
+                <span>{{ getDisplayQuantity(article) }} unitats{{ isBotiga() ? ' a la fira' : '' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<p-confirmDialog></p-confirmDialog>
+

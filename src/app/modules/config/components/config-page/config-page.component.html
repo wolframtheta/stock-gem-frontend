@@ -1,0 +1,136 @@
+<div class="config-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-top">
+        <button type="button" class="btn-back" (click)="router.navigate(['/'])">
+          <i class="pi pi-arrow-left"></i>
+          Tornar
+        </button>
+      </div>
+      <h1>
+        <i class="pi pi-cog"></i>
+        Configuració
+      </h1>
+      <p class="subtitle">Col·leccions, tipus d'articles i tipus de compostures</p>
+    </div>
+  </div>
+
+  <div class="config-sections">
+    <div class="config-section">
+      <h2>Col·leccions</h2>
+      <p class="section-desc">Ex: Silvestre, Aigua...</p>
+      <button type="button" class="btn-primary" (click)="openCreate('collection')">
+        <i class="pi pi-plus"></i>
+        Nova col·lecció
+      </button>
+      <div class="table-section">
+        @if (collections().length === 0) {
+          <p class="empty">Cap col·lecció</p>
+        } @else {
+          <table class="config-table">
+            @for (item of collections(); track item.id) {
+              <tr>
+                <td>{{ item.name }}</td>
+                <td class="actions">
+                  <button type="button" class="btn-icon" (click)="openEdit('collection', item)">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button type="button" class="btn-icon btn-danger" (click)="confirmDelete('collection', item)">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </table>
+        }
+      </div>
+    </div>
+
+    <div class="config-section">
+      <h2>Tipus d'article</h2>
+      <p class="section-desc">Ex: Polsera, anell, penjoll...</p>
+      <button type="button" class="btn-primary" (click)="openCreate('articleType')">
+        <i class="pi pi-plus"></i>
+        Nou tipus
+      </button>
+      <div class="table-section">
+        @if (articleTypes().length === 0) {
+          <p class="empty">Cap tipus d'article</p>
+        } @else {
+          <table class="config-table">
+            @for (item of articleTypes(); track item.id) {
+              <tr>
+                <td>{{ item.name }}</td>
+                <td class="actions">
+                  <button type="button" class="btn-icon" (click)="openEdit('articleType', item)">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button type="button" class="btn-icon btn-danger" (click)="confirmDelete('articleType', item)">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </table>
+        }
+      </div>
+    </div>
+
+    <div class="config-section">
+      <h2>Tipus de compostura</h2>
+      <p class="section-desc">Ex: Arreglos, Aliances, Peça personalitzada...</p>
+      <button type="button" class="btn-primary" (click)="openCreate('composturaType')">
+        <i class="pi pi-plus"></i>
+        Nou tipus
+      </button>
+      <div class="table-section">
+        @if (composturaTypes().length === 0) {
+          <p class="empty">Cap tipus de compostura</p>
+        } @else {
+          <table class="config-table">
+            @for (item of composturaTypes(); track item.id) {
+              <tr>
+                <td>{{ item.name }}</td>
+                <td class="actions">
+                  <button type="button" class="btn-icon" (click)="openEdit('composturaType', item)">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button type="button" class="btn-icon btn-danger" (click)="confirmDelete('composturaType', item)">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </table>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  [header]="getDialogTitle()"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '400px' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="closeDialog()"
+>
+  <div class="dialog-content">
+    <label for="editName">Nom</label>
+    <input
+      id="editName"
+      type="text"
+      pInputText
+      [(ngModel)]="editName"
+      placeholder="Nom"
+      class="w-full"
+    />
+  </div>
+  <ng-template pTemplate="footer">
+    <button type="button" pButton label="Cancel·lar" class="p-button-text" (click)="closeDialog()"></button>
+    <button type="button" pButton label="Guardar" (click)="saveDialog()" [disabled]="!editName.trim() || loading()"></button>
+  </ng-template>
+</p-dialog>
