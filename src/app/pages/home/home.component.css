@@ -10,6 +10,15 @@
   padding: 2rem 1rem;
 }
 
+.home-logo {
+  display: block;
+  max-width: min(280px, 88vw);
+  width: 100%;
+  height: auto;
+  margin: 0 auto 1.25rem;
+  object-fit: contain;
+}
+
 .header-row {
   display: flex;
   align-items: center;
@@ -28,16 +37,6 @@
   margin: 0 0 1rem 0;
   color: var(--color-text);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-
-.welcome-content h1 .pi {
-  font-size: 2.25rem;
-  opacity: 0.9;
 }
 
 .welcome-text {

@@ -31,16 +31,15 @@ function getExplicitEnvFile(argv) {
  * @param {string[]} argv
  */
 function inferEnvFile(argv) {
-  const cmd = argv[0];
   const cIdx = argv.findIndex((a) => a === '--configuration' || a === '-c');
   const configValue = cIdx !== -1 ? argv[cIdx + 1] : null;
   const configs = configValue?.split(',').map((s) => s.trim()) ?? [];
 
-  if (cmd === 'build') {
-    if (configs.includes('development')) return '.env';
-    if (configs.includes('production')) return '.env.pro';
-    return '.env.pro';
-  }
+  if (configs.includes('development')) return '.env';
+  if (configs.includes('production')) return '.env.pro';
+
+  const cmd = argv[0];
+  if (cmd === 'build') return '.env.pro';
 
   return '.env';
 }

@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "node scripts/ng-with-env.mjs",
-    "start": "node scripts/ng-with-env.mjs serve --configuration development",
+    "start": "node scripts/ng-with-env.mjs serve --configuration development --port 4300",
+    "start:pro": "node scripts/ng-with-env.mjs serve --configuration production --port 4300",
     "build": "node scripts/ng-with-env.mjs build",
     "build:dev": "node scripts/ng-with-env.mjs build --configuration development",
     "watch": "node scripts/ng-with-env.mjs build --watch --configuration development",
