@@ -21,19 +21,6 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="article-form">
       <div class="form-grid">
       <div class="form-group">
-        <label for="ownReference">Codi *</label>
-        <input
-          id="ownReference"
-          type="text"
-          formControlName="ownReference"
-          [class.ng-invalid]="form.get('ownReference')?.invalid && form.get('ownReference')?.touched"
-        />
-        @if (form.get('ownReference')?.invalid && form.get('ownReference')?.touched) {
-          <small class="p-error">El codi és obligatori</small>
-        }
-      </div>
-
-      <div class="form-group full-width">
         <label for="description">Nom *</label>
         <input
           id="description"
@@ -47,114 +34,278 @@
       </div>
 
       <div class="form-group">
-        <label for="cost">Cost</label>
+        <label for="ownReference">Codi *</label>
         <input
-          id="cost"
-          type="number"
-          step="0.01"
-          min="0"
-          formControlName="cost"
-          [class.ng-invalid]="form.get('cost')?.invalid && form.get('cost')?.touched"
+          id="ownReference"
+          type="text"
+          formControlName="ownReference"
+          [class.ng-invalid]="form.get('ownReference')?.invalid && form.get('ownReference')?.touched"
         />
-        @if (form.get('cost')?.invalid && form.get('cost')?.touched) {
-          <small class="p-error">El cost ha de ser major o igual a 0</small>
+        @if (form.get('ownReference')?.invalid && form.get('ownReference')?.touched) {
+          <small class="p-error">El codi és obligatori</small>
         }
       </div>
 
-      <div class="form-group">
-        <label for="pvp">PVP *</label>
-        <input
-          id="pvp"
-          type="number"
-          step="0.01"
-          min="0"
-          formControlName="pvp"
-          [class.ng-invalid]="form.get('pvp')?.invalid && form.get('pvp')?.touched"
-        />
-        @if (form.get('pvp')?.invalid && form.get('pvp')?.touched) {
-          <small class="p-error">El PVP és obligatori i ha de ser major o igual a 0</small>
-        }
-      </div>
+      <div class="meta-grid">
+        <div class="form-group">
+          <label for="cost">Cost</label>
+          <p-inputNumber
+            inputId="cost"
+            formControlName="cost"
+            mode="decimal"
+            [min]="0"
+            [minFractionDigits]="2"
+            [maxFractionDigits]="2"
+            [useGrouping]="false"
+            locale="ca-ES"
+            styleClass="numeric-field"
+            [class.ng-invalid]="form.get('cost')?.invalid && form.get('cost')?.touched"
+          />
+          @if (form.get('cost')?.invalid && form.get('cost')?.touched) {
+            <small class="p-error">El cost ha de ser major o igual a 0</small>
+          }
+        </div>
 
-      <div class="form-group">
-        <label for="stock">Stock</label>
-        <input
-          id="stock"
-          type="number"
-          min="0"
-          formControlName="stock"
-        />
-      </div>
+        <div class="form-group">
+          <label for="pvp">PVP *</label>
+          <p-inputNumber
+            inputId="pvp"
+            formControlName="pvp"
+            mode="decimal"
+            [min]="0"
+            [minFractionDigits]="2"
+            [maxFractionDigits]="2"
+            [useGrouping]="false"
+            locale="ca-ES"
+            styleClass="numeric-field"
+            [class.ng-invalid]="form.get('pvp')?.invalid && form.get('pvp')?.touched"
+          />
+          @if (form.get('pvp')?.invalid && form.get('pvp')?.touched) {
+            <small class="p-error">El PVP és obligatori i ha de ser major o igual a 0</small>
+          }
+        </div>
 
-      <div class="form-group">
-        <label for="collectionId">Col·lecció</label>
-        <div class="select-with-add">
-          <div class="select-wrap">
-            <p-select
-              id="collectionId"
-              formControlName="collectionId"
-              [options]="collections"
-              optionLabel="name"
-              optionValue="id"
-              placeholder="Seleccionar col·lecció"
-              [showClear]="true"
-            />
+        <div class="form-group">
+          <label for="collectionId">Col·lecció</label>
+          <div class="select-with-add">
+            <div class="select-flex">
+              <p-select
+                id="collectionId"
+                formControlName="collectionId"
+                [options]="collections"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Seleccionar col·lecció"
+                [showClear]="true"
+              />
+            </div>
+            <button type="button" class="btn-icon-add" (click)="openAddModal('collection')" title="Nova col·lecció" aria-label="Nova col·lecció">
+              <i class="pi pi-plus" aria-hidden="true"></i>
+            </button>
           </div>
-          <button type="button" class="btn-icon-add" (click)="openAddModal('collection')" title="Nova col·lecció" aria-label="Nova col·lecció">
-            <i class="pi pi-plus" aria-hidden="true"></i>
-          </button>
+        </div>
+
+        <div class="form-group">
+          <label for="articleTypeId">Tipus de peça</label>
+          <div class="select-with-add">
+            <div class="select-flex">
+              <p-select
+                id="articleTypeId"
+                formControlName="articleTypeId"
+                [options]="articleTypes"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Seleccionar tipus de peça"
+                [showClear]="true"
+              />
+            </div>
+            <button type="button" class="btn-icon-add" (click)="openAddModal('articleType')" title="Nou tipus de peça" aria-label="Nou tipus de peça">
+              <i class="pi pi-plus" aria-hidden="true"></i>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="articleTypeId">Tipus de peça</label>
-        <div class="select-with-add">
-          <div class="select-wrap">
-            <p-select
-              id="articleTypeId"
-              formControlName="articleTypeId"
-              [options]="articleTypes"
-              optionLabel="name"
-              optionValue="id"
-              placeholder="Seleccionar tipus de peça"
-              [showClear]="true"
+      <div class="stock-controls-row">
+        <div class="stock-toggle-cell">
+          <div class="has-sizes-toggle">
+            <label for="hasSizes">Article amb talles</label>
+            <p-toggleSwitch
+              inputId="hasSizes"
+              [(ngModel)]="hasSizes"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="onHasSizesChange($event)"
+              [disabled]="loading"
             />
           </div>
-          <button type="button" class="btn-icon-add" (click)="openAddModal('articleType')" title="Nou tipus de peça" aria-label="Nou tipus de peça">
-            <i class="pi pi-plus" aria-hidden="true"></i>
-          </button>
+        </div>
+
+        <div class="form-group stock-input-cell">
+          <label for="stock">Stock</label>
+          <p-inputNumber
+            inputId="stock"
+            formControlName="stock"
+            [min]="0"
+            [useGrouping]="false"
+            [minFractionDigits]="0"
+            [maxFractionDigits]="0"
+            locale="ca-ES"
+            [styleClass]="hasSizes ? 'numeric-field stock-readonly' : 'numeric-field'"
+            [attr.aria-describedby]="hasSizes ? 'stockHint' : null"
+            [attr.aria-readonly]="hasSizes ? true : null"
+          />
+          @if (hasSizes) {
+            <small id="stockHint" class="field-hint" aria-live="polite">
+              Calculat automàticament: {{ computedStockTotal }} unitats
+            </small>
+          }
         </div>
       </div>
+
+      @if (hasSizes) {
+        <div
+          class="form-group full-width sizes-section"
+          role="group"
+          aria-labelledby="sizesLegend"
+        >
+          <span
+            #sizesSectionTitle
+            id="sizesLegend"
+            class="field-label"
+            tabindex="-1"
+          >
+            Talles
+          </span>
+
+          @if (sizesError) {
+            <p id="sizesError" class="p-error" role="alert">{{ sizesError }}</p>
+          }
+
+          @if (sizes.length === 0) {
+            <p class="field-hint" aria-live="polite">Afegeix almenys una talla</p>
+          } @else {
+            <table class="sizes-table">
+              <caption class="sr-only">Talles i quantitats de magatzem</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Nom de la talla</th>
+                  <th scope="col" class="sizes-qty-col">Quantitat</th>
+                  <th scope="col" class="sizes-action-col">
+                    <span class="sr-only">Accions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (size of sizes; track $index; let i = $index) {
+                  <tr>
+                    <td>
+                      <div class="size-field-wrap">
+                        <label class="sr-only" [for]="'size-label-' + i">Nom de la talla</label>
+                        <input
+                          [id]="'size-label-' + i"
+                          type="text"
+                          class="size-input"
+                          [(ngModel)]="size.label"
+                          [ngModelOptions]="{ standalone: true }"
+                          maxlength="50"
+                          [attr.aria-invalid]="sizesError ? true : null"
+                          [attr.aria-describedby]="sizesError ? 'sizesError' : null"
+                        />
+                      </div>
+                    </td>
+                    <td class="sizes-qty-col">
+                      <div class="size-field-wrap">
+                        <label class="sr-only" [for]="'size-qty-' + i">Quantitat</label>
+                        <input
+                          [id]="'size-qty-' + i"
+                          type="number"
+                          class="size-input size-input-qty"
+                          min="0"
+                          step="1"
+                          [(ngModel)]="size.warehouseQuantity"
+                          [ngModelOptions]="{ standalone: true }"
+                          (ngModelChange)="onSizeQuantityChange()"
+                        />
+                      </div>
+                    </td>
+                    <td class="sizes-action-col">
+                      <div class="size-field-wrap size-field-wrap-action">
+                        <button
+                          type="button"
+                          class="btn-remove-size"
+                          (click)="removeSizeRow(i)"
+                          [disabled]="!canRemoveSize(size)"
+                          [attr.aria-label]="'Eliminar talla ' + (size.label || 'sense nom')"
+                          [attr.aria-describedby]="!canRemoveSize(size) ? 'size-remove-hint-' + i : null"
+                        >
+                          <i class="pi pi-times" aria-hidden="true"></i>
+                        </button>
+                      </div>
+                      @if (!canRemoveSize(size)) {
+                        <small [id]="'size-remove-hint-' + i" class="field-hint size-remove-hint">
+                          No es pot eliminar mentre hi hagi stock
+                        </small>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+
+          <button type="button" class="btn-secondary btn-add-size" (click)="addSizeRow()">
+            <i class="pi pi-plus" aria-hidden="true"></i>
+            Afegir talla
+          </button>
+        </div>
+      }
 
       <div class="form-group full-width">
-        <label for="articlePhotos">Fotos</label>
-        <input
-          id="articlePhotos"
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          multiple
-          (change)="onPhotosSelected($event)"
-          [disabled]="uploadingPhoto"
-        />
-        @if (uploadingPhoto) {
-          <small class="upload-hint">Pujant imatge…</small>
-        }
-        @if (photoPaths.length > 0) {
-          <ul class="photo-preview-list" aria-label="Fotos de l'article">
-            @for (path of photoPaths; track path; let i = $index) {
-              <li class="photo-preview-item">
-                <img [src]="photoUrl(path)" [alt]="'Foto ' + (i + 1)" />
+        <span id="articlePhotosLabel" class="field-label">Foto</span>
+        <div class="photo-upload-field">
+          <input
+            #photoInput
+            id="articlePhotos"
+            type="file"
+            class="photo-upload-input"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            (change)="onPhotosSelected($event)"
+            [disabled]="uploadingPhoto"
+            aria-labelledby="articlePhotosLabel"
+          />
+          @if (photoPath) {
+            <div class="photo-preview-single">
+              <img [src]="photoUrl(photoPath)" alt="Foto de l'article" />
+              <div class="photo-preview-actions">
                 <button
                   type="button"
-                  class="btn-remove-photo"
-                  (click)="removePhoto(i)"
-                  [attr.aria-label]="'Eliminar foto ' + (i + 1)"
+                  class="btn-secondary btn-change-photo"
+                  (click)="openPhotoPicker()"
+                  [disabled]="uploadingPhoto"
+                >
+                  Canviar foto
+                </button>
+                <button
+                  type="button"
+                  class="btn-remove-photo-inline"
+                  (click)="removePhoto()"
+                  aria-label="Eliminar foto"
                 >
                   <i class="pi pi-times" aria-hidden="true"></i>
+                  Eliminar
                 </button>
-              </li>
-            }
-          </ul>
+              </div>
+            </div>
+          } @else {
+            <label for="articlePhotos" class="photo-upload-placeholder">
+              <i class="pi pi-image" aria-hidden="true"></i>
+              <span class="photo-upload-text">Cap foto seleccionada</span>
+              <span class="photo-upload-action">Fes clic per seleccionar una imatge</span>
+            </label>
+          }
+        </div>
+        @if (uploadingPhoto) {
+          <small class="upload-hint">Pujant imatge…</small>
         }
       </div>
 
@@ -173,7 +324,7 @@
           <i class="pi pi-times"></i>
           Cancel·lar
         </button>
-        <button type="submit" class="btn-primary" [disabled]="form.invalid || loading">
+        <button type="submit" class="btn-primary" [disabled]="!canSubmit">
           @if (loading) {
             <i class="pi pi-spin pi-spinner"></i>
           } @else {

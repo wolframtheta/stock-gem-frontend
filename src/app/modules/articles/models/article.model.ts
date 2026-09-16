@@ -4,6 +4,20 @@ export interface ArticlePhoto {
   sortOrder: number;
 }
 
+export interface ArticleSize {
+  id: string;
+  label: string;
+  sortOrder: number;
+  warehouseQuantity: number;
+}
+
+export interface ArticleSizeInput {
+  id?: string;
+  label: string;
+  warehouseQuantity?: number;
+  sortOrder?: number;
+}
+
 export interface Article {
   id: string;
   ownReference: string;
@@ -11,6 +25,8 @@ export interface Article {
   cost: number | null;
   pvp: number;
   stock: number;
+  hasSizes: boolean;
+  sizes?: ArticleSize[];
   /** Quantitat a la fira (només per usuaris botiga) */
   quantityAtFair?: number;
   observations: string | null;
@@ -60,6 +76,8 @@ export interface CreateArticleDto {
   cost: number | null;
   pvp: number;
   stock?: number;
+  hasSizes?: boolean;
+  sizes?: ArticleSizeInput[];
   observations?: string;
   photo?: string;
   photoPaths?: string[];

@@ -54,18 +54,13 @@ export class ArticleDetailComponent implements OnInit {
     () => this.auth.currentUser()?.role === 'botiga',
   );
 
-  readonly articlePhotoUrls = computed(() => {
+  readonly articlePhotoUrl = computed(() => {
     const a = this.article();
     if (!a) {
-      return [];
+      return null;
     }
-    if (a.photos?.length) {
-      return a.photos.map((p) => resolveAssetUrl(p.path));
-    }
-    if (a.photo) {
-      return [resolveAssetUrl(a.photo)];
-    }
-    return [];
+    const path = a.photos?.[0]?.path ?? a.photo ?? null;
+    return path ? resolveAssetUrl(path) : null;
   });
 
   manufacturingByDay = computed(() => {

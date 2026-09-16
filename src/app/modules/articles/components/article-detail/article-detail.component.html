@@ -46,19 +46,17 @@
     </div>
   } @else {
     <div class="content-wrapper">
-      @if (articlePhotoUrls().length > 0) {
+      @if (articlePhotoUrl(); as photoUrl) {
         <div class="photos-section">
           <h2>
-            <i class="pi pi-images"></i>
-            Fotos
+            <i class="pi pi-image"></i>
+            Foto
           </h2>
-          <ul class="photo-gallery" aria-label="Galeria de fotos de l'article">
-            @for (url of articlePhotoUrls(); track url; let i = $index) {
-              <li>
-                <img [src]="url" [alt]="'Foto ' + (i + 1) + ' de ' + article()!.description" />
-              </li>
-            }
-          </ul>
+          <img
+            class="article-photo"
+            [src]="photoUrl"
+            [alt]="'Foto de ' + article()!.description"
+          />
         </div>
       }
 
@@ -91,6 +89,35 @@
               </div>
             }
           </div>
+
+          @if (article(); as art) {
+            @if (art.hasSizes && art.sizes?.length) {
+              <div class="stock-table-wrapper sizes-detail">
+                <h3>Talles</h3>
+                <table class="stock-table">
+                  <caption class="sr-only">Talles i stock de magatzem</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Talla</th>
+                      <th scope="col">Quantitat magatzem</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (size of art.sizes; track size.id) {
+                      <tr>
+                        <td>{{ size.label }}</td>
+                        <td class="quantity-cell">{{ size.warehouseQuantity }}</td>
+                      </tr>
+                    }
+                    <tr class="total-row">
+                      <th scope="row">Total</th>
+                      <td class="quantity-cell">{{ art.stock }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            }
+          }
 
           <div class="stock-table-wrapper">
             <h3>{{ isBotiga() ? 'Stock a la fira' : 'Stock per punt de venta' }}</h3>
@@ -189,10 +216,22 @@
               <i class="pi pi-box"></i>
               Fabricació
             </h2>
-            <button type="button" class="btn-primary" (click)="openAddStock()" [disabled]="loading()">
+            <button
+              type="button"
+              class="btn-primary"
+              (click)="openAddStock()"
+              [disabled]="loading() || article()?.hasSizes"
+              [attr.title]="article()?.hasSizes ? 'Article amb talles: ajustar via formulari' : null"
+              [attr.aria-describedby]="article()?.hasSizes ? 'fabricarDisabledHint' : null"
+            >
               <i class="pi pi-plus" aria-hidden="true"></i>
               <span>Fabricar quantitats</span>
             </button>
+            @if (article()?.hasSizes) {
+              <p id="fabricarDisabledHint" class="fabricar-hint">
+                Article amb talles: ajustar quantitats via formulari d'edició
+              </p>
+            }
           </div>
           <div class="year-filter">
             <label>Any:</label>

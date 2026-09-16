@@ -60,6 +60,7 @@
 }
 
 .article-form {
+  --article-field-height: 3.25rem;
   background: white;
   padding: 2rem;
   border-radius: 16px;
@@ -92,12 +93,23 @@
 .form-group input,
 .form-group textarea,
 .form-group select {
+  box-sizing: border-box;
   padding: 0.875rem;
   border: 2px solid #e2e8f0;
   border-radius: 12px;
   font-size: 1rem;
   transition: all 0.3s ease;
   font-family: inherit;
+}
+
+.form-group input,
+.form-group select {
+  height: var(--article-field-height);
+  min-height: var(--article-field-height);
+}
+
+.form-group textarea {
+  min-height: var(--article-field-height);
 }
 
 .form-group input:focus,
@@ -132,25 +144,67 @@
   border-top: 1px solid #e2e8f0;
 }
 
-.select-with-add {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.meta-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
 }
 
-.select-with-add .select-wrap {
+.select-with-add {
+  display: flex;
+  align-items: stretch;
+  gap: 0.25rem;
+  min-height: var(--article-field-height);
+}
+
+.select-flex {
   flex: 1;
   min-width: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.select-flex p-select {
+  width: 100%;
+  display: flex;
+}
+
+.select-flex ::ng-deep .p-select {
+  width: 100%;
+  height: var(--article-field-height);
+  min-height: var(--article-field-height);
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  box-sizing: border-box;
+  align-items: center;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.select-flex ::ng-deep .p-select:not(.p-disabled):hover {
+  border-color: #cbd5e1;
+}
+
+.select-flex ::ng-deep .p-select.p-focus {
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+}
+
+.select-flex ::ng-deep .p-select-label {
+  padding: 0.875rem;
+  font-size: 1rem;
+  line-height: 1.25;
 }
 
 .btn-icon-add {
   background: var(--color-brand-primary);
   color: #faf9f9;
   border: none;
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  border-radius: 8px;
+  width: var(--article-field-height);
+  min-width: var(--article-field-height);
+  height: var(--article-field-height);
+  min-height: var(--article-field-height);
+  border-radius: 12px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -158,6 +212,7 @@
   padding: 0;
   line-height: 1;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .btn-icon-add i {
@@ -173,49 +228,347 @@
   width: 100%;
 }
 
+.field-label {
+  display: block;
+  font-weight: 500;
+  color: #334155;
+  margin-bottom: 0.5rem;
+}
+
+.photo-upload-field {
+  position: relative;
+}
+
+.photo-upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.photo-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 1.25rem 1rem;
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.photo-upload-placeholder:hover,
+.photo-upload-input:focus-visible + .photo-upload-placeholder {
+  border-color: var(--color-brand-primary);
+  background: #f1f5f9;
+}
+
+.photo-upload-placeholder i {
+  font-size: 1.5rem;
+  color: var(--color-brand-primary);
+}
+
+.photo-upload-text {
+  font-weight: 500;
+  color: #475569;
+}
+
+.photo-upload-action {
+  font-size: 0.875rem;
+}
+
+.photo-upload-input:disabled + .photo-upload-placeholder {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .upload-hint {
   display: block;
   margin-top: 0.35rem;
   color: #64748b;
 }
 
-.photo-preview-list {
+.photo-preview-single {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 0.75rem;
-  margin: 0.75rem 0 0;
-  padding: 0;
-  list-style: none;
 }
 
-.photo-preview-item {
-  position: relative;
-  width: 96px;
-  height: 96px;
-}
-
-.photo-preview-item img {
-  width: 100%;
-  height: 100%;
+.photo-preview-single img {
+  width: 160px;
+  height: 160px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid #e2e8f0;
 }
 
-.btn-remove-photo {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 24px;
-  height: 24px;
+.photo-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-change-photo {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+}
+
+.btn-remove-photo-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   border: none;
-  border-radius: 50%;
-  background: #dc2626;
-  color: #fff;
+  background: transparent;
+  color: #dc2626;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.25rem 0;
+}
+
+.btn-remove-photo-inline:hover {
+  text-decoration: underline;
+}
+
+.stock-controls-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.stock-toggle-cell {
+  display: flex;
+  align-items: center;
+}
+
+.stock-input-cell {
+  margin: 0;
+}
+
+.has-sizes-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.has-sizes-toggle label {
+  margin: 0;
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+.form-group ::ng-deep p-inputnumber.numeric-field,
+.form-group ::ng-deep .numeric-field {
+  width: 100%;
+}
+
+.form-group ::ng-deep .numeric-field.p-inputnumber {
+  width: 100%;
+  height: var(--article-field-height);
+  display: flex;
+  align-items: stretch;
+}
+
+.form-group ::ng-deep .numeric-field .p-inputnumber-input {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  min-height: var(--article-field-height);
+  padding: 0.875rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.form-group ::ng-deep .numeric-field .p-inputnumber-input:enabled:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+}
+
+.form-group ::ng-deep .numeric-field.stock-readonly .p-inputnumber-input:disabled {
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 0.35rem;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.sizes-section {
+  --size-field-height: 2.5rem;
+}
+
+.sizes-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.25rem;
+}
+
+.sizes-table th {
+  padding: 0 0.5rem 0.75rem 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.sizes-table td {
+  padding: 0.35rem 0.5rem 0.35rem 0;
+  vertical-align: middle;
+}
+
+.sizes-table tbody tr:first-child td {
+  padding-top: 0.75rem;
+}
+
+.sizes-table tbody tr:last-child td {
+  padding-bottom: 0;
+}
+
+.sizes-qty-col {
+  width: 7rem;
+}
+
+.sizes-action-col {
+  width: var(--size-field-height);
+  padding-right: 0 !important;
+  text-align: center;
+}
+
+.size-field-wrap {
+  display: flex;
+  align-items: stretch;
+  height: var(--size-field-height);
+}
+
+.size-field-wrap-action {
+  width: var(--size-field-height);
+}
+
+.size-field-wrap input,
+.size-field-wrap .btn-remove-size {
+  box-sizing: border-box;
+  height: 100%;
+  min-height: var(--size-field-height);
+  margin: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  line-height: 1;
+  font-family: inherit;
+  background: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.size-field-wrap input {
+  display: block;
+  width: 100%;
+  padding: 0 0.6rem;
+}
+
+.size-field-wrap input:focus-visible,
+.size-field-wrap .btn-remove-size:focus-visible {
+  outline: 2px solid var(--color-brand-primary, #6366f1);
+  outline-offset: 1px;
+}
+
+.size-input-qty {
+  text-align: right;
+  -moz-appearance: textfield;
+}
+
+.size-input-qty::-webkit-outer-spin-button,
+.size-input-qty::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.btn-remove-size {
+  width: 100%;
+  padding: 0;
+  color: #dc2626;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.btn-remove-size i {
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.btn-remove-size:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.size-remove-hint {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.btn-add-size {
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.btn-add-size i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 0.875rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 1024px) {
+  .meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
@@ -229,6 +582,14 @@
 
   .form-actions {
     flex-direction: column;
+  }
+
+  .meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stock-controls-row {
+    grid-template-columns: 1fr;
   }
 }
 
