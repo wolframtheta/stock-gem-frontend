@@ -18,6 +18,7 @@ import {
 } from '../../models/article.model';
 import { SalesPoint } from '../../../sales-points/models/sales-point.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { resolveAssetUrl } from '../../../../core/utils/asset-url.util';
 
 @Component({
   selector: 'app-article-detail',
@@ -52,6 +53,20 @@ export class ArticleDetailComponent implements OnInit {
   readonly isBotiga = computed(
     () => this.auth.currentUser()?.role === 'botiga',
   );
+
+  readonly articlePhotoUrls = computed(() => {
+    const a = this.article();
+    if (!a) {
+      return [];
+    }
+    if (a.photos?.length) {
+      return a.photos.map((p) => resolveAssetUrl(p.path));
+    }
+    if (a.photo) {
+      return [resolveAssetUrl(a.photo)];
+    }
+    return [];
+  });
 
   manufacturingByDay = computed(() => {
     const history = this.stockHistory();

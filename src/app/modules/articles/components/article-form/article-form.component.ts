@@ -10,6 +10,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ArticlesService } from '../../services/articles.service';
 import { ConfigService } from '../../../config/services/config.service';
 import { CreateArticleDto } from '../../models/article.model';
+import { UploadsService } from '../../../../core/services/uploads.service';
+import { resolveAssetUrl } from '../../../../core/utils/asset-url.util';
 
 @Component({
   selector: 'app-article-form',
@@ -37,6 +39,8 @@ export class ArticleFormComponent implements OnInit {
   addModalVisible = false;
   addModalType: 'collection' | 'articleType' = 'collection';
   addModalName = '';
+  photoPaths: string[] = [];
+  uploadingPhoto = false;
 
   constructor(
     private fb: FormBuilder,
@@ -45,6 +49,7 @@ export class ArticleFormComponent implements OnInit {
     private articlesService: ArticlesService,
     private configService: ConfigService,
     private messageService: MessageService,
+    private uploadsService: UploadsService,
   ) {
     this.form = this.fb.group({
       ownReference: ['', [Validators.required, Validators.maxLength(100)]],
@@ -53,7 +58,6 @@ export class ArticleFormComponent implements OnInit {
       pvp: [0, [Validators.required, Validators.min(0)]],
       stock: [0, [Validators.min(0)]],
       observations: [''],
-      photo: ['', [Validators.maxLength(500)]],
       collectionId: [null],
       articleTypeId: [null],
     });
@@ -143,6 +147,9 @@ export class ArticleFormComponent implements OnInit {
           collectionId: article.collectionId,
           articleTypeId: article.articleTypeId,
         });
+        this.photoPaths =
+          article.photos?.map((p) => p.path) ??
+          (article.photo ? [article.photo] : []);
         this.loading = false;
       },
       error: () => {
@@ -163,7 +170,7 @@ export class ArticleFormComponent implements OnInit {
     }
 
     this.loading = true;
-    const formValue = this.normalizePayload(this.form.value);
+    const formValue = this.normalizePayload(this.form.value, this.photoPaths);
 
     if (this.articleId && this.articleId !== 'new') {
       this.articlesService.update(this.articleId, formValue).subscribe({
@@ -210,12 +217,55 @@ export class ArticleFormComponent implements OnInit {
     this.router.navigate(['/articles']);
   }
 
-  private normalizePayload(value: Record<string, unknown>): CreateArticleDto {
+  onPhotosSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+    if (!files?.length) {
+      return;
+    }
+    Array.from(files).forEach((file) => this.uploadPhoto(file));
+    input.value = '';
+  }
+
+  uploadPhoto(file: File) {
+    this.uploadingPhoto = true;
+    this.uploadsService.uploadImage(file).subscribe({
+      next: ({ path }) => {
+        this.photoPaths = [...this.photoPaths, path];
+        this.uploadingPhoto = false;
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.error?.message || 'Error en pujar la imatge',
+        });
+        this.uploadingPhoto = false;
+      },
+    });
+  }
+
+  removePhoto(index: number) {
+    this.photoPaths = this.photoPaths.filter((_, i) => i !== index);
+  }
+
+  photoUrl(path: string): string {
+    return resolveAssetUrl(path);
+  }
+
+  private normalizePayload(
+    value: Record<string, unknown>,
+    photoPaths: string[],
+  ): CreateArticleDto {
     const rawCost = value['cost'];
     const cost =
       rawCost === '' || rawCost === null || rawCost === undefined
         ? null
         : Number(rawCost);
-    return { ...(value as unknown as CreateArticleDto), cost };
+    return {
+      ...(value as unknown as CreateArticleDto),
+      cost,
+      photoPaths,
+    };
   }
 }

@@ -1,3 +1,9 @@
+export interface ArticlePhoto {
+  id: string;
+  path: string;
+  sortOrder: number;
+}
+
 export interface Article {
   id: string;
   ownReference: string;
@@ -9,6 +15,7 @@ export interface Article {
   quantityAtFair?: number;
   observations: string | null;
   photo: string | null;
+  photos?: ArticlePhoto[];
   collection: { id: string; name: string } | null;
   collectionId: string | null;
   articleType: { id: string; name: string } | null;
@@ -55,6 +62,7 @@ export interface CreateArticleDto {
   stock?: number;
   observations?: string;
   photo?: string;
+  photoPaths?: string[];
   collectionId?: string;
   articleTypeId?: string;
 }

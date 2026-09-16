@@ -46,6 +46,22 @@
     </div>
   } @else {
     <div class="content-wrapper">
+      @if (articlePhotoUrls().length > 0) {
+        <div class="photos-section">
+          <h2>
+            <i class="pi pi-images"></i>
+            Fotos
+          </h2>
+          <ul class="photo-gallery" aria-label="Galeria de fotos de l'article">
+            @for (url of articlePhotoUrls(); track url; let i = $index) {
+              <li>
+                <img [src]="url" [alt]="'Foto ' + (i + 1) + ' de ' + article()!.description" />
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
       @if (article()?.observations?.trim(); as technicalSheet) {
         <div class="technical-sheet-section">
           <h2>

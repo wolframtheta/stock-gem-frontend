@@ -126,13 +126,36 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="photo">Foto (URL)</label>
+      <div class="form-group full-width">
+        <label for="articlePhotos">Fotos</label>
         <input
-          id="photo"
-          type="text"
-          formControlName="photo"
+          id="articlePhotos"
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          multiple
+          (change)="onPhotosSelected($event)"
+          [disabled]="uploadingPhoto"
         />
+        @if (uploadingPhoto) {
+          <small class="upload-hint">Pujant imatge…</small>
+        }
+        @if (photoPaths.length > 0) {
+          <ul class="photo-preview-list" aria-label="Fotos de l'article">
+            @for (path of photoPaths; track path; let i = $index) {
+              <li class="photo-preview-item">
+                <img [src]="photoUrl(path)" [alt]="'Foto ' + (i + 1)" />
+                <button
+                  type="button"
+                  class="btn-remove-photo"
+                  (click)="removePhoto(i)"
+                  [attr.aria-label]="'Eliminar foto ' + (i + 1)"
+                >
+                  <i class="pi pi-times" aria-hidden="true"></i>
+                </button>
+              </li>
+            }
+          </ul>
+        }
       </div>
 
       <div class="form-group full-width">
