@@ -242,12 +242,40 @@
       </div>
     </div>
     <div class="form-group">
-      <label>Data</label>
-      <input type="date" [(ngModel)]="addStockDate" />
+      <label for="addStockCost">Cost</label>
+      <p-inputNumber
+        inputId="addStockCost"
+        [(ngModel)]="addStockCost"
+        [min]="0"
+        mode="currency"
+        currency="EUR"
+        locale="ca-ES"
+      />
+    </div>
+    <div class="form-group">
+      <label for="addStockPvp">PVP</label>
+      <p-inputNumber
+        inputId="addStockPvp"
+        [(ngModel)]="addStockPvp"
+        [min]="0"
+        mode="currency"
+        currency="EUR"
+        locale="ca-ES"
+      />
+    </div>
+    <div class="form-group">
+      <label for="addStockDate">Data</label>
+      <input id="addStockDate" type="date" [(ngModel)]="addStockDate" />
     </div>
   </div>
   <ng-template pTemplate="footer">
     <button type="button" pButton label="Cancel·lar" class="p-button-text" (click)="addStockVisible = false"></button>
-    <button type="button" pButton label="Fabricar" (click)="submitAddStock()" [disabled]="addStockQty < 1"></button>
+    <button
+      type="button"
+      pButton
+      label="Fabricar"
+      (click)="submitAddStock()"
+      [disabled]="addStockQty < 1 || addStockPvp < 0 || addStockCost < 0"
+    ></button>
   </ng-template>
 </p-dialog>

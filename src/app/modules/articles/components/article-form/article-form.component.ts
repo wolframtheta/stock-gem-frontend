@@ -49,7 +49,7 @@ export class ArticleFormComponent implements OnInit {
     this.form = this.fb.group({
       ownReference: ['', [Validators.required, Validators.maxLength(100)]],
       description: ['', [Validators.required]],
-      cost: [0, [Validators.required, Validators.min(0)]],
+      cost: [null, [Validators.min(0)]],
       pvp: [0, [Validators.required, Validators.min(0)]],
       stock: [0, [Validators.min(0)]],
       observations: [''],
@@ -163,7 +163,7 @@ export class ArticleFormComponent implements OnInit {
     }
 
     this.loading = true;
-    const formValue = this.form.value as CreateArticleDto;
+    const formValue = this.normalizePayload(this.form.value);
 
     if (this.articleId && this.articleId !== 'new') {
       this.articlesService.update(this.articleId, formValue).subscribe({
@@ -208,5 +208,14 @@ export class ArticleFormComponent implements OnInit {
 
   cancel() {
     this.router.navigate(['/articles']);
+  }
+
+  private normalizePayload(value: Record<string, unknown>): CreateArticleDto {
+    const rawCost = value['cost'];
+    const cost =
+      rawCost === '' || rawCost === null || rawCost === undefined
+        ? null
+        : Number(rawCost);
+    return { ...(value as unknown as CreateArticleDto), cost };
   }
 }

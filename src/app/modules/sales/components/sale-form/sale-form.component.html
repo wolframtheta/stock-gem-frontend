@@ -277,7 +277,7 @@
           [value]="articleSearchTypeId() ?? ''"
           (change)="articleSearchTypeId.set($any($event.target).value || null); triggerArticleSearch()"
         >
-          <option value="">Tots els tipus</option>
+          <option value="">Tots els tipus de peça</option>
           @for (t of articleTypes; track t.id) {
             <option [value]="t.id">{{ t.name }}</option>
           }

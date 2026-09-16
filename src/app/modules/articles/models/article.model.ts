@@ -2,7 +2,7 @@ export interface Article {
   id: string;
   ownReference: string;
   description: string;
-  cost: number;
+  cost: number | null;
   pvp: number;
   stock: number;
   /** Quantitat a la fira (només per usuaris botiga) */
@@ -50,7 +50,7 @@ export interface StockBreakdown {
 export interface CreateArticleDto {
   ownReference: string;
   description: string;
-  cost: number;
+  cost: number | null;
   pvp: number;
   stock?: number;
   observations?: string;

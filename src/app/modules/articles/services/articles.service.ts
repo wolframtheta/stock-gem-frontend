@@ -69,13 +69,9 @@ export class ArticlesService {
 
   addStock(
     id: string,
-    quantity: number,
-    date: string,
+    payload: { quantity: number; date: string; cost: number; pvp: number },
   ): Observable<Article> {
-    return this.apiService.post<Article>(`articles/${id}/add-stock`, {
-      quantity,
-      date,
-    });
+    return this.apiService.post<Article>(`articles/${id}/add-stock`, payload);
   }
 
   getPriceHistory(id: string): Observable<ArticlePriceHistory[]> {

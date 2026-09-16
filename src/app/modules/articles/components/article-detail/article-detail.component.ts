@@ -45,6 +45,8 @@ export class ArticleDetailComponent implements OnInit {
   addStockVisible = false;
   addStockQty = 1;
   addStockDate = new Date().toISOString().split('T')[0];
+  addStockCost = 0;
+  addStockPvp = 0;
   stockHistoryYear = new Date().getFullYear();
 
   readonly isBotiga = computed(
@@ -169,7 +171,10 @@ export class ArticleDetailComponent implements OnInit {
     return this.salesPointsByCode().get(code) ?? fallback ?? code ?? '-';
   }
 
-  formatCurrency(value: number): string {
+  formatCurrency(value: number | null | undefined): string {
+    if (value == null) {
+      return '—';
+    }
     return new Intl.NumberFormat('ca-ES', {
       style: 'currency',
       currency: 'EUR',
@@ -193,8 +198,11 @@ export class ArticleDetailComponent implements OnInit {
   }
 
   openAddStock() {
+    const a = this.article();
     this.addStockQty = 1;
     this.addStockDate = new Date().toISOString().split('T')[0];
+    this.addStockCost = a?.cost ?? 0;
+    this.addStockPvp = a?.pvp ?? 0;
     this.addStockVisible = true;
   }
 
@@ -208,13 +216,19 @@ export class ArticleDetailComponent implements OnInit {
 
     this.loading.set(true);
     this.articlesService
-      .addStock(a.id, this.addStockQty, this.addStockDate)
+      .addStock(a.id, {
+        quantity: this.addStockQty,
+        date: this.addStockDate,
+        cost: this.addStockCost,
+        pvp: this.addStockPvp,
+      })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (updated) => {
           this.article.set(updated);
           this.loadStockBreakdown(a.id);
           this.loadStockHistory(a.id);
+          this.loadPriceHistory(a.id);
           this.addStockVisible = false;
           this.messageService.add({
             severity: 'success',

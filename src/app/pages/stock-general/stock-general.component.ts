@@ -67,7 +67,10 @@ export class StockGeneralComponent implements OnInit {
     this.loadArticles();
   }
 
-  formatCurrency(value: number): string {
+  formatCurrency(value: number | null | undefined): string {
+    if (value == null) {
+      return '—';
+    }
     return new Intl.NumberFormat('ca-ES', {
       style: 'currency',
       currency: 'EUR',
