@@ -1,4 +1,4 @@
-.compostura-form-container {
+.personalization-form-container {
   min-height: 100vh;
   background: var(--gradient-page);
   padding: 2rem 1rem;
@@ -59,7 +59,7 @@
   margin: 0 auto;
 }
 
-.compostura-form {
+.personalization-form {
   background: white;
   padding: 2rem;
   border-radius: 16px;

@@ -240,19 +240,18 @@
   color: #ef4444;
 }
 
-.card-body h3 {
+.card-body h3.article-name {
   font-size: 1.25rem;
   font-weight: 600;
   color: #1e293b;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.3;
 }
 
-.description {
+.card-body .article-code {
   color: #64748b;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   margin: 0 0 1rem 0;
-  line-height: 1.5;
-  min-height: 2.5rem;
 }
 
 .article-details {
@@ -273,10 +272,6 @@
 .detail-item i {
   color: #94a3b8;
   width: 16px;
-}
-
-.subfamily {
-  color: #94a3b8;
 }
 
 .article-footer {

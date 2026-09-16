@@ -14,9 +14,9 @@
       <p class="subtitle">Gestiona les teves joies i productes</p>
     </div>
     @if (!isBotiga()) {
-      <button class="btn-primary" (click)="router.navigate(['/articles/new'])">
-        <i class="pi pi-plus"></i>
-        Afegir Article
+      <button type="button" class="btn-primary" (click)="router.navigate(['/articles/new'])">
+        <i class="pi pi-plus" aria-hidden="true"></i>
+        <span>Afegir Article</span>
       </button>
     }
   </div>
@@ -78,31 +78,20 @@
           </div>
           
           <div class="card-body">
-            <h3>{{ article.ownReference }}</h3>
-            <p class="description">{{ article.description }}</p>
+            <h3 class="article-name">{{ article.description }}</h3>
+            <p class="article-code">{{ article.ownReference }}</p>
             
             <div class="article-details">
-              @if (article.supplierReference) {
-                <div class="detail-item">
-                  <i class="pi pi-tag"></i>
-                  <span>Ref. Proveïdor: {{ article.supplierReference }}</span>
-                </div>
-              }
-              
-              @if (article.family) {
+              @if (article.collection) {
                 <div class="detail-item">
                   <i class="pi pi-folder"></i>
-                  <span>{{ article.family }}</span>
-                  @if (article.subfamily) {
-                    <span class="subfamily"> / {{ article.subfamily }}</span>
-                  }
+                  <span>{{ article.collection.name }}</span>
                 </div>
               }
-              
-              @if (article.supplier) {
+              @if (article.articleType) {
                 <div class="detail-item">
-                  <i class="pi pi-building"></i>
-                  <span>{{ article.supplier.name }} {{ article.supplier.surname }}</span>
+                  <i class="pi pi-tag"></i>
+                  <span>{{ article.articleType.name }}</span>
                 </div>
               }
             </div>

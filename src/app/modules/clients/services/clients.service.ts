@@ -17,13 +17,14 @@ export class ClientsService {
     return this.apiService.get<Client>(`clients/${id}`);
   }
 
-  search(name?: string, phone?: string): Observable<Client[]> {
-    const params: any = {};
-    if (name) params.name = name;
-    if (phone) params.phone = phone;
-    
-    const queryString = new URLSearchParams(params).toString();
-    return this.apiService.get<Client[]>(`clients?${queryString}`);
+  search(query?: string): Observable<Client[]> {
+    const q = query?.trim();
+    if (!q) {
+      return this.getAll();
+    }
+    return this.apiService.get<Client[]>(
+      `clients?q=${encodeURIComponent(q)}`,
+    );
   }
 
   create(client: Partial<Client>): Observable<Client> {

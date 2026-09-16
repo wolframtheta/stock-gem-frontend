@@ -29,7 +29,6 @@ export class ArticlesListComponent implements OnInit {
   articles = signal<Article[]>([]);
   loading = signal(false);
   searchOwnRef = '';
-  searchSupplierRef = '';
   selectedArticle: Article | null = null;
   deleteDialogVisible = false;
 
@@ -72,7 +71,7 @@ export class ArticlesListComponent implements OnInit {
   }
 
   search() {
-    if (!this.searchOwnRef && !this.searchSupplierRef) {
+    if (!this.searchOwnRef.trim()) {
       this.loadArticles();
       return;
     }
@@ -80,8 +79,7 @@ export class ArticlesListComponent implements OnInit {
     this.loading.set(true);
     this.articlesService
       .search({
-        ownReference: this.searchOwnRef || undefined,
-        supplierReference: this.searchSupplierRef || undefined,
+        ownReference: this.searchOwnRef.trim() || undefined,
       })
       .pipe(
         catchError(() => of([])),
@@ -103,7 +101,6 @@ export class ArticlesListComponent implements OnInit {
 
   clearSearch() {
     this.searchOwnRef = '';
-    this.searchSupplierRef = '';
     this.loadArticles();
   }
 

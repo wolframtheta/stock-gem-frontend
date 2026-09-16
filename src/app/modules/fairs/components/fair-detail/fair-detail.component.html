@@ -138,27 +138,27 @@
     </div>
 
     <div class="chart-card chart-card-full">
-      <h3><i class="pi pi-wrench"></i> Compostures (entrades)</h3>
+      <h3><i class="pi pi-wrench"></i> Personalitzacions (entrades)</h3>
       @if (loading()) {
         <div class="chart-placeholder">
           <i class="pi pi-spin pi-spinner"></i>
           <span>Carregant...</span>
         </div>
-      } @else if (composturasChartData(); as data) {
+      } @else if (personalizationsChartData(); as data) {
         <div class="chart-wrapper">
           <p-chart
             type="line"
             [data]="data"
-            [options]="composturasChartOptions"
+            [options]="personalizationsChartOptions"
           />
         </div>
         <div class="chart-summary">
-          Total: {{ composturasCount() | number }} compostures
+          Total: {{ personalizationsCount() | number }} personalitzacions
         </div>
       } @else {
         <div class="chart-placeholder">
           <i class="pi pi-inbox"></i>
-          <span>Cap compostura en el període</span>
+          <span>Cap personalització en el període</span>
         </div>
       }
     </div>

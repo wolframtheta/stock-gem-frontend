@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ClientsService } from '../../services/clients.service';
-import { Client } from '../../models/client.model';
 
 @Component({
   selector: 'app-client-form',
@@ -32,9 +31,10 @@ export class ClientFormComponent implements OnInit {
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(255)]],
-      surname: ['', [Validators.required, Validators.maxLength(255)]],
+      surname: ['', [Validators.maxLength(255)]],
+      email: ['', [Validators.email, Validators.maxLength(255)]],
       mobilePhone: ['', [Validators.maxLength(20)]],
-      landlinePhone: ['', [Validators.maxLength(20)]],
+      observations: [''],
     });
   }
 
@@ -54,8 +54,7 @@ export class ClientFormComponent implements OnInit {
         this.form.patchValue(client);
         this.loading = false;
       },
-      error: (error) => {
-        console.error('Error loading client:', error);
+      error: () => {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -76,7 +75,6 @@ export class ClientFormComponent implements OnInit {
     const formValue = this.form.value;
 
     if (this.clientId && this.clientId !== 'new') {
-      // Update
       this.clientsService.update(this.clientId, formValue).subscribe({
         next: () => {
           this.messageService.add({
@@ -87,7 +85,6 @@ export class ClientFormComponent implements OnInit {
           this.router.navigate(['/clients']);
         },
         error: (error) => {
-          console.error('Error updating client:', error);
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
@@ -97,7 +94,6 @@ export class ClientFormComponent implements OnInit {
         },
       });
     } else {
-      // Create
       this.clientsService.create(formValue).subscribe({
         next: () => {
           this.messageService.add({
@@ -108,7 +104,6 @@ export class ClientFormComponent implements OnInit {
           this.router.navigate(['/clients']);
         },
         error: (error) => {
-          console.error('Error creating client:', error);
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
@@ -124,4 +119,3 @@ export class ClientFormComponent implements OnInit {
     this.router.navigate(['/clients']);
   }
 }
-

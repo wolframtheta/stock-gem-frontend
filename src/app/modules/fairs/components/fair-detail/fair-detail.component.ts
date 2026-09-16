@@ -39,12 +39,12 @@ export class FairDetailComponent implements OnInit {
 
   salesTimeSeries = signal<TimeSeriesResponse | null>(null);
   articlesTimeSeries = signal<TimeSeriesResponse | null>(null);
-  composturasTimeSeries = signal<TimeSeriesResponse | null>(null);
+  personalizationsTimeSeries = signal<TimeSeriesResponse | null>(null);
 
   salesChartData = computed(() => this.toLineChartData(this.salesTimeSeries()));
   articlesChartData = computed(() => this.toLineChartData(this.articlesTimeSeries()));
-  composturasChartData = computed(() =>
-    this.toLineChartData(this.composturasTimeSeries()),
+  personalizationsChartData = computed(() =>
+    this.toLineChartData(this.personalizationsTimeSeries()),
   );
 
   lineChartOptions = {
@@ -66,7 +66,7 @@ export class FairDetailComponent implements OnInit {
     },
   };
 
-  composturasChartOptions = {
+  personalizationsChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     interaction: { mode: 'index' as const, intersect: false },
@@ -122,7 +122,7 @@ export class FairDetailComponent implements OnInit {
     forkJoin({
       sales: this.fairsService.getSalesTimeSeries(fairId, from, to, 'week'),
       articles: this.fairsService.getArticlesTimeSeries(fairId, from, to, 'week'),
-      composturas: this.fairsService.getComposturasTimeSeries(
+      personalizations: this.fairsService.getPersonalizationsTimeSeries(
         fairId,
         from,
         to,
@@ -132,7 +132,7 @@ export class FairDetailComponent implements OnInit {
       next: (data) => {
         this.salesTimeSeries.set(data.sales);
         this.articlesTimeSeries.set(data.articles);
-        this.composturasTimeSeries.set(data.composturas);
+        this.personalizationsTimeSeries.set(data.personalizations);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
@@ -189,8 +189,8 @@ export class FairDetailComponent implements OnInit {
     );
   }
 
-  composturasCount(): number {
-    const ts = this.composturasTimeSeries();
+  personalizationsCount(): number {
+    const ts = this.personalizationsTimeSeries();
     if (!ts) return 0;
     const countSeries = ts.series.find((s) => s.label === 'Quantitat');
     return countSeries

@@ -26,16 +26,6 @@
         class="search-input"
       />
     </div>
-    <div class="search-box">
-      <i class="pi pi-tag"></i>
-      <input
-        type="text"
-        placeholder="Ref. proveïdor..."
-        [(ngModel)]="searchSupplierRef"
-        (keyup.enter)="search()"
-        class="search-input"
-      />
-    </div>
     <div class="search-actions">
       <button class="btn-search" (click)="search()">
         <i class="pi pi-search"></i>
@@ -84,7 +74,6 @@
             </th>
             <th>Cost</th>
             <th>Col·lecció</th>
-            <th>Proveïdor</th>
             <th></th>
           </tr>
         </ng-template>
@@ -95,7 +84,7 @@
                 {{ article.ownReference }}
               </a>
             </td>
-            <td>{{ article.shortDescription || article.description }}</td>
+            <td>{{ article.description }}</td>
             <td class="price-cell">{{ formatCurrency(article.pvp) }}</td>
             <td>
               <span
@@ -108,13 +97,6 @@
             </td>
             <td>{{ formatCurrency(article.cost) }}</td>
             <td>{{ article.collection?.name ?? '-' }}</td>
-            <td>
-              @if (article.supplier) {
-                {{ article.supplier.name }} {{ article.supplier.surname }}
-              } @else {
-                -
-              }
-            </td>
             <td>
               <a [routerLink]="['/articles', article.id]" class="btn-link" title="Veure detall">
                 <i class="pi pi-eye"></i>

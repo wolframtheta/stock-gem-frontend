@@ -1,24 +1,24 @@
-<div class="compostura-form-container">
+<div class="personalization-form-container">
   <div class="header-section">
     <div class="header-content">
       <div class="header-top">
-        <button type="button" class="btn-back" (click)="router.navigate(['/composturas'])">
+        <button type="button" class="btn-back" (click)="router.navigate(['/personalizaciones'])">
           <i class="pi pi-arrow-left"></i>
           Tornar
         </button>
       </div>
       <h1>
         <i class="pi pi-hammer"></i>
-        {{ composturaId && composturaId !== 'new' ? 'Editar Compostura' : 'Nova Compostura' }}
+        {{ personalizationId && personalizationId !== 'new' ? 'Editar Personalització' : 'Nova Personalització' }}
       </h1>
       <p class="subtitle">
-        {{ composturaId && composturaId !== 'new' ? 'Modifica la informació de la compostura' : 'Completa les dades de la nova compostura' }}
+        {{ personalizationId && personalizationId !== 'new' ? 'Modifica la informació de la personalització' : 'Completa les dades de la nova personalització' }}
       </p>
     </div>
   </div>
 
   <div class="form-wrapper">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="compostura-form">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="personalization-form">
       <div class="form-grid">
         <div class="form-group">
           <label for="code">Codi *</label>
@@ -65,11 +65,11 @@
         </div>
 
         <div class="form-group">
-          <label for="composturaTypeId">Tipus</label>
+          <label for="personalizationTypeId">Tipus</label>
           <p-select
-            id="composturaTypeId"
-            formControlName="composturaTypeId"
-            [options]="composturaTypes"
+            id="personalizationTypeId"
+            formControlName="personalizationTypeId"
+            [options]="personalizationTypes"
             optionLabel="name"
             optionValue="id"
             placeholder="Seleccionar tipus"
@@ -222,7 +222,7 @@
           } @else {
             <i class="pi pi-check"></i>
           }
-          {{ composturaId && composturaId !== 'new' ? 'Actualitzar' : 'Crear' }}
+          {{ personalizationId && personalizationId !== 'new' ? 'Actualitzar' : 'Crear' }}
         </button>
       </div>
     </form>

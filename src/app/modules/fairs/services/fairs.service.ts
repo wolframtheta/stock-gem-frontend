@@ -102,14 +102,14 @@ export class FairsService {
     );
   }
 
-  getComposturasTimeSeries(
+  getPersonalizationsTimeSeries(
     fairId: string,
     from?: string,
     to?: string,
     granularity = 'week',
   ): Observable<TimeSeriesResponse> {
     return this.api.get<TimeSeriesResponse>(
-      `${this.endpoint}/${fairId}/statistics/composturas-time-series${this.statsQs(from, to, granularity)}`,
+      `${this.endpoint}/${fairId}/statistics/personalizations-time-series${this.statsQs(from, to, granularity)}`,
     );
   }
 

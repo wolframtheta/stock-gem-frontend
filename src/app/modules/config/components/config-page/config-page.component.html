@@ -11,7 +11,7 @@
         <i class="pi pi-cog"></i>
         Configuració
       </h1>
-      <p class="subtitle">Col·leccions, tipus d'articles i tipus de compostures</p>
+      <p class="subtitle">Col·leccions, tipus de peça i tipus de personalització</p>
     </div>
   </div>
 
@@ -20,8 +20,8 @@
       <h2>Col·leccions</h2>
       <p class="section-desc">Ex: Silvestre, Aigua...</p>
       <button type="button" class="btn-primary" (click)="openCreate('collection')">
-        <i class="pi pi-plus"></i>
-        Nova col·lecció
+        <i class="pi pi-plus" aria-hidden="true"></i>
+        <span>Nova col·lecció</span>
       </button>
       <div class="table-section">
         @if (collections().length === 0) {
@@ -32,11 +32,8 @@
               <tr>
                 <td>{{ item.name }}</td>
                 <td class="actions">
-                  <button type="button" class="btn-icon" (click)="openEdit('collection', item)">
+                  <button type="button" class="btn-icon" (click)="openEdit('collection', item)" title="Editar">
                     <i class="pi pi-pencil"></i>
-                  </button>
-                  <button type="button" class="btn-icon btn-danger" (click)="confirmDelete('collection', item)">
-                    <i class="pi pi-trash"></i>
                   </button>
                 </td>
               </tr>
@@ -47,26 +44,23 @@
     </div>
 
     <div class="config-section">
-      <h2>Tipus d'article</h2>
+      <h2>Tipus de peça</h2>
       <p class="section-desc">Ex: Polsera, anell, penjoll...</p>
       <button type="button" class="btn-primary" (click)="openCreate('articleType')">
-        <i class="pi pi-plus"></i>
-        Nou tipus
+        <i class="pi pi-plus" aria-hidden="true"></i>
+        <span>Nou tipus de peça</span>
       </button>
       <div class="table-section">
         @if (articleTypes().length === 0) {
-          <p class="empty">Cap tipus d'article</p>
+          <p class="empty">Cap tipus de peça</p>
         } @else {
           <table class="config-table">
             @for (item of articleTypes(); track item.id) {
               <tr>
                 <td>{{ item.name }}</td>
                 <td class="actions">
-                  <button type="button" class="btn-icon" (click)="openEdit('articleType', item)">
+                  <button type="button" class="btn-icon" (click)="openEdit('articleType', item)" title="Editar">
                     <i class="pi pi-pencil"></i>
-                  </button>
-                  <button type="button" class="btn-icon btn-danger" (click)="confirmDelete('articleType', item)">
-                    <i class="pi pi-trash"></i>
                   </button>
                 </td>
               </tr>
@@ -77,25 +71,25 @@
     </div>
 
     <div class="config-section">
-      <h2>Tipus de compostura</h2>
-      <p class="section-desc">Ex: Arreglos, Aliances, Peça personalitzada...</p>
-      <button type="button" class="btn-primary" (click)="openCreate('composturaType')">
-        <i class="pi pi-plus"></i>
-        Nou tipus
+      <h2>Tipus de personalització</h2>
+      <p class="section-desc">Ex: Reparació, Aliances, Peça personalitzada...</p>
+      <button type="button" class="btn-primary" (click)="openCreate('personalizationType')">
+        <i class="pi pi-plus" aria-hidden="true"></i>
+        <span>Nou tipus</span>
       </button>
       <div class="table-section">
-        @if (composturaTypes().length === 0) {
-          <p class="empty">Cap tipus de compostura</p>
+        @if (personalizationTypes().length === 0) {
+          <p class="empty">Cap tipus de personalització</p>
         } @else {
           <table class="config-table">
-            @for (item of composturaTypes(); track item.id) {
+            @for (item of personalizationTypes(); track item.id) {
               <tr>
                 <td>{{ item.name }}</td>
                 <td class="actions">
-                  <button type="button" class="btn-icon" (click)="openEdit('composturaType', item)">
+                  <button type="button" class="btn-icon" (click)="openEdit('personalizationType', item)" title="Editar">
                     <i class="pi pi-pencil"></i>
                   </button>
-                  <button type="button" class="btn-icon btn-danger" (click)="confirmDelete('composturaType', item)">
+                  <button type="button" class="btn-icon btn-danger" (click)="confirmDelete('personalizationType', item)" title="Eliminar">
                     <i class="pi pi-trash"></i>
                   </button>
                 </td>

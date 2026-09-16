@@ -4,12 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { ComposturasService } from '../../services/composturas.service';
-import { Compostura } from '../../models/compostura.model';
+import { PersonalizationsService } from '../../services/personalizations.service';
+import { Personalization } from '../../models/personalization.model';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 
 @Component({
-  selector: 'app-composturas-list',
+  selector: 'app-personalizations-list',
   standalone: true,
   imports: [
     CommonModule,
@@ -19,38 +19,38 @@ import { EmptyStateComponent } from '../../../../shared/components/empty-state/e
     EmptyStateComponent,
   ],
   providers: [ConfirmationService, MessageService],
-  templateUrl: './composturas-list.component.html',
-  styleUrl: './composturas-list.component.css',
+  templateUrl: './personalizations-list.component.html',
+  styleUrl: './personalizations-list.component.css',
 })
-export class ComposturasListComponent implements OnInit {
-  composturas: Compostura[] = [];
+export class PersonalizationsListComponent implements OnInit {
+  personalizations: Personalization[] = [];
   loading = false;
   searchText = '';
 
   constructor(
-    private composturasService: ComposturasService,
+    private personalizationsService: PersonalizationsService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
     public router: Router,
   ) {}
 
   ngOnInit() {
-    this.loadComposturas();
+    this.loadPersonalizations();
   }
 
-  loadComposturas() {
+  loadPersonalizations() {
     this.loading = true;
-    this.composturasService.getAll().subscribe({
+    this.personalizationsService.getAll().subscribe({
       next: (data) => {
-        this.composturas = data;
+        this.personalizations = data;
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading composturas:', error);
+        console.error('Error loading personalizations:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Error en carregar les compostures',
+          detail: 'Error en carregar les personalitzacions',
         });
         this.loading = false;
       },
@@ -59,22 +59,22 @@ export class ComposturasListComponent implements OnInit {
 
   search() {
     if (!this.searchText.trim()) {
-      this.loadComposturas();
+      this.loadPersonalizations();
       return;
     }
 
     this.loading = true;
-    this.composturasService.search({ code: this.searchText }).subscribe({
+    this.personalizationsService.search({ code: this.searchText }).subscribe({
       next: (data) => {
-        this.composturas = data;
+        this.personalizations = data;
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error searching composturas:', error);
+        console.error('Error searching personalizations:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Error en cercar compostures',
+          detail: 'Error en cercar personalitzacions',
         });
         this.loading = false;
       },
@@ -83,41 +83,41 @@ export class ComposturasListComponent implements OnInit {
 
   clearSearch() {
     this.searchText = '';
-    this.loadComposturas();
+    this.loadPersonalizations();
   }
 
-  editCompostura(compostura: Compostura) {
-    this.router.navigate(['/composturas', compostura.id, 'edit']);
+  editPersonalization(personalization: Personalization) {
+    this.router.navigate(['/personalizaciones', personalization.id, 'edit']);
   }
 
-  confirmDelete(compostura: Compostura) {
+  confirmDelete(personalization: Personalization) {
     this.confirmationService.confirm({
-      message: `Estàs segur d'eliminar la compostura "${compostura.code}"?`,
+      message: `Estàs segur d'eliminar la personalization "${personalization.code}"?`,
       header: 'Confirmar eliminació',
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
-        this.deleteCompostura(compostura);
+        this.deletePersonalization(personalization);
       },
     });
   }
 
-  deleteCompostura(compostura: Compostura) {
-    this.composturasService.delete(compostura.id).subscribe({
+  deletePersonalization(personalization: Personalization) {
+    this.personalizationsService.delete(personalization.id).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
           summary: 'Èxit',
-          detail: 'Compostura eliminada correctament',
+          detail: 'Personalization eliminada correctament',
         });
-        this.loadComposturas();
+        this.loadPersonalizations();
       },
       error: (error) => {
-        console.error('Error deleting compostura:', error);
+        console.error('Error deleting personalization:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Error en eliminar la compostura',
+          detail: 'Error en eliminar la personalization',
         });
       },
     });

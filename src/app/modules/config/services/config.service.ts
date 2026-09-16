@@ -16,7 +16,7 @@ export interface ArticleType {
   updatedAt: string;
 }
 
-export interface ComposturaType {
+export interface PersonalizationType {
   id: string;
   name: string;
   createdAt: string;
@@ -31,7 +31,6 @@ export class ConfigService {
 
   constructor(private api: ApiService) {}
 
-  // Collections
   getCollections(): Observable<Collection[]> {
     return this.api.get<Collection[]>(`${this.base}/collections`);
   }
@@ -50,7 +49,6 @@ export class ConfigService {
     return this.api.delete<void>(`${this.base}/collections/${id}`);
   }
 
-  // Article types
   getArticleTypes(): Observable<ArticleType[]> {
     return this.api.get<ArticleType[]>(`${this.base}/article-types`);
   }
@@ -69,26 +67,30 @@ export class ConfigService {
     return this.api.delete<void>(`${this.base}/article-types/${id}`);
   }
 
-  // Compostura types
-  getComposturaTypes(): Observable<ComposturaType[]> {
-    return this.api.get<ComposturaType[]>(`${this.base}/compostura-types`);
+  getPersonalizationTypes(): Observable<PersonalizationType[]> {
+    return this.api.get<PersonalizationType[]>(
+      `${this.base}/personalization-types`,
+    );
   }
 
-  createComposturaType(name: string): Observable<ComposturaType> {
-    return this.api.post<ComposturaType>(
-      `${this.base}/compostura-types`,
+  createPersonalizationType(name: string): Observable<PersonalizationType> {
+    return this.api.post<PersonalizationType>(
+      `${this.base}/personalization-types`,
       { name },
     );
   }
 
-  updateComposturaType(id: string, name: string): Observable<ComposturaType> {
-    return this.api.patch<ComposturaType>(
-      `${this.base}/compostura-types/${id}`,
+  updatePersonalizationType(
+    id: string,
+    name: string,
+  ): Observable<PersonalizationType> {
+    return this.api.patch<PersonalizationType>(
+      `${this.base}/personalization-types/${id}`,
       { name },
     );
   }
 
-  deleteComposturaType(id: string): Observable<void> {
-    return this.api.delete<void>(`${this.base}/compostura-types/${id}`);
+  deletePersonalizationType(id: string): Observable<void> {
+    return this.api.delete<void>(`${this.base}/personalization-types/${id}`);
   }
 }

@@ -34,20 +34,29 @@
         </div>
 
         <div class="form-group">
-          <label for="surname">Cognom *</label>
+          <label for="surname">Cognoms</label>
           <input
             id="surname"
             type="text"
             formControlName="surname"
-            [class.ng-invalid]="form.get('surname')?.invalid && form.get('surname')?.touched"
           />
-          @if (form.get('surname')?.invalid && form.get('surname')?.touched) {
-            <small class="p-error">El cognom és obligatori</small>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            [class.ng-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
+          />
+          @if (form.get('email')?.invalid && form.get('email')?.touched) {
+            <small class="p-error">Email no vàlid</small>
           }
         </div>
 
         <div class="form-group">
-          <label for="mobilePhone">Telèfon Mòbil</label>
+          <label for="mobilePhone">Mòbil</label>
           <input
             id="mobilePhone"
             type="text"
@@ -56,14 +65,13 @@
           />
         </div>
 
-        <div class="form-group">
-          <label for="landlinePhone">Telèfon Fix</label>
-          <input
-            id="landlinePhone"
-            type="text"
-            formControlName="landlinePhone"
-            placeholder="Ex: 971234567"
-          />
+        <div class="form-group full-width">
+          <label for="observations">Observacions</label>
+          <textarea
+            id="observations"
+            formControlName="observations"
+            rows="4"
+          ></textarea>
         </div>
       </div>
 
@@ -84,4 +92,3 @@
     </form>
   </div>
 </div>
-

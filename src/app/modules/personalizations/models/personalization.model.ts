@@ -1,17 +1,24 @@
-export interface Compostura {
+export interface Personalization {
   id: string;
   code: string;
+  clientId: string;
   client: {
     id: string;
     name: string;
-    surname: string;
+    surname: string | null;
+    mobilePhone: string | null;
+    email: string | null;
   };
+  workshopId: string | null;
   workshop: {
     id: string;
     name: string;
   } | null;
-  composturaType: { id: string; name: string } | null;
-  composturaTypeId: string | null;
+  personalizationTypeId: string | null;
+  personalizationType: {
+    id: string;
+    name: string;
+  } | null;
   description: string;
   workToDo: string | null;
   entryDate: string;
@@ -26,11 +33,11 @@ export interface Compostura {
   updatedAt: string;
 }
 
-export interface CreateComposturaDto {
+export interface CreatePersonalizationDto {
   code: string;
   clientId: string;
   workshopId?: string;
-  composturaTypeId?: string;
+  personalizationTypeId?: string;
   description: string;
   workToDo?: string;
   entryDate: string;
@@ -42,4 +49,3 @@ export interface CreateComposturaDto {
   paymentOnAccount?: number;
   photo?: string;
 }
-

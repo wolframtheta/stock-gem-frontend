@@ -4,16 +4,16 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
-import { ComposturasService } from '../../services/composturas.service';
+import { PersonalizationsService } from '../../services/personalizations.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { WorkshopsService } from '../../../workshops/services/workshops.service';
 import { ConfigService } from '../../../config/services/config.service';
-import { Compostura, CreateComposturaDto } from '../../models/compostura.model';
+import { Personalization, CreatePersonalizationDto } from '../../models/personalization.model';
 import { Client } from '../../../clients/models/client.model';
 import { Workshop } from '../../../workshops/models/workshop.model';
 
 @Component({
-  selector: 'app-compostura-form',
+  selector: 'app-personalization-form',
   standalone: true,
   imports: [
     CommonModule,
@@ -22,18 +22,18 @@ import { Workshop } from '../../../workshops/models/workshop.model';
     SelectModule,
   ],
   providers: [MessageService],
-  templateUrl: './compostura-form.component.html',
-  styleUrl: './compostura-form.component.css',
+  templateUrl: './personalization-form.component.html',
+  styleUrl: './personalization-form.component.css',
 })
-export class ComposturaFormComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class PersonalizationFormComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('webcamVideo', { static: false }) webcamVideo?: ElementRef<HTMLVideoElement>;
   
   form: FormGroup;
-  composturaId: string | null = null;
+  personalizationId: string | null = null;
   loading = false;
   clients: Client[] = [];
   workshops: Workshop[] = [];
-  composturaTypes: { id: string; name: string }[] = [];
+  personalizationTypes: { id: string; name: string }[] = [];
   
   // Webcam properties
   showWebcam = false;
@@ -45,7 +45,7 @@ export class ComposturaFormComponent implements OnInit, OnDestroy, AfterViewChec
     private fb: FormBuilder,
     private route: ActivatedRoute,
     public router: Router,
-    private composturasService: ComposturasService,
+    private personalizationsService: PersonalizationsService,
     private clientsService: ClientsService,
     private workshopsService: WorkshopsService,
     private configService: ConfigService,
@@ -55,7 +55,7 @@ export class ComposturaFormComponent implements OnInit, OnDestroy, AfterViewChec
       code: ['', [Validators.required, Validators.maxLength(50)]],
       clientId: ['', [Validators.required]],
       workshopId: [''],
-      composturaTypeId: [''],
+      personalizationTypeId: [''],
       description: ['', [Validators.required]],
       workToDo: [''],
       entryDate: ['', [Validators.required]],
@@ -72,11 +72,11 @@ export class ComposturaFormComponent implements OnInit, OnDestroy, AfterViewChec
   ngOnInit() {
     this.loadClients();
     this.loadWorkshops();
-    this.loadComposturaTypes();
+    this.loadPersonalizationTypes();
     
-    this.composturaId = this.route.snapshot.paramMap.get('id');
-    if (this.composturaId && this.composturaId !== 'new') {
-      this.loadCompostura();
+    this.personalizationId = this.route.snapshot.paramMap.get('id');
+    if (this.personalizationId && this.personalizationId !== 'new') {
+      this.loadPersonalization();
     }
   }
 
@@ -91,10 +91,10 @@ export class ComposturaFormComponent implements OnInit, OnDestroy, AfterViewChec
     });
   }
 
-  loadComposturaTypes() {
-    this.configService.getComposturaTypes().subscribe({
+  loadPersonalizationTypes() {
+    this.configService.getPersonalizationTypes().subscribe({
       next: (data) => {
-        this.composturaTypes = data;
+        this.personalizationTypes = data;
       },
       error: () => {},
     });
@@ -111,45 +111,45 @@ export class ComposturaFormComponent implements OnInit, OnDestroy, AfterViewChec
     });
   }
 
-  loadCompostura() {
-    if (!this.composturaId) return;
+  loadPersonalization() {
+    if (!this.personalizationId) return;
 
     this.loading = true;
-    this.composturasService.getById(this.composturaId).subscribe({
-      next: (compostura) => {
+    this.personalizationsService.getById(this.personalizationId).subscribe({
+      next: (personalization) => {
         this.form.patchValue({
-          code: compostura.code,
-          clientId: compostura.client.id,
-          workshopId: compostura.workshop?.id || '',
-          composturaTypeId: compostura.composturaTypeId || '',
-          description: compostura.description,
-          workToDo: compostura.workToDo || '',
-          entryDate: this.formatDateForInput(compostura.entryDate),
-          deliveryToWorkshopDate: compostura.deliveryToWorkshopDate
-            ? this.formatDateForInput(compostura.deliveryToWorkshopDate)
+          code: personalization.code,
+          clientId: personalization.client.id,
+          workshopId: personalization.workshop?.id || '',
+          personalizationTypeId: personalization.personalizationTypeId || '',
+          description: personalization.description,
+          workToDo: personalization.workToDo || '',
+          entryDate: this.formatDateForInput(personalization.entryDate),
+          deliveryToWorkshopDate: personalization.deliveryToWorkshopDate
+            ? this.formatDateForInput(personalization.deliveryToWorkshopDate)
             : '',
-          exitFromWorkshopDate: compostura.exitFromWorkshopDate
-            ? this.formatDateForInput(compostura.exitFromWorkshopDate)
+          exitFromWorkshopDate: personalization.exitFromWorkshopDate
+            ? this.formatDateForInput(personalization.exitFromWorkshopDate)
             : '',
-          deliveryToClientDate: compostura.deliveryToClientDate
-            ? this.formatDateForInput(compostura.deliveryToClientDate)
+          deliveryToClientDate: personalization.deliveryToClientDate
+            ? this.formatDateForInput(personalization.deliveryToClientDate)
             : '',
-          cost: compostura.cost,
-          pvp: compostura.pvp,
-          paymentOnAccount: compostura.paymentOnAccount,
-          photo: compostura.photo || '',
+          cost: personalization.cost,
+          pvp: personalization.pvp,
+          paymentOnAccount: personalization.paymentOnAccount,
+          photo: personalization.photo || '',
         });
-        if (compostura.photo) {
-          this.capturedImage = compostura.photo;
+        if (personalization.photo) {
+          this.capturedImage = personalization.photo;
         }
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading compostura:', error);
+        console.error('Error loading personalization:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Error en carregar la compostura',
+          detail: 'Error en carregar la personalization',
         });
         this.loading = false;
       },
@@ -182,11 +182,11 @@ export class ComposturaFormComponent implements OnInit, OnDestroy, AfterViewChec
 
     this.loading = true;
     const formValue = this.form.value;
-    const composturaDto: CreateComposturaDto = {
+    const personalizationDto: CreatePersonalizationDto = {
       code: formValue.code,
       clientId: formValue.clientId,
       workshopId: formValue.workshopId || undefined,
-      composturaTypeId: formValue.composturaTypeId || undefined,
+      personalizationTypeId: formValue.personalizationTypeId || undefined,
       description: formValue.description,
       workToDo: formValue.workToDo || undefined,
       entryDate: formValue.entryDate,
@@ -199,44 +199,44 @@ export class ComposturaFormComponent implements OnInit, OnDestroy, AfterViewChec
       photo: formValue.photo || undefined,
     };
 
-    if (this.composturaId && this.composturaId !== 'new') {
+    if (this.personalizationId && this.personalizationId !== 'new') {
       // Update
-      this.composturasService.update(this.composturaId, composturaDto).subscribe({
+      this.personalizationsService.update(this.personalizationId, personalizationDto).subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
             summary: 'Èxit',
-            detail: 'Compostura actualitzada correctament',
+            detail: 'Personalization actualitzada correctament',
           });
-          this.router.navigate(['/composturas']);
+          this.router.navigate(['/personalizaciones']);
         },
         error: (error) => {
-          console.error('Error updating compostura:', error);
+          console.error('Error updating personalization:', error);
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: error.error?.message || 'Error en actualitzar la compostura',
+            detail: error.error?.message || 'Error en actualitzar la personalization',
           });
           this.loading = false;
         },
       });
     } else {
       // Create
-      this.composturasService.create(composturaDto).subscribe({
+      this.personalizationsService.create(personalizationDto).subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
             summary: 'Èxit',
-            detail: 'Compostura creada correctament',
+            detail: 'Personalization creada correctament',
           });
-          this.router.navigate(['/composturas']);
+          this.router.navigate(['/personalizaciones']);
         },
         error: (error) => {
-          console.error('Error creating compostura:', error);
+          console.error('Error creating personalization:', error);
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: error.error?.message || 'Error en crear la compostura',
+            detail: error.error?.message || 'Error en crear la personalization',
           });
           this.loading = false;
         },
@@ -246,7 +246,7 @@ export class ComposturaFormComponent implements OnInit, OnDestroy, AfterViewChec
 
   cancel() {
     this.stopWebcam();
-    this.router.navigate(['/composturas']);
+    this.router.navigate(['/personalizaciones']);
   }
 
   async startWebcam() {

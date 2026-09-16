@@ -24,7 +24,7 @@
       <i class="pi pi-search"></i>
       <input
         type="text"
-        placeholder="Cercar per nom o telèfon..."
+        placeholder="Cercar per nom, cognom, email o mòbil..."
         [(ngModel)]="searchText"
         (keyup.enter)="search()"
         class="search-input"
@@ -74,7 +74,7 @@
           </div>
           
           <div class="card-body">
-            <h3>{{ client.name }} {{ client.surname }}</h3>
+            <h3>{{ formatClientName(client) }}</h3>
             
             <div class="client-details">
               @if (client.mobilePhone) {
@@ -84,17 +84,17 @@
                 </div>
               }
               
-              @if (client.landlinePhone) {
+              @if (client.email) {
                 <div class="detail-item">
-                  <i class="pi pi-phone"></i>
-                  <span>{{ client.landlinePhone }}</span>
+                  <i class="pi pi-envelope"></i>
+                  <span>{{ client.email }}</span>
                 </div>
               }
               
-              @if (!client.mobilePhone && !client.landlinePhone) {
+              @if (!client.mobilePhone && !client.email) {
                 <div class="detail-item no-info">
                   <i class="pi pi-info-circle"></i>
-                  <span>Sense telèfon registrat</span>
+                  <span>Sense contacte registrat</span>
                 </div>
               }
             </div>

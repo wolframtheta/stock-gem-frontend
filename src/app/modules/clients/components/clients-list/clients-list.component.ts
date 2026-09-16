@@ -87,13 +87,17 @@ export class ClientsListComponent implements OnInit {
     this.loadClients();
   }
 
+  formatClientName(client: Client): string {
+    return [client.name, client.surname].filter(Boolean).join(' ');
+  }
+
   editClient(client: Client) {
     this.router.navigate(['/clients', client.id, 'edit']);
   }
 
   confirmDelete(client: Client) {
     this.confirmationService.confirm({
-      message: `Estàs segur d'eliminar el client "${client.name} ${client.surname}"?`,
+      message: `Estàs segur d'eliminar el client "${this.formatClientName(client)}"?`,
       header: 'Confirmar eliminació',
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',

@@ -21,7 +21,7 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="article-form">
       <div class="form-grid">
       <div class="form-group">
-        <label for="ownReference">Referència Pròpia *</label>
+        <label for="ownReference">Codi *</label>
         <input
           id="ownReference"
           type="text"
@@ -29,57 +29,21 @@
           [class.ng-invalid]="form.get('ownReference')?.invalid && form.get('ownReference')?.touched"
         />
         @if (form.get('ownReference')?.invalid && form.get('ownReference')?.touched) {
-          <small class="p-error">La referència pròpia és obligatòria</small>
+          <small class="p-error">El codi és obligatori</small>
         }
-      </div>
-
-      <div class="form-group">
-        <label for="supplierReference">Referència Proveïdor</label>
-        <input
-          id="supplierReference"
-          type="text"
-          formControlName="supplierReference"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="family">Família</label>
-        <input
-          id="family"
-          type="text"
-          formControlName="family"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="subfamily">Subfamília</label>
-        <input
-          id="subfamily"
-          type="text"
-          formControlName="subfamily"
-        />
       </div>
 
       <div class="form-group full-width">
-        <label for="description">Descripció *</label>
-        <textarea
-          id="description"
-          formControlName="description"
-          rows="3"
-          [class.ng-invalid]="form.get('description')?.invalid && form.get('description')?.touched"
-        ></textarea>
-        @if (form.get('description')?.invalid && form.get('description')?.touched) {
-          <small class="p-error">La descripció és obligatòria</small>
-        }
-      </div>
-
-      <div class="form-group">
-        <label for="shortDescription">Descripció Curta</label>
+        <label for="description">Nom *</label>
         <input
-          id="shortDescription"
+          id="description"
           type="text"
-          formControlName="shortDescription"
+          formControlName="description"
+          [class.ng-invalid]="form.get('description')?.invalid && form.get('description')?.touched"
         />
+        @if (form.get('description')?.invalid && form.get('description')?.touched) {
+          <small class="p-error">El nom és obligatori</small>
+        }
       </div>
 
       <div class="form-group">
@@ -123,38 +87,6 @@
       </div>
 
       <div class="form-group">
-        <label for="weight">Pes/Quilats</label>
-        <input
-          id="weight"
-          type="number"
-          step="0.001"
-          min="0"
-          formControlName="weight"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="margin">Marge</label>
-        <input
-          id="margin"
-          type="number"
-          step="0.01"
-          formControlName="margin"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="taxBase">Base Imposable</label>
-        <input
-          id="taxBase"
-          type="number"
-          step="0.01"
-          min="0"
-          formControlName="taxBase"
-        />
-      </div>
-
-      <div class="form-group">
         <label for="collectionId">Col·lecció</label>
         <div class="select-with-add">
           <div class="select-wrap">
@@ -168,14 +100,14 @@
               [showClear]="true"
             />
           </div>
-          <button type="button" class="btn-icon-add" (click)="openAddModal('collection')" title="Nova col·lecció">
-            <i class="pi pi-plus"></i>
+          <button type="button" class="btn-icon-add" (click)="openAddModal('collection')" title="Nova col·lecció" aria-label="Nova col·lecció">
+            <i class="pi pi-plus" aria-hidden="true"></i>
           </button>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="articleTypeId">Tipus</label>
+        <label for="articleTypeId">Tipus de peça</label>
         <div class="select-with-add">
           <div class="select-wrap">
             <p-select
@@ -184,38 +116,14 @@
               [options]="articleTypes"
               optionLabel="name"
               optionValue="id"
-              placeholder="Seleccionar tipus"
+              placeholder="Seleccionar tipus de peça"
               [showClear]="true"
             />
           </div>
-          <button type="button" class="btn-icon-add" (click)="openAddModal('articleType')" title="Nou tipus">
-            <i class="pi pi-plus"></i>
+          <button type="button" class="btn-icon-add" (click)="openAddModal('articleType')" title="Nou tipus de peça" aria-label="Nou tipus de peça">
+            <i class="pi pi-plus" aria-hidden="true"></i>
           </button>
         </div>
-      </div>
-
-      <div class="form-group">
-        <label for="supplierId">Proveïdor</label>
-        <select
-          id="supplierId"
-          formControlName="supplierId"
-        >
-          <option [value]="null">Seleccionar proveïdor</option>
-          @for (supplier of suppliers; track supplier.id) {
-            <option [value]="supplier.id">
-              {{ supplier.name }} {{ supplier.surname }}
-            </option>
-          }
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="barcode">Codi de Barres</label>
-        <input
-          id="barcode"
-          type="text"
-          formControlName="barcode"
-        />
       </div>
 
       <div class="form-group">
@@ -228,7 +136,7 @@
       </div>
 
       <div class="form-group full-width">
-        <label for="observations">Observacions</label>
+        <label for="observations">Fitxa tècnica</label>
         <textarea
           id="observations"
           formControlName="observations"
@@ -256,7 +164,7 @@
 </div>
 
 <p-dialog
-  [header]="addModalType === 'collection' ? 'Nova col·lecció' : 'Nou tipus'"
+  [header]="addModalType === 'collection' ? 'Nova col·lecció' : 'Nou tipus de peça'"
   [visible]="addModalVisible"
   (visibleChange)="addModalVisible = $event"
   [modal]="true"
@@ -269,5 +177,3 @@
     <button type="button" pButton label="Crear" (click)="saveAddModal()" [disabled]="!addModalName.trim()"></button>
   </ng-template>
 </p-dialog>
-
-

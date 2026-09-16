@@ -27,7 +27,6 @@ export class StockGeneralComponent implements OnInit {
   articles = signal<Article[]>([]);
   loading = signal(false);
   searchOwnRef = '';
-  searchSupplierRef = '';
 
   constructor(private articlesService: ArticlesService) {}
 
@@ -47,7 +46,7 @@ export class StockGeneralComponent implements OnInit {
   }
 
   search() {
-    if (!this.searchOwnRef && !this.searchSupplierRef) {
+    if (!this.searchOwnRef) {
       this.loadArticles();
       return;
     }
@@ -55,7 +54,6 @@ export class StockGeneralComponent implements OnInit {
     this.articlesService
       .search({
         ownReference: this.searchOwnRef || undefined,
-        supplierReference: this.searchSupplierRef || undefined,
       })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
@@ -66,7 +64,6 @@ export class StockGeneralComponent implements OnInit {
 
   clearSearch() {
     this.searchOwnRef = '';
-    this.searchSupplierRef = '';
     this.loadArticles();
   }
 

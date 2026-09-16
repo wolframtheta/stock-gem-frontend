@@ -9,7 +9,12 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
 import { catchError, of } from 'rxjs';
-import { ConfigService, Collection, ArticleType, ComposturaType } from '../../services/config.service';
+import {
+  ConfigService,
+  Collection,
+  ArticleType,
+  PersonalizationType,
+} from '../../services/config.service';
 import { ConfirmationService } from 'primeng/api';
 
 @Component({
@@ -32,13 +37,13 @@ import { ConfirmationService } from 'primeng/api';
 export class ConfigPageComponent implements OnInit {
   collections = signal<Collection[]>([]);
   articleTypes = signal<ArticleType[]>([]);
-  composturaTypes = signal<ComposturaType[]>([]);
+  personalizationTypes = signal<PersonalizationType[]>([]);
   loading = signal(false);
   dialogVisible = signal(false);
   dialogMode = signal<'create' | 'edit'>('create');
-  dialogSection = signal<'collection' | 'articleType' | 'composturaType'>(
-    'collection',
-  );
+  dialogSection = signal<
+    'collection' | 'articleType' | 'personalizationType'
+  >('collection');
   editId = signal<string | null>(null);
   editName = '';
 
@@ -72,12 +77,12 @@ export class ConfigPageComponent implements OnInit {
       .subscribe((data) => this.articleTypes.set(data));
 
     this.configService
-      .getComposturaTypes()
-      .pipe(catchError(() => of<ComposturaType[]>([])))
-      .subscribe((data) => this.composturaTypes.set(data));
+      .getPersonalizationTypes()
+      .pipe(catchError(() => of<PersonalizationType[]>([])))
+      .subscribe((data) => this.personalizationTypes.set(data));
   }
 
-  openCreate(section: 'collection' | 'articleType' | 'composturaType') {
+  openCreate(section: 'collection' | 'articleType' | 'personalizationType') {
     this.dialogSection.set(section);
     this.dialogMode.set('create');
     this.editId.set(null);
@@ -86,7 +91,7 @@ export class ConfigPageComponent implements OnInit {
   }
 
   openEdit(
-    section: 'collection' | 'articleType' | 'composturaType',
+    section: 'collection' | 'articleType' | 'personalizationType',
     item: { id: string; name: string },
   ) {
     this.dialogSection.set(section);
@@ -119,7 +124,7 @@ export class ConfigPageComponent implements OnInit {
           ? this.configService.createCollection(name)
           : section === 'articleType'
             ? this.configService.createArticleType(name)
-            : this.configService.createComposturaType(name);
+            : this.configService.createPersonalizationType(name);
       req.subscribe({
         next: () => {
           done();
@@ -146,7 +151,7 @@ export class ConfigPageComponent implements OnInit {
           ? this.configService.updateCollection(id, name)
           : section === 'articleType'
             ? this.configService.updateArticleType(id, name)
-            : this.configService.updateComposturaType(id, name);
+            : this.configService.updatePersonalizationType(id, name);
       req.subscribe({
         next: () => {
           done();
@@ -173,7 +178,7 @@ export class ConfigPageComponent implements OnInit {
   }
 
   confirmDelete(
-    section: 'collection' | 'articleType' | 'composturaType',
+    section: 'personalizationType',
     item: { id: string; name: string },
   ) {
     this.confirmationService.confirm({
@@ -186,18 +191,8 @@ export class ConfigPageComponent implements OnInit {
     });
   }
 
-  deleteItem(
-    section: 'collection' | 'articleType' | 'composturaType',
-    id: string,
-  ) {
-    const req =
-      section === 'collection'
-        ? this.configService.deleteCollection(id)
-        : section === 'articleType'
-          ? this.configService.deleteArticleType(id)
-          : this.configService.deleteComposturaType(id);
-
-    req.subscribe({
+  deleteItem(section: 'personalizationType', id: string) {
+    this.configService.deletePersonalizationType(id).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -221,8 +216,8 @@ export class ConfigPageComponent implements OnInit {
     const mode = this.dialogMode();
     const labels = {
       collection: 'Col·lecció',
-      articleType: 'Tipus d\'article',
-      composturaType: 'Tipus de compostura',
+      articleType: 'Tipus de peça',
+      personalizationType: 'Tipus de personalització',
     };
     return `${mode === 'create' ? 'Nova' : 'Editar'} ${labels[section]}`;
   }

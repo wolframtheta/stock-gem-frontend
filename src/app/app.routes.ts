@@ -10,8 +10,8 @@ import { SuppliersListComponent } from './modules/suppliers/components/suppliers
 import { SupplierFormComponent } from './modules/suppliers/components/supplier-form/supplier-form.component';
 import { SalesListComponent } from './modules/sales/components/sales-list/sales-list.component';
 import { SaleFormComponent } from './modules/sales/components/sale-form/sale-form.component';
-import { ComposturasListComponent } from './modules/composturas/components/composturas-list/composturas-list.component';
-import { ComposturaFormComponent } from './modules/composturas/components/compostura-form/compostura-form.component';
+import { PersonalizationsListComponent } from './modules/personalizations/components/personalizations-list/personalizations-list.component';
+import { PersonalizationFormComponent } from './modules/personalizations/components/personalization-form/personalization-form.component';
 import { SalesPointsListComponent } from './modules/sales-points/components/sales-points-list/sales-points-list.component';
 import { SalesPointFormComponent } from './modules/sales-points/components/sales-point-form/sales-point-form.component';
 import { SalesPointStockComponent } from './modules/sales-points/components/sales-point-stock/sales-point-stock.component';
@@ -77,9 +77,10 @@ export const routes: Routes = [
       { path: 'sales', component: SalesListComponent },
       { path: 'sales/new', component: SaleFormComponent },
       { path: 'sales/:id/edit', component: SaleFormComponent },
-      { path: 'composturas', component: ComposturasListComponent },
-      { path: 'composturas/new', component: ComposturaFormComponent },
-      { path: 'composturas/:id/edit', component: ComposturaFormComponent },
+      { path: 'personalizaciones', component: PersonalizationsListComponent },
+      { path: 'personalizaciones/new', component: PersonalizationFormComponent },
+      { path: 'personalizaciones/:id/edit', component: PersonalizationFormComponent },
+      { path: 'composturas', redirectTo: 'personalizaciones', pathMatch: 'prefix' },
       {
         path: 'config',
         component: ConfigPageComponent,

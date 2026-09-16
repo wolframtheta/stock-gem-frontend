@@ -1,4 +1,4 @@
-<div class="composturas-container">
+<div class="personalizations-container">
   <div class="header-section">
     <div class="header-content">
       <div class="header-top">
@@ -9,13 +9,13 @@
       </div>
       <h1>
         <i class="pi pi-hammer"></i>
-        Compostures
+        Personalitzacions
       </h1>
       <p class="subtitle">Gestiona les reparacions de joies</p>
     </div>
-    <button class="btn-primary" (click)="router.navigate(['/composturas/new'])">
+    <button class="btn-primary" (click)="router.navigate(['/personalizaciones/new'])">
       <i class="pi pi-plus"></i>
-      Nova Compostura
+      Nova Personalització
     </button>
   </div>
 
@@ -45,66 +45,66 @@
   @if (loading) {
     <div class="loading-state">
       <i class="pi pi-spin pi-spinner text-brand-primary" style="font-size: 2rem"></i>
-      <p>Carregant compostures...</p>
+      <p>Carregant personalitzacions...</p>
     </div>
-  } @else if (composturas.length === 0) {
+  } @else if (personalizations.length === 0) {
     <app-empty-state
       icon="pi pi-hammer"
-      title="No hi ha compostures"
-      description="Comença afegint la teva primera compostura"
-      buttonText="Afegir Primera Compostura"
-      [buttonRoute]="'/composturas/new'"
+      title="No hi ha personalitzacions"
+      description="Comença afegint la teva primera personalització"
+      buttonText="Afegir Primera Personalization"
+      [buttonRoute]="'/personalizaciones/new'"
     ></app-empty-state>
   } @else {
-    <div class="composturas-grid">
-      @for (compostura of composturas; track compostura.id) {
-        <div class="compostura-card">
+    <div class="personalizations-grid">
+      @for (personalization of personalizations; track personalization.id) {
+        <div class="personalization-card">
           <div class="card-header-section">
-            <div class="compostura-icon">
+            <div class="personalization-icon">
               <i class="pi pi-hammer"></i>
             </div>
-            <div class="compostura-actions">
-              <button class="btn-icon" (click)="editCompostura(compostura)" title="Editar">
+            <div class="personalization-actions">
+              <button class="btn-icon" (click)="editPersonalization(personalization)" title="Editar">
                 <i class="pi pi-pencil"></i>
               </button>
-              <button class="btn-icon btn-danger" (click)="confirmDelete(compostura)" title="Eliminar">
+              <button class="btn-icon btn-danger" (click)="confirmDelete(personalization)" title="Eliminar">
                 <i class="pi pi-trash"></i>
               </button>
             </div>
           </div>
           
           <div class="card-body">
-            <h3>{{ compostura.code }}</h3>
-            <p class="description">{{ compostura.description }}</p>
+            <h3>{{ personalization.code }}</h3>
+            <p class="description">{{ personalization.description }}</p>
             
-            <div class="compostura-details">
+            <div class="personalization-details">
               <div class="detail-item">
                 <i class="pi pi-user"></i>
-                <span>{{ compostura.client.name }} {{ compostura.client.surname }}</span>
+                <span>{{ personalization.client.name }} {{ personalization.client.surname }}</span>
               </div>
               
-              @if (compostura.workshop) {
+              @if (personalization.workshop) {
                 <div class="detail-item">
                   <i class="pi pi-wrench"></i>
-                  <span>{{ compostura.workshop.name }}</span>
+                  <span>{{ personalization.workshop.name }}</span>
                 </div>
               }
               
               <div class="detail-item">
                 <i class="pi pi-calendar"></i>
-                <span>Entrada: {{ formatDate(compostura.entryDate) }}</span>
+                <span>Entrada: {{ formatDate(personalization.entryDate) }}</span>
               </div>
               
-              @if (compostura.deliveryToClientDate) {
+              @if (personalization.deliveryToClientDate) {
                 <div class="detail-item">
                   <i class="pi pi-check-circle"></i>
-                  <span>Lliurada: {{ formatDate(compostura.deliveryToClientDate) }}</span>
+                  <span>Lliurada: {{ formatDate(personalization.deliveryToClientDate) }}</span>
                 </div>
               }
               
               <div class="detail-item price">
                 <i class="pi pi-euro"></i>
-                <span>PVP: {{ compostura.pvp.toFixed(2) }}€</span>
+                <span>PVP: {{ personalization.pvp.toFixed(2) }}€</span>
               </div>
             </div>
           </div>

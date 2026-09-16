@@ -90,6 +90,31 @@
   flex-shrink: 0;
 }
 
+.technical-sheet-section {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.technical-sheet-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  margin: 0 0 1rem;
+  color: #1e293b;
+}
+
+.technical-sheet-content {
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
 .content-wrapper {
   max-width: 1200px;
   margin: 0 auto;

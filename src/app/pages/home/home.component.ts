@@ -73,9 +73,9 @@ export class HomeComponent implements OnInit {
       iconClasses: ['pi', 'pi-money-bill'],
     },
     {
-      title: 'Nova Compostura',
-      description: 'Registra una nova reparació',
-      route: '/composturas/new',
+      title: 'Nova Personalització',
+      description: 'Registra una nova personalització',
+      route: '/personalizaciones/new',
       color: HOME_ICON_PASTELS[1],
       iconClasses: ['pi', 'pi-hammer'],
     },
@@ -90,9 +90,9 @@ export class HomeComponent implements OnInit {
         iconClasses: ['pi', 'pi-shopping-cart'],
       },
       {
-        title: 'Compostures',
-        description: 'Veure i gestionar les reparacions',
-        route: '/composturas',
+        title: 'Personalitzacions',
+        description: 'Veure i gestionar les personalitzacions',
+        route: '/personalizaciones',
         iconClasses: ['pi', 'pi-hammer'],
       },
       {
@@ -133,7 +133,7 @@ export class HomeComponent implements OnInit {
       },
       {
         title: 'Tallers',
-        description: 'Tallers de reparació i compostura',
+        description: 'Tallers de reparació i personalització',
         route: '/workshops',
         iconClasses: ['pi', 'pi-wrench'],
       },
@@ -148,7 +148,7 @@ export class HomeComponent implements OnInit {
         },
         {
           title: 'Configuració',
-          description: 'Col·leccions, tipus d\'articles i compostures',
+          description: 'Col·leccions, tipus de peça i personalitzacions',
           route: '/config',
           iconClasses: ['pi', 'pi-cog'],
         },

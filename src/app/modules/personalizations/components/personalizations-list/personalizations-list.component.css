@@ -1,4 +1,4 @@
-.composturas-container {
+.personalizations-container {
   min-height: 100vh;
   background: var(--gradient-page);
   padding: 2rem 1rem;
@@ -156,7 +156,7 @@
   margin-top: 1rem;
 }
 
-.composturas-grid {
+.personalizations-grid {
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
@@ -164,7 +164,7 @@
   gap: 1.5rem;
 }
 
-.compostura-card {
+.personalization-card {
   background: white;
   border-radius: 16px;
   padding: 1.5rem;
@@ -173,7 +173,7 @@
   border: 2px solid transparent;
 }
 
-.compostura-card:hover {
+.personalization-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
   border-color: color-mix(in srgb, var(--color-brand-secondary) 22%, transparent);
@@ -186,7 +186,7 @@
   margin-bottom: 1rem;
 }
 
-.compostura-icon {
+.personalization-icon {
   width: 50px;
   height: 50px;
   background: linear-gradient(135deg, var(--color-brand-secondary) 0%, color-mix(in srgb, var(--color-brand-secondary) 72%, black) 100%);
@@ -197,12 +197,12 @@
   box-shadow: 0 4px 12px color-mix(in srgb, var(--color-brand-secondary) 30%, transparent);
 }
 
-.compostura-icon i {
+.personalization-icon i {
   color: white;
   font-size: 1.5rem;
 }
 
-.compostura-actions {
+.personalization-actions {
   display: flex;
   gap: 0.5rem;
 }
@@ -245,7 +245,7 @@
   line-height: 1.5;
 }
 
-.compostura-details {
+.personalization-details {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -304,7 +304,7 @@
     justify-content: center;
   }
 
-  .composturas-grid {
+  .personalizations-grid {
     grid-template-columns: 1fr;
   }
 }

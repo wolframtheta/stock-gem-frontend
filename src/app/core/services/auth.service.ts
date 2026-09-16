@@ -51,14 +51,12 @@ export class AuthService {
     email: string,
     password: string,
     name: string,
-    role?: 'admin' | 'botiga',
   ): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/register`, {
         email,
         password,
         name,
-        ...(role && { role }),
       })
       .pipe(tap((res) => this.setSession(res)));
   }

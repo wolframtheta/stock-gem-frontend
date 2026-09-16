@@ -13,18 +13,12 @@
             <i class="pi pi-sparkles"></i>
           </div>
           <div class="article-info">
-            <h1>{{ a.ownReference }}</h1>
-            <p class="description">{{ a.description }}</p>
-            @if (a.supplierReference) {
-              <span class="meta">Ref. proveïdor: {{ a.supplierReference }}</span>
-            }
+            <h1>{{ a.description }}</h1>
+            <p class="article-code">{{ a.ownReference }}</p>
             @if (a.collection?.name || a.articleType?.name) {
               <span class="meta">
                 {{ a.collection?.name || '' }}{{ a.collection?.name && a.articleType?.name ? ' · ' : '' }}{{ a.articleType?.name || '' }}
               </span>
-            }
-            @if (a.family) {
-              <span class="meta">{{ a.family }}{{ a.subfamily ? ' / ' + a.subfamily : '' }}</span>
             }
           </div>
           @if (!isBotiga()) {
@@ -52,6 +46,16 @@
     </div>
   } @else {
     <div class="content-wrapper">
+      @if (article()?.observations?.trim(); as technicalSheet) {
+        <div class="technical-sheet-section">
+          <h2>
+            <i class="pi pi-file-edit"></i>
+            Fitxa tècnica
+          </h2>
+          <p class="technical-sheet-content">{{ technicalSheet }}</p>
+        </div>
+      }
+
       <div class="stock-section">
         <h2>
           <i class="pi pi-box"></i>
@@ -170,8 +174,8 @@
               Fabricació
             </h2>
             <button type="button" class="btn-primary" (click)="openAddStock()" [disabled]="loading()">
-              <i class="pi pi-plus"></i>
-              Fabricar quantitats
+              <i class="pi pi-plus" aria-hidden="true"></i>
+              <span>Fabricar quantitats</span>
             </button>
           </div>
           <div class="year-filter">
