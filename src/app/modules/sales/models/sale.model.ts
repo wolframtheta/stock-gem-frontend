@@ -10,6 +10,7 @@ export interface SaleItem {
   id: string;
   saleId: string;
   articleId: string;
+  articleVariantId?: string | null;
   article?: {
     id: string;
     ownReference: string;
@@ -28,11 +29,17 @@ export interface Sale {
   id: string;
   saleNumber: string;
   ticketNumber: string | null;
-  salesPointId: string;
+  salesPointId: string | null;
+  fairId?: string | null;
+  fair?: {
+    id: string;
+    name: string;
+  };
   salesPoint?: {
     id: string;
     code: string;
     name: string;
+    isDefaultWarehouse?: boolean;
   };
   clientId: string | null;
   client?: {
@@ -58,6 +65,7 @@ export interface Sale {
 
 export interface CreateSaleItemDto {
   articleId: string;
+  articleVariantId?: string;
   quantity: number;
   unitPrice: number;
   discount: number;
@@ -67,7 +75,8 @@ export interface CreateSaleItemDto {
 export interface CreateSaleDto {
   // saleNumber se genera automáticamente en el backend
   // ticketNumber se genera automáticamente en el backend
-  salesPointId: string;
+  salesPointId?: string;
+  fairId?: string;
   clientId?: string;
   sellerId?: string;
   saleDate: string;

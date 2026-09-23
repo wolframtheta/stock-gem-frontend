@@ -34,6 +34,8 @@ export class SizeQuantityPickerComponent implements OnChanges {
   @Input() confirmLabel = 'Confirmar';
   @Input() rows: SizeQuantityPickerRow[] = [];
   @Input() options: SizeQuantityPickerOptions = {};
+  /** `table` = llistat (moviments stock); `grid` = targetes (p. ex. POS) */
+  @Input() layout: 'table' | 'grid' = 'table';
 
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() confirm = new EventEmitter<SizeQuantityPickerResult[]>();
@@ -72,6 +74,17 @@ export class SizeQuantityPickerComponent implements OnChanges {
   onCancelClick(): void {
     this.visible = false;
     this.visibleChange.emit(false);
+  }
+
+  /** Graella POS: un toc = 1 unitat d’aquesta variant i tancar. */
+  onGridVariantSelect(index: number): void {
+    this.editableRows.forEach((row, idx) => {
+      row.quantity = idx === index ? 1 : 0;
+    });
+    this.recalculateValidation();
+    if (this.validation.valid) {
+      this.onConfirmClick();
+    }
   }
 
   onConfirmClick(): void {

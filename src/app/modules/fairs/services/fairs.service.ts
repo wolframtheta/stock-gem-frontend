@@ -32,6 +32,10 @@ export interface FairStockItem {
     ownReference: string;
     description: string;
     stock: number;
+    pvp?: number;
+    photo?: string | null;
+    collectionId?: string | null;
+    articleTypeId?: string | null;
     hasVariants?: boolean;
   };
 }

@@ -18,17 +18,25 @@
         </a>
       }
     </div>
-    @if (stockItems().length > 0) {
-      <button
-        type="button"
-        class="btn-finalize"
-        (click)="confirmFinalize()"
-        [disabled]="finalizing()"
-      >
-        <i class="pi pi-check-circle"></i>
-        {{ finalizing() ? 'Finalitzant...' : 'Finalitzar fira' }}
-      </button>
-    }
+    <div class="header-actions">
+      @if (fair()?.id) {
+        <a [routerLink]="['/sales/new']" [queryParams]="{ fairId: fair()!.id }" class="btn-secondary">
+          <i class="pi pi-shopping-cart"></i>
+          Vendre
+        </a>
+      }
+      @if (stockItems().length > 0) {
+        <button
+          type="button"
+          class="btn-finalize"
+          (click)="confirmFinalize()"
+          [disabled]="finalizing()"
+        >
+          <i class="pi pi-check-circle"></i>
+          {{ finalizing() ? 'Finalitzant...' : 'Finalitzar fira' }}
+        </button>
+      }
+    </div>
   </div>
 
   @if (fair() && stats()) {

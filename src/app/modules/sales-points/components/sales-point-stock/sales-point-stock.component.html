@@ -15,6 +15,18 @@
         Assigna quantitats d'articles a aquest punt de venta
       </p>
     </div>
+    @if (salesPoint()?.id) {
+      <div class="header-actions">
+        <a
+          [routerLink]="['/sales/new']"
+          [queryParams]="{ salesPointId: salesPoint()!.id }"
+          class="btn-primary"
+        >
+          <i class="pi pi-shopping-cart"></i>
+          Vendre
+        </a>
+      </div>
+    }
   </div>
 
   <div class="content-wrapper">

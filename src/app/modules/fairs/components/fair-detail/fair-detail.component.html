@@ -18,6 +18,12 @@
       }
     </div>
     <div class="header-actions">
+      @if (fair()?.id) {
+        <a [routerLink]="['/sales/new']" [queryParams]="{ fairId: fair()!.id }" class="btn-secondary">
+          <i class="pi pi-shopping-cart"></i>
+          Vendre
+        </a>
+      }
       <a [routerLink]="['/fairs', fair()?.id, 'stock']" class="btn-secondary">
         <i class="pi pi-box"></i>
         Stock

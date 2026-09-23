@@ -4,11 +4,28 @@
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
-  [style]="{ width: showAvailableColumn ? '480px' : '420px' }"
+  [style]="{
+    width: layout === 'grid' ? 'min(640px, 92vw)' : showAvailableColumn ? '480px' : '420px'
+  }"
   (visibleChange)="visibleChange.emit($event)"
   (onHide)="onDialogHide()"
 >
-  <div class="picker-body">
+  <div class="picker-body" [class.picker-body--grid]="layout === 'grid'">
+    @if (layout === 'grid') {
+      <div class="variant-grid" role="list">
+        @for (row of editableRows; track row.articleVariantId; let i = $index) {
+          <button
+            type="button"
+            class="variant-grid-card"
+            role="listitem"
+            (click)="onGridVariantSelect(i)"
+            [attr.aria-label]="'Variant ' + row.label"
+          >
+            <span class="variant-grid-label">{{ row.label }}</span>
+          </button>
+        }
+      </div>
+    } @else {
     <div class="stock-table-scroll">
       <table class="picker-table">
         <caption class="sr-only">{{ header }}</caption>
@@ -67,10 +84,13 @@
         </tbody>
       </table>
     </div>
+    }
 
-    <p class="picker-total" aria-live="polite">
-      Total seleccionat: <strong>{{ validation.total }}</strong>
-    </p>
+    @if (layout !== 'grid') {
+      <p class="picker-total" aria-live="polite">
+        Total seleccionat: <strong>{{ validation.total }}</strong>
+      </p>
+    }
 
     @if (validation.errors.length) {
       <div class="picker-errors" role="alert" aria-live="assertive">
@@ -83,12 +103,14 @@
 
   <ng-template pTemplate="footer">
     <button type="button" pButton label="Cancel·lar" class="p-button-text" (click)="onCancelClick()"></button>
-    <button
-      type="button"
-      pButton
-      [label]="confirmLabel"
-      [disabled]="!validation.valid"
-      (click)="onConfirmClick()"
-    ></button>
+    @if (layout !== 'grid') {
+      <button
+        type="button"
+        pButton
+        [label]="confirmLabel"
+        [disabled]="!validation.valid"
+        (click)="onConfirmClick()"
+      ></button>
+    }
   </ng-template>
 </p-dialog>

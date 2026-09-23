@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -10,11 +10,48 @@ import { SalesService } from '../../services/sales.service';
 import { ArticlesService } from '../../../articles/services/articles.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { SalesPointsService } from '../../../sales-points/services/sales-points.service';
+import { FairsService } from '../../../fairs/services/fairs.service';
 import { ConfigService } from '../../../config/services/config.service';
-import { CreateSaleDto, CreateSaleItemDto, PaymentType } from '../../models/sale.model';
+import { CreateSaleDto, PaymentType } from '../../models/sale.model';
 import { Article } from '../../../articles/models/article.model';
 import { Client } from '../../../clients/models/client.model';
-import { SalesPoint } from '../../../sales-points/models/sales-point.model';
+import { SizeQuantityPickerComponent } from '../../../../shared/components/size-quantity-picker/size-quantity-picker.component';
+import {
+  SizeQuantityPickerResult,
+  SizeQuantityPickerRow,
+} from '../../../../shared/components/size-quantity-picker/size-quantity-picker.model';
+import { map } from 'rxjs/operators';
+import { resolveAssetUrl } from '../../../../core/utils/asset-url.util';
+import { StockVariantLineItem } from '../../../sales-points/models/sales-point.model';
+
+type SalesPointStockItemLike = {
+  articleId: string;
+  quantity: number;
+  variants?: StockVariantLineItem[];
+  article?: {
+    id: string;
+    ownReference: string;
+    description: string;
+    pvp?: number;
+    hasVariants?: boolean;
+    photo?: string | null;
+    collectionId?: string | null;
+    articleTypeId?: string | null;
+  };
+};
+
+export interface SaleGridArticle {
+  articleId: string;
+  ownReference: string;
+  description: string;
+  pvp: number;
+  hasVariants: boolean;
+  stockAtLocation: number;
+  photoPath: string | null;
+  collectionId: string | null;
+  articleTypeId: string | null;
+  variants?: StockVariantLineItem[];
+}
 
 @Component({
   selector: 'app-sale-form',
@@ -25,6 +62,7 @@ import { SalesPoint } from '../../../sales-points/models/sales-point.model';
     RouterModule,
     DialogModule,
     ButtonModule,
+    SizeQuantityPickerComponent,
   ],
   providers: [MessageService],
   templateUrl: './sale-form.component.html',
@@ -36,7 +74,8 @@ export class SaleFormComponent implements OnInit {
   loading = false;
   articles = signal<Article[]>([]);
   clients: Client[] = [];
-  salesPoints: SalesPoint[] = [];
+  locationLabel = signal('');
+  locationLocked = signal(false);
   collections: { id: string; name: string }[] = [];
   articleTypes: { id: string; name: string }[] = [];
   articleSearchQuery = signal('');
@@ -55,6 +94,34 @@ export class SaleFormComponent implements OnInit {
 
   addItemModalVisible = false;
   confirmModalVisible = false;
+  variantPickerVisible = false;
+  variantPickerRows: SizeQuantityPickerRow[] = [];
+  variantPickerHeader = 'Seleccionar variants';
+  private pendingVariantArticle: Article | null = null;
+  private variantPickerFromGrid = false;
+  gridArticles = signal<SaleGridArticle[]>([]);
+  gridLoading = signal(false);
+  gridSearchQuery = signal('');
+  gridCollectionId = signal<string | null>(null);
+  gridTypeId = signal<string | null>(null);
+  filteredGridArticles = computed(() => {
+    const q = this.gridSearchQuery().trim().toLowerCase();
+    const collectionId = this.gridCollectionId();
+    const typeId = this.gridTypeId();
+    return this.gridArticles().filter((a) => {
+      if (collectionId && a.collectionId !== collectionId) {
+        return false;
+      }
+      if (typeId && a.articleTypeId !== typeId) {
+        return false;
+      }
+      if (!q) {
+        return true;
+      }
+      const haystack = `${a.ownReference} ${a.description}`.toLowerCase();
+      return haystack.includes(q);
+    });
+  });
   itemModalForm: FormGroup;
 
   constructor(
@@ -65,11 +132,13 @@ export class SaleFormComponent implements OnInit {
     private articlesService: ArticlesService,
     private clientsService: ClientsService,
     private salesPointsService: SalesPointsService,
+    private fairsService: FairsService,
     private configService: ConfigService,
     private messageService: MessageService,
   ) {
     this.form = this.fb.group({
-      salesPointId: [null, Validators.required],
+      salesPointId: [null],
+      fairId: [null],
       ticketNumber: [{ value: '', disabled: false }],
       clientId: [null],
       saleDate: [new Date().toISOString().split('T')[0], [Validators.required]],
@@ -140,20 +209,261 @@ export class SaleFormComponent implements OnInit {
     return this.form.get('items') as FormArray;
   }
 
+  /** Ruta `sales/new` (sense `:id`). */
+  get isNewSale(): boolean {
+    return !this.saleId;
+  }
+
   ngOnInit() {
     this.setupArticleSearch();
     this.loadArticles();
-    this.loadClients();
-    this.loadSalesPoints();
     this.loadCollectionsAndTypes();
 
     this.saleId = this.route.snapshot.paramMap.get('id');
-    if (this.saleId && this.saleId !== 'new') {
-      this.loadSale();
+    if (this.isNewSale) {
+      this.initSaleLocation();
     } else {
-      // Generar número de ticket automáticamente
-      this.generateTicketNumber();
+      this.loadClients();
+      this.loadSale();
     }
+  }
+
+  private initSaleLocation() {
+    const qp = this.route.snapshot.queryParamMap;
+    const fairId = qp.get('fairId');
+    const salesPointId = qp.get('salesPointId');
+
+    if (fairId && salesPointId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Ubicació de venda invàlida (fira i punt alhora)',
+      });
+      void this.router.navigate(['/sales']);
+      return;
+    }
+
+    if (fairId) {
+      this.form.patchValue({ fairId, salesPointId: null });
+      this.locationLocked.set(true);
+      this.fairsService.getById(fairId).subscribe({
+        next: (fair) => this.locationLabel.set(`Fira: ${fair.name}`),
+        error: () => this.locationLabel.set('Fira'),
+      });
+      this.loadSaleGridArticles();
+      return;
+    }
+
+    if (salesPointId) {
+      this.form.patchValue({ salesPointId, fairId: null });
+      this.locationLocked.set(true);
+      this.salesPointsService.getById(salesPointId).subscribe({
+        next: (sp) =>
+          this.locationLabel.set(
+            sp.isDefaultWarehouse
+              ? `Magatzem: ${sp.name}`
+              : `Punt de venda: ${sp.name}`,
+          ),
+        error: () => this.locationLabel.set('Punt de venda'),
+      });
+      this.loadSaleGridArticles();
+      return;
+    }
+
+    this.salesPointsService.getDefaultWarehouse().subscribe({
+      next: (warehouse) => {
+        if (!warehouse) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No hi ha magatzem per defecte configurat',
+          });
+          return;
+        }
+        this.form.patchValue({ salesPointId: warehouse.id, fairId: null });
+        this.locationLabel.set(`Magatzem: ${warehouse.name}`);
+        this.locationLocked.set(true);
+        this.loadSaleGridArticles();
+      },
+    });
+  }
+
+  private loadSaleGridArticles() {
+    if (!this.isNewSale) {
+      return;
+    }
+    const fairId = this.form.get('fairId')?.value as string | null;
+    const salesPointId = this.form.get('salesPointId')?.value as string | null;
+
+    if (!fairId && !salesPointId) {
+      this.gridArticles.set([]);
+      return;
+    }
+
+    this.gridLoading.set(true);
+    const mapRows = (items: SalesPointStockItemLike[]): SaleGridArticle[] => {
+      const out: SaleGridArticle[] = [];
+      for (const item of items) {
+        const art = item.article;
+        if (!art) {
+          continue;
+        }
+        const variantQty =
+          item.variants?.reduce((sum, v) => sum + (v.quantity ?? 0), 0) ?? 0;
+        const stockAtLocation = art.hasVariants ? variantQty : item.quantity;
+        if (stockAtLocation <= 0) {
+          continue;
+        }
+        out.push({
+          articleId: art.id,
+          ownReference: art.ownReference,
+          description: art.description,
+          pvp: Number(art.pvp ?? 0),
+          hasVariants: !!art.hasVariants,
+          stockAtLocation,
+          photoPath: art.photo ?? null,
+          collectionId: art.collectionId ?? null,
+          articleTypeId: art.articleTypeId ?? null,
+          variants: item.variants,
+        });
+      }
+      return out.sort((a, b) => a.description.localeCompare(b.description, 'ca'));
+    };
+
+    if (fairId) {
+      this.fairsService
+        .getStock(fairId)
+        .pipe(finalize(() => this.gridLoading.set(false)))
+        .subscribe({
+          next: (items) => this.gridArticles.set(mapRows(items)),
+          error: () => this.gridArticles.set([]),
+        });
+      return;
+    }
+
+    this.salesPointsService
+      .getStock(salesPointId!)
+      .pipe(finalize(() => this.gridLoading.set(false)))
+      .subscribe({
+        next: (items) => this.gridArticles.set(mapRows(items)),
+        error: () => this.gridArticles.set([]),
+      });
+  }
+
+  private rememberGridArticle(row: SaleGridArticle) {
+    const a = this.gridRowAsArticle(row);
+    this.articles.update((prev) =>
+      prev.some((x) => x.id === a.id) ? prev : [...prev, a],
+    );
+  }
+
+  onGridArticleClick(row: SaleGridArticle) {
+    if (!this.hasSaleLocation()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenció',
+        detail: 'Espera que es carregui la ubicació de venda',
+      });
+      return;
+    }
+
+    if (row.hasVariants) {
+      const pickerRows: SizeQuantityPickerRow[] = (row.variants ?? [])
+        .filter((v) => v.quantity > 0)
+        .map((v) => ({
+          articleVariantId: v.articleVariantId,
+          label: v.label,
+          quantity: 0,
+          maxQuantity: v.quantity,
+        }));
+      if (pickerRows.length === 0) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Atenció',
+          detail: 'No hi ha stock de variants disponible',
+        });
+        return;
+      }
+      this.pendingVariantArticle = this.gridRowAsArticle(row);
+      this.variantPickerFromGrid = true;
+      this.variantPickerRows = pickerRows;
+      this.variantPickerHeader = `Variants — ${row.description}`;
+      this.variantPickerVisible = true;
+      this.rememberGridArticle(row);
+      return;
+    }
+
+    this.rememberGridArticle(row);
+    this.addOrIncrementCartLine(row.articleId, null, '', 1, row.pvp);
+  }
+
+  private gridRowAsArticle(row: SaleGridArticle): Article {
+    return {
+      id: row.articleId,
+      ownReference: row.ownReference,
+      description: row.description,
+      cost: null,
+      pvp: row.pvp,
+      stock: row.stockAtLocation,
+      hasVariants: row.hasVariants,
+      observations: null,
+      photo: row.photoPath,
+      collectionId: row.collectionId,
+      articleTypeId: row.articleTypeId,
+      collection: null,
+      articleType: null,
+      createdAt: '',
+      updatedAt: '',
+    };
+  }
+
+  addOrIncrementCartLine(
+    articleId: string,
+    articleVariantId: string | null,
+    variantLabel: string,
+    qty: number,
+    unitPrice: number,
+  ) {
+    const idx = this.itemsFormArray.controls.findIndex(
+      (c) =>
+        c.get('articleId')?.value === articleId &&
+        (c.get('articleVariantId')?.value ?? null) === articleVariantId,
+    );
+    if (idx >= 0) {
+      const ctrl = this.itemsFormArray.at(idx) as FormGroup;
+      const newQty = (Number(ctrl.get('quantity')?.value) || 0) + qty;
+      ctrl.patchValue({ quantity: newQty });
+      this.calculateItemTotal(ctrl);
+      return;
+    }
+    this.addItem(
+      articleId,
+      qty,
+      unitPrice,
+      0,
+      articleVariantId ?? undefined,
+      variantLabel,
+    );
+  }
+
+  adjustCartQuantity(index: number, delta: number) {
+    const ctrl = this.itemsFormArray.at(index) as FormGroup;
+    const next = (Number(ctrl.get('quantity')?.value) || 0) + delta;
+    if (next < 1) {
+      this.removeItem(index);
+      return;
+    }
+    ctrl.patchValue({ quantity: next });
+    this.calculateItemTotal(ctrl);
+  }
+
+  articlePhotoUrl(path: string | null): string {
+    return path ? resolveAssetUrl(path) : '';
+  }
+
+  private hasSaleLocation(): boolean {
+    const v = this.form.value;
+    return !!(v.salesPointId?.trim?.() || v.salesPointId) || !!(v.fairId?.trim?.() || v.fairId);
   }
 
   loadArticles() {
@@ -200,28 +510,6 @@ export class SaleFormComponent implements OnInit {
     });
   }
 
-  loadSalesPoints() {
-    this.salesPointsService.getAll().subscribe({
-      next: (data) => {
-        this.salesPoints = data;
-        if (!this.saleId) {
-          this.salesPointsService.getDefaultWarehouse().subscribe({
-            next: (warehouse) => {
-              if (warehouse) {
-                this.form.patchValue({ salesPointId: warehouse.id });
-              } else if (data.length === 1) {
-                this.form.patchValue({ salesPointId: data[0].id });
-              }
-            },
-          });
-        }
-      },
-      error: (error) => {
-        console.error('Error loading sales points:', error);
-      },
-    });
-  }
-
   generateTicketNumber() {
     this.salesService.generateTicketNumber().subscribe({
       next: (data) => {
@@ -246,11 +534,28 @@ export class SaleFormComponent implements OnInit {
 
         // Cargar items
         sale.items.forEach((item) => {
-          this.addItem(item.articleId, item.quantity, item.unitPrice, item.discount);
+          this.addItem(
+            item.articleId,
+            item.quantity,
+            item.unitPrice,
+            item.discount,
+            item.articleVariantId ?? undefined,
+          );
         });
+
+        if (sale.fairId) {
+          this.locationLabel.set(sale.fair?.name ? `Fira: ${sale.fair.name}` : 'Fira');
+        } else if (sale.salesPoint) {
+          this.locationLabel.set(
+            sale.salesPoint.isDefaultWarehouse
+              ? `Magatzem: ${sale.salesPoint.name}`
+              : `Punt de venda: ${sale.salesPoint.name}`,
+          );
+        }
 
         this.form.patchValue({
           salesPointId: sale.salesPointId,
+          fairId: sale.fairId ?? null,
           ticketNumber: sale.ticketNumber || '',
           clientId: sale.clientId,
           saleDate: sale.saleDate.split('T')[0],
@@ -302,18 +607,151 @@ export class SaleFormComponent implements OnInit {
     }
     const v = this.itemModalForm.value;
     const article = this.selectedArticleForAdd();
-    if (article) {
-      this.articles.update((prev) =>
-        prev.some((a) => a.id === article.id) ? prev : [...prev, article],
-      );
+    if (!article) {
+      return;
     }
+    this.articles.update((prev) =>
+      prev.some((a) => a.id === article.id) ? prev : [...prev, article],
+    );
+
+    if (article.hasVariants) {
+      this.pendingVariantArticle = article;
+      this.loadVariantPickerRows(article.id).subscribe({
+        next: (rows) => {
+          if (rows.length === 0) {
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Atenció',
+              detail: 'No hi ha stock de variants en aquesta ubicació',
+            });
+            return;
+          }
+          this.variantPickerRows = rows;
+          this.variantPickerHeader = `Variants — ${article.description}`;
+          this.addItemModalVisible = false;
+          this.variantPickerVisible = true;
+        },
+      });
+      return;
+    }
+
     this.addItem(v.articleId, v.quantity, v.unitPrice, v.discount);
     this.closeAddItemModal();
   }
 
-  addItem(articleId?: string, quantity: number = 1, unitPrice?: number, discount: number = 0) {
+  private loadVariantPickerRows(articleId: string) {
+    const fairId = this.form.get('fairId')?.value as string | null;
+    const salesPointId = this.form.get('salesPointId')?.value as string | null;
+
+    if (fairId) {
+      return this.fairsService.getStock(fairId).pipe(
+        map((items) => {
+          const row = items.find((i) => i.articleId === articleId);
+          return (row?.variants ?? [])
+            .filter((v) => v.quantity > 0)
+            .map((v) => ({
+              articleVariantId: v.articleVariantId,
+              label: v.label,
+              quantity: 0,
+              maxQuantity: v.quantity,
+            }));
+        }),
+      );
+    }
+
+    if (!salesPointId) {
+      return of([] as SizeQuantityPickerRow[]);
+    }
+
+    return this.salesPointsService.getStock(salesPointId).pipe(
+      map((items) => {
+        const row = items.find((i) => i.articleId === articleId);
+        return (row?.variants ?? [])
+          .filter((v) => v.quantity > 0)
+          .map((v) => ({
+            articleVariantId: v.articleVariantId,
+            label: v.label,
+            quantity: 0,
+            maxQuantity: v.quantity,
+          }));
+      }),
+    );
+  }
+
+  onVariantPickerConfirm(lines: SizeQuantityPickerResult[]) {
+    const article = this.pendingVariantArticle;
+    if (!article) {
+      return;
+    }
+    const fromGrid = this.variantPickerFromGrid;
+    const unitPrice = fromGrid
+      ? article.pvp
+      : Number(this.itemModalForm.get('unitPrice')?.value) || article.pvp;
+    const discount = fromGrid
+      ? 0
+      : Number(this.itemModalForm.get('discount')?.value) || 0;
+    const perLineDiscount =
+      lines.length > 0 ? discount / lines.length : 0;
+
+    if (fromGrid && article) {
+      this.articles.update((prev) =>
+        prev.some((x) => x.id === article.id) ? prev : [...prev, article],
+      );
+    }
+
+    for (const line of lines) {
+      if (line.quantity <= 0) {
+        continue;
+      }
+      if (fromGrid) {
+        this.addOrIncrementCartLine(
+          article.id,
+          line.articleVariantId,
+          line.label,
+          line.quantity,
+          unitPrice,
+        );
+      } else {
+        this.addItem(
+          article.id,
+          line.quantity,
+          unitPrice,
+          perLineDiscount,
+          line.articleVariantId,
+          line.label,
+        );
+      }
+    }
+    this.variantPickerVisible = false;
+    this.variantPickerFromGrid = false;
+    this.pendingVariantArticle = null;
+    if (!fromGrid) {
+      this.closeAddItemModal();
+    }
+  }
+
+  onVariantPickerCancel() {
+    this.variantPickerVisible = false;
+    const fromGrid = this.variantPickerFromGrid;
+    this.variantPickerFromGrid = false;
+    this.pendingVariantArticle = null;
+    if (!fromGrid) {
+      this.addItemModalVisible = true;
+    }
+  }
+
+  addItem(
+    articleId?: string,
+    quantity: number = 1,
+    unitPrice?: number,
+    discount: number = 0,
+    articleVariantId?: string,
+    variantLabel?: string,
+  ) {
     const itemForm = this.fb.group({
       articleId: [articleId || null, [Validators.required]],
+      articleVariantId: [articleVariantId ?? null],
+      variantLabel: [variantLabel ?? ''],
       quantity: [quantity, [Validators.required, Validators.min(1)]],
       unitPrice: [unitPrice || 0, [Validators.required, Validators.min(0)]],
       discount: [discount, [Validators.min(0)]],
@@ -385,20 +823,19 @@ export class SaleFormComponent implements OnInit {
       return;
     }
 
-    const formValue = this.form.value;
-    const salesPointId = formValue.salesPointId?.trim?.() || formValue.salesPointId;
-    if (!salesPointId || typeof salesPointId !== 'string') {
+    if (!this.hasSaleLocation()) {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Selecciona un punt de venta vàlid',
+        detail: 'Ubicació de venda no definida',
       });
-      this.form.get('salesPointId')?.markAsTouched();
       return;
     }
 
-    if (this.saleId && this.saleId !== 'new') {
-      this.doUpdate(salesPointId, formValue);
+    const formValue = this.form.value;
+
+    if (!this.isNewSale) {
+      this.doUpdate(formValue);
     } else {
       event?.preventDefault();
       this.confirmModalVisible = true;
@@ -413,15 +850,13 @@ export class SaleFormComponent implements OnInit {
 
   confirmSale() {
     if (this.form.invalid || this.itemsFormArray.length === 0) return;
-    const formValue = this.form.value;
-    const salesPointId = formValue.salesPointId?.trim?.() || formValue.salesPointId;
-    if (!salesPointId || typeof salesPointId !== 'string') return;
-    this.doCreate(salesPointId, formValue);
+    if (!this.hasSaleLocation()) return;
+    this.doCreate(this.form.value);
   }
 
-  private doUpdate(salesPointId: string, formValue: any) {
+  private doUpdate(formValue: any) {
     this.loading = true;
-    const createSaleDto = this.buildCreateSaleDto(salesPointId, formValue);
+    const createSaleDto = this.buildCreateSaleDto(formValue);
     this.salesService.update(this.saleId!, createSaleDto).subscribe({
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Èxit', detail: 'Venda actualitzada correctament' });
@@ -435,9 +870,9 @@ export class SaleFormComponent implements OnInit {
     });
   }
 
-  private doCreate(salesPointId: string, formValue: any) {
+  private doCreate(formValue: any) {
     this.loading = true;
-    const createSaleDto = this.buildCreateSaleDto(salesPointId, formValue);
+    const createSaleDto = this.buildCreateSaleDto(formValue);
     this.salesService.create(createSaleDto).subscribe({
       next: () => {
         this.loading = false;
@@ -453,9 +888,8 @@ export class SaleFormComponent implements OnInit {
     });
   }
 
-  private buildCreateSaleDto(salesPointId: string, formValue: any): CreateSaleDto {
-    return {
-      salesPointId,
+  private buildCreateSaleDto(formValue: any): CreateSaleDto {
+    const dto: CreateSaleDto = {
       clientId: formValue.clientId || undefined,
       saleDate: formValue.saleDate,
       saleTime: formValue.saleTime || undefined,
@@ -464,18 +898,19 @@ export class SaleFormComponent implements OnInit {
       totalAmount: Number(formValue.totalAmount),
       items: formValue.items.map((item: any) => ({
         articleId: item.articleId,
+        articleVariantId: item.articleVariantId || undefined,
         quantity: Number(item.quantity),
         unitPrice: Number(item.unitPrice),
         discount: Number(item.discount) || 0,
         totalPrice: Number(item.totalPrice),
       })),
     };
-  }
-
-  getSalesPointName(id: string | null): string {
-    if (!id) return '-';
-    const sp = this.salesPoints.find((s) => s.id === id);
-    return sp ? `${sp.name} (${sp.code})` : '-';
+    if (formValue.fairId) {
+      dto.fairId = formValue.fairId;
+    } else if (formValue.salesPointId) {
+      dto.salesPointId = formValue.salesPointId;
+    }
+    return dto;
   }
 
   getClientName(id: string | null): string {
@@ -508,11 +943,19 @@ export class SaleFormComponent implements OnInit {
     }).format(value);
   }
 
-  getArticleName(articleId: string): string {
+  getArticleName(articleId: string, variantLabel?: string): string {
     const article =
       this.articleSearchResults().find((a) => a.id === articleId) ??
       this.articles().find((a) => a.id === articleId);
-    return article ? `${article.ownReference} - ${article.description}` : '';
+    const base = article ? `${article.ownReference} - ${article.description}` : '';
+    if (variantLabel) {
+      return `${base} (${variantLabel})`;
+    }
+    return base;
+  }
+
+  getItemVariantLabel(index: number): string {
+    return this.itemsFormArray.at(index)?.get('variantLabel')?.value ?? '';
   }
 
   getArticleDisplayLabel(article: Article): string {

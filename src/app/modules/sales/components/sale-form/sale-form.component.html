@@ -9,10 +9,10 @@
       </div>
       <h1>
         <i class="pi pi-money-bill"></i>
-        {{ saleId && saleId !== 'new' ? 'Editar Venda' : 'Nova Venda' }}
+        {{ isNewSale ? 'Nova Venda' : 'Editar Venda' }}
       </h1>
       <p class="subtitle">
-        {{ saleId && saleId !== 'new' ? 'Modifica la informació de la venda' : 'Crea una nova venda' }}
+        {{ isNewSale ? 'Crea una nova venda' : 'Modifica la informació de la venda' }}
       </p>
     </div>
   </div>
@@ -22,49 +22,42 @@
       <div class="form-section">
         <h2>Informació de la Venda</h2>
         <div class="form-grid">
-          <div class="form-group">
-            <label for="salesPointId">Punt de Venta *</label>
-            <select
-              id="salesPointId"
-              formControlName="salesPointId"
-              [class.ng-invalid]="form.get('salesPointId')?.invalid && form.get('salesPointId')?.touched"
-            >
-              <option value="">Seleccionar punt de venta</option>
-              @for (sp of salesPoints; track sp.id) {
-                <option [value]="sp.id">{{ sp.name }} ({{ sp.code }})</option>
-              }
-            </select>
-            @if (form.get('salesPointId')?.invalid && form.get('salesPointId')?.touched) {
-              <small class="p-error">El punt de venta és obligatori</small>
-            }
-          </div>
+          @if (!isNewSale) {
+            <div class="form-group">
+              <span id="sale-location-label" class="field-label">Ubicació de venda</span>
+              <p
+                id="sale-location"
+                class="readonly location-readonly"
+                aria-labelledby="sale-location-label"
+              >
+                {{ locationLabel() || '—' }}
+              </p>
+            </div>
 
-          <div class="form-group">
-            <label for="ticketNumber">Número de Ticket</label>
-            <input
-              id="ticketNumber"
-              type="text"
-              formControlName="ticketNumber"
-              readonly
-              class="readonly"
-            />
-            <small class="form-hint">Generat automàticament</small>
-          </div>
+            <div class="form-group">
+              <label for="ticketNumber">Número de Ticket</label>
+              <input
+                id="ticketNumber"
+                type="text"
+                formControlName="ticketNumber"
+                readonly
+                class="readonly"
+              />
+              <small class="form-hint">Generat automàticament</small>
+            </div>
 
-          <div class="form-group">
-            <label for="clientId">Client</label>
-            <select
-              id="clientId"
-              formControlName="clientId"
-            >
-              <option value="">Sense client</option>
-              @for (client of clients; track client.id) {
-                <option [value]="client.id">
-                  {{ client.name }} {{ client.surname }}
-                </option>
-              }
-            </select>
-          </div>
+            <div class="form-group">
+              <label for="clientId">Client</label>
+              <select id="clientId" formControlName="clientId">
+                <option value="">Sense client</option>
+                @for (client of clients; track client.id) {
+                  <option [value]="client.id">
+                    {{ client.name }} {{ client.surname }}
+                  </option>
+                }
+              </select>
+            </div>
+          }
 
           <div class="form-group payment-pills-group">
             <label>Tipus de Pagament *</label>
@@ -106,92 +99,176 @@
         </div>
       </div>
 
-      <div class="form-section">
-        <div class="section-header">
-          <h2>Articles de la Venda</h2>
-          <button type="button" class="btn-add-item" (click)="openAddItemModal()">
-            <i class="pi pi-plus" aria-hidden="true"></i>
-            <span>Afegir Article</span>
-          </button>
-        </div>
-
-        @if (itemsFormArray.length === 0) {
-          <div class="empty-items">
-            <i class="pi pi-info-circle"></i>
-            <p>No hi ha articles afegits. Fes clic a "Afegir Article" per començar.</p>
-          </div>
-        } @else {
-          <div class="items-list">
-            @for (item of itemsFormArray.controls; track $index) {
-              <div class="item-row" [formGroup]="$any(item)">
-                <div class="item-fields">
-                  <div class="form-group">
-                    <label>Article *</label>
-                    <select
-                      formControlName="articleId"
-                      [class.ng-invalid]="item.get('articleId')?.invalid && item.get('articleId')?.touched"
+      @if (isNewSale) {
+        <div class="form-section">
+          <h2>Cistella</h2>
+          @if (itemsFormArray.length === 0) {
+            <p class="cart-empty-hint">Cap article. Tria peces de la graella inferior.</p>
+          } @else {
+            <ul class="pos-cart" aria-label="Articles seleccionats">
+              @for (item of itemsFormArray.controls; track $index) {
+                <li class="pos-cart-line">
+                  <div class="pos-cart-line-info">
+                    <span class="pos-cart-line-title">
+                      {{ getArticleName(item.get('articleId')?.value, getItemVariantLabel($index)) }}
+                    </span>
+                    <span class="pos-cart-line-meta">
+                      {{ formatCurrency(item.get('unitPrice')?.value || 0) }} × {{ item.get('quantity')?.value }}
+                    </span>
+                  </div>
+                  <div class="pos-cart-line-actions">
+                    <button
+                      type="button"
+                      class="qty-step"
+                      (click)="adjustCartQuantity($index, -1)"
+                      aria-label="Reduir quantitat"
                     >
-                      <option value="">Seleccionar article</option>
-                      @for (article of articles(); track article.id) {
-                        <option [value]="article.id">
-                          {{ article.ownReference }} - {{ article.description }} (Stock: {{ article.stock }})
-                        </option>
-                      }
-                    </select>
-                  </div>
-
-                  <div class="form-group">
-                    <label>Quantitat *</label>
-                    <input
-                      type="number"
-                      formControlName="quantity"
-                      min="1"
-                      [class.ng-invalid]="item.get('quantity')?.invalid && item.get('quantity')?.touched"
-                    />
-                  </div>
-
-                  <div class="form-group">
-                    <label>Preu Unitari *</label>
-                    <input
-                      type="number"
-                      formControlName="unitPrice"
-                      step="0.01"
-                      min="0"
-                      [class.ng-invalid]="item.get('unitPrice')?.invalid && item.get('unitPrice')?.touched"
-                    />
-                  </div>
-
-                  <div class="form-group">
-                    <label>Descompte</label>
-                    <input
-                      type="number"
-                      formControlName="discount"
-                      step="0.01"
-                      min="0"
-                    />
-                  </div>
-
-                  <div class="form-group">
-                    <label>Total</label>
-                    <input
-                      type="number"
-                      formControlName="totalPrice"
-                      readonly
-                      class="readonly"
-                    />
-                  </div>
-
-                  <div class="form-group item-actions">
-                    <button type="button" class="btn-remove-item" (click)="removeItem($index)" title="Eliminar">
-                      <i class="pi pi-trash"></i>
+                      −
+                    </button>
+                    <span class="qty-value">{{ item.get('quantity')?.value }}</span>
+                    <button
+                      type="button"
+                      class="qty-step"
+                      (click)="adjustCartQuantity($index, 1)"
+                      aria-label="Augmentar quantitat"
+                    >
+                      +
+                    </button>
+                    <span class="pos-cart-line-total">{{ formatCurrency(item.get('totalPrice')?.value || 0) }}</span>
+                    <button
+                      type="button"
+                      class="btn-remove-item"
+                      (click)="removeItem($index)"
+                      aria-label="Eliminar línia"
+                    >
+                      <i class="pi pi-trash" aria-hidden="true"></i>
                     </button>
                   </div>
-                </div>
-              </div>
-            }
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+        <div class="form-section">
+          <h2 id="sale-catalog-heading">Catàleg</h2>
+          <div class="grid-filters" aria-labelledby="sale-catalog-heading">
+            <label class="sr-only" for="gridSearch">Cercar article</label>
+            <input
+              id="gridSearch"
+              type="search"
+              class="search-input"
+              placeholder="Cercar per nom o referència…"
+              [value]="gridSearchQuery()"
+              (input)="gridSearchQuery.set($any($event.target).value)"
+            />
+            <select
+              [value]="gridCollectionId() ?? ''"
+              (change)="gridCollectionId.set($any($event.target).value || null)"
+              aria-label="Filtrar per col·lecció"
+            >
+              <option value="">Totes les col·leccions</option>
+              @for (c of collections; track c.id) {
+                <option [value]="c.id">{{ c.name }}</option>
+              }
+            </select>
+            <select
+              [value]="gridTypeId() ?? ''"
+              (change)="gridTypeId.set($any($event.target).value || null)"
+              aria-label="Filtrar per tipus de peça"
+            >
+              <option value="">Tots els tipus</option>
+              @for (t of articleTypes; track t.id) {
+                <option [value]="t.id">{{ t.name }}</option>
+              }
+            </select>
           </div>
-        }
-      </div>
+
+          @if (gridLoading()) {
+            <p class="grid-status" role="status">Carregant articles…</p>
+          } @else if (filteredGridArticles().length === 0) {
+            <p class="grid-status">No hi ha articles amb stock en aquesta ubicació.</p>
+          } @else {
+            <div class="article-grid" role="list">
+              @for (article of filteredGridArticles(); track article.articleId) {
+                <button
+                  type="button"
+                  class="article-grid-card article-grid-card--photo-only"
+                  role="listitem"
+                  (click)="onGridArticleClick(article)"
+                  [attr.aria-label]="article.description"
+                >
+                  @if (articlePhotoUrl(article.photoPath); as src) {
+                    <img [src]="src" [alt]="article.description" class="article-grid-photo" loading="lazy" />
+                  } @else {
+                    <span class="article-grid-photo article-grid-photo--name-fallback">
+                      {{ article.description }}
+                    </span>
+                  }
+                </button>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="form-section">
+          <div class="section-header">
+            <h2>Articles de la Venda</h2>
+            <button type="button" class="btn-add-item" (click)="openAddItemModal()">
+              <i class="pi pi-plus" aria-hidden="true"></i>
+              <span>Afegir Article</span>
+            </button>
+          </div>
+
+          @if (itemsFormArray.length === 0) {
+            <div class="empty-items">
+              <i class="pi pi-info-circle"></i>
+              <p>No hi ha articles afegits. Fes clic a "Afegir Article" per començar.</p>
+            </div>
+          } @else {
+            <div class="items-list">
+              @for (item of itemsFormArray.controls; track $index) {
+                <div class="item-row" [formGroup]="$any(item)">
+                  <div class="item-fields">
+                    <div class="form-group">
+                      <label>Article *</label>
+                      <select formControlName="articleId">
+                        <option value="">Seleccionar article</option>
+                        @for (article of articles(); track article.id) {
+                          <option [value]="article.id">
+                            {{ article.ownReference }} - {{ article.description }} (Stock: {{ article.stock }})
+                          </option>
+                        }
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label>Quantitat *</label>
+                      <input type="number" formControlName="quantity" min="1" />
+                    </div>
+                    <div class="form-group">
+                      <label>Preu Unitari *</label>
+                      <input type="number" formControlName="unitPrice" step="0.01" min="0" />
+                    </div>
+                    <div class="form-group">
+                      <label>Descompte</label>
+                      <input type="number" formControlName="discount" step="0.01" min="0" />
+                    </div>
+                    <div class="form-group">
+                      <label>Total</label>
+                      <input type="number" formControlName="totalPrice" readonly class="readonly" />
+                    </div>
+                    <div class="form-group item-actions">
+                      <button type="button" class="btn-remove-item" (click)="removeItem($index)" title="Eliminar">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
 
       <div class="form-section">
         <h2>Resum</h2>
@@ -233,13 +310,14 @@
           } @else {
             <i class="pi pi-check"></i>
           }
-          {{ saleId && saleId !== 'new' ? 'Actualitzar' : 'Crear' }}
+          {{ isNewSale ? 'Crear' : 'Actualitzar' }}
         </button>
       </div>
     </form>
   </div>
 </div>
 
+@if (!isNewSale) {
 <p-dialog
   header="Afegir Article"
   [(visible)]="addItemModalVisible"
@@ -366,6 +444,7 @@
     <button type="button" pButton label="Afegir" (click)="confirmAddItem()" [disabled]="!selectedArticleForAdd() || itemModalForm.get('quantity')?.invalid || itemModalForm.get('unitPrice')?.invalid"></button>
   </ng-template>
 </p-dialog>
+}
 
 <p-dialog
   header="Confirmar Venda"
@@ -384,27 +463,31 @@
       <div class="ticket-line">══════════════</div>
     </div>
     <div class="ticket-body">
-      <div class="ticket-row">
-        <span>Punt:</span>
-        <span>{{ getSalesPointName(form.get('salesPointId')?.value) }}</span>
-      </div>
-      <div class="ticket-row">
-        <span>Ticket:</span>
-        <span>{{ form.get('ticketNumber')?.value || '-' }}</span>
-      </div>
+      @if (!isNewSale) {
+        <div class="ticket-row">
+          <span>Ubicació:</span>
+          <span>{{ locationLabel() || '-' }}</span>
+        </div>
+        <div class="ticket-row">
+          <span>Ticket:</span>
+          <span>{{ form.get('ticketNumber')?.value || '-' }}</span>
+        </div>
+      }
       <div class="ticket-row">
         <span>Data:</span>
         <span>{{ form.get('saleDate')?.value }} {{ form.get('saleTime')?.value || '' }}</span>
       </div>
-      <div class="ticket-row">
-        <span>Client:</span>
-        <span>{{ getClientName(form.get('clientId')?.value) || '-' }}</span>
-      </div>
+      @if (!isNewSale) {
+        <div class="ticket-row">
+          <span>Client:</span>
+          <span>{{ getClientName(form.get('clientId')?.value) || '-' }}</span>
+        </div>
+      }
       <div class="ticket-line">──────────────────</div>
       @for (item of itemsFormArray.controls; track $index) {
         <div class="ticket-item">
           <div class="ticket-item-desc">
-            {{ getArticleName(item.get('articleId')?.value) || 'Article' }}
+            {{ getArticleName(item.get('articleId')?.value, getItemVariantLabel($index)) || 'Article' }}
           </div>
           <div class="ticket-item-detail">
             {{ item.get('quantity')?.value }} × {{ formatCurrency(item.get('unitPrice')?.value || 0) }}
@@ -447,4 +530,13 @@
   </ng-template>
 </p-dialog>
 
+<app-size-quantity-picker
+  [(visible)]="variantPickerVisible"
+  [header]="variantPickerHeader"
+  [rows]="variantPickerRows"
+  layout="grid"
+  confirmLabel="Afegir a la venda"
+  (confirm)="onVariantPickerConfirm($event)"
+  (cancel)="onVariantPickerCancel()"
+></app-size-quantity-picker>
 
