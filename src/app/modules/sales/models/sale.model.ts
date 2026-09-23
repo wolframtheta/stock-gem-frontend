@@ -14,7 +14,7 @@ export interface SaleItem {
   article?: {
     id: string;
     ownReference: string;
-    description: string;
+    name: string;
     pvp: number;
   };
   quantity: number;

@@ -13,7 +13,7 @@ import { SalesPoint } from '../../models/sales-point.model';
 interface AddStockRow {
   articleId: string;
   ownReference: string;
-  description: string;
+  name: string;
   quantityAvailable: number;
   quantityAtDestination: number;
   selected: boolean;
@@ -97,7 +97,7 @@ export class SalesPointAddStockComponent implements OnInit {
                 const rows: AddStockRow[] = items.map((it) => ({
                   articleId: it.articleId,
                   ownReference: it.ownReference,
-                  description: it.description,
+                  name: it.name,
                   quantityAvailable: it.quantityAvailable,
                   quantityAtDestination: it.quantityAtDestination,
                   selected: false,

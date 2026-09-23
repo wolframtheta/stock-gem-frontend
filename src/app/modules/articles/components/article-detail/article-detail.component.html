@@ -13,7 +13,7 @@
             <i class="pi pi-sparkles"></i>
           </div>
           <div class="article-info">
-            <h1>{{ a.description }}</h1>
+            <h1>{{ a.name }}</h1>
             <p class="article-code">{{ a.ownReference }}</p>
             @if (a.collection?.name || a.articleType?.name) {
               <span class="meta">
@@ -55,7 +55,7 @@
           <img
             class="article-photo"
             [src]="photoUrl"
-            [alt]="'Foto de ' + article()!.description"
+            [alt]="'Foto de ' + article()!.name"
           />
         </div>
       }

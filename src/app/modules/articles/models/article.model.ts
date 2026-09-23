@@ -21,7 +21,7 @@ export interface ArticleVariantInput {
 export interface Article {
   id: string;
   ownReference: string;
-  description: string;
+  name: string;
   cost: number | null;
   pvp: number;
   stock: number;
@@ -90,7 +90,7 @@ export interface StockBreakdown {
 
 export interface CreateArticleDto {
   ownReference: string;
-  description: string;
+  name: string;
   cost: number | null;
   pvp: number;
   stock?: number;

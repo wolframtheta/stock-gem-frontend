@@ -26,7 +26,7 @@ export interface SalesPointStockItem {
   article?: {
     id: string;
     ownReference: string;
-    description: string;
+    name: string;
     stock: number;
     pvp?: number;
     photo?: string | null;

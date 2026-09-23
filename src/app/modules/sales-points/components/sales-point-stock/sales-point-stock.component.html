@@ -86,7 +86,7 @@
               @for (item of stockItems(); track item.id) {
                 <tr>
                   <td>{{ item.article?.ownReference || '-' }}</td>
-                  <td>{{ item.article?.description || '-' }}</td>
+                  <td>{{ item.article?.name || '-' }}</td>
                   <td class="quantity-cell">
                     @if (hasVariantStock(item) && item.variants?.length) {
                       <div class="variant-stock-block">
@@ -199,7 +199,7 @@
             [ngModelOptions]="{ standalone: true }"
             (ngModelChange)="toggleMoveItem(item, $event)"
           />
-          <span class="move-item-label">{{ item.article?.ownReference }} - {{ item.article?.description }}</span>
+          <span class="move-item-label">{{ item.article?.ownReference }} - {{ item.article?.name }}</span>
           @if (isVariantArticle(item)) {
             @if (isMoveSelected(item.articleId)) {
               <span class="move-variant-total">{{ getVariantMoveTotal(item.articleId) }} u.</span>

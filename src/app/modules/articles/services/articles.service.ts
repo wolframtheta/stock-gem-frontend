@@ -25,14 +25,14 @@ export class ArticlesService {
 
   search(params: {
     ownReference?: string;
-    description?: string;
+    name?: string;
     collectionId?: string;
     articleTypeId?: string;
     q?: string;
   } = {}): Observable<Article[]> {
     const searchParams = new URLSearchParams();
     if (params.ownReference) searchParams.set('ownReference', params.ownReference);
-    if (params.description) searchParams.set('description', params.description);
+    if (params.name) searchParams.set('name', params.name);
     if (params.collectionId) searchParams.set('collectionId', params.collectionId);
     if (params.articleTypeId) searchParams.set('articleTypeId', params.articleTypeId);
     if (params.q?.trim()) searchParams.set('q', params.q.trim());

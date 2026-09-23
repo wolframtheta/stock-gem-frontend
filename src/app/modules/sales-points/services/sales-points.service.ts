@@ -50,7 +50,7 @@ export class SalesPointsService {
     {
       articleId: string;
       ownReference: string;
-      description: string;
+      name: string;
       quantityAvailable: number;
       quantityAtDestination: number;
     }[]

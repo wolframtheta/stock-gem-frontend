@@ -196,13 +196,13 @@
                   class="article-grid-card article-grid-card--photo-only"
                   role="listitem"
                   (click)="onGridArticleClick(article)"
-                  [attr.aria-label]="article.description"
+                  [attr.aria-label]="article.name"
                 >
                   @if (articlePhotoUrl(article.photoPath); as src) {
-                    <img [src]="src" [alt]="article.description" class="article-grid-photo" loading="lazy" />
+                    <img [src]="src" [alt]="article.name" class="article-grid-photo" loading="lazy" />
                   } @else {
                     <span class="article-grid-photo article-grid-photo--name-fallback">
-                      {{ article.description }}
+                      {{ article.name }}
                     </span>
                   }
                 </button>
@@ -236,7 +236,7 @@
                         <option value="">Seleccionar article</option>
                         @for (article of articles(); track article.id) {
                           <option [value]="article.id">
-                            {{ article.ownReference }} - {{ article.description }} (Stock: {{ article.stock }})
+                            {{ article.ownReference }} - {{ article.name }} (Stock: {{ article.stock }})
                           </option>
                         }
                       </select>

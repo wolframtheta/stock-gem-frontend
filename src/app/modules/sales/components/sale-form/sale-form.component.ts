@@ -31,7 +31,7 @@ type SalesPointStockItemLike = {
   article?: {
     id: string;
     ownReference: string;
-    description: string;
+    name: string;
     pvp?: number;
     hasVariants?: boolean;
     photo?: string | null;
@@ -43,7 +43,7 @@ type SalesPointStockItemLike = {
 export interface SaleGridArticle {
   articleId: string;
   ownReference: string;
-  description: string;
+  name: string;
   pvp: number;
   hasVariants: boolean;
   stockAtLocation: number;
@@ -118,7 +118,7 @@ export class SaleFormComponent implements OnInit {
       if (!q) {
         return true;
       }
-      const haystack = `${a.ownReference} ${a.description}`.toLowerCase();
+      const haystack = `${a.ownReference} ${a.name}`.toLowerCase();
       return haystack.includes(q);
     });
   });
@@ -317,7 +317,7 @@ export class SaleFormComponent implements OnInit {
         out.push({
           articleId: art.id,
           ownReference: art.ownReference,
-          description: art.description,
+          name: art.name,
           pvp: Number(art.pvp ?? 0),
           hasVariants: !!art.hasVariants,
           stockAtLocation,
@@ -327,7 +327,7 @@ export class SaleFormComponent implements OnInit {
           variants: item.variants,
         });
       }
-      return out.sort((a, b) => a.description.localeCompare(b.description, 'ca'));
+      return out.sort((a, b) => a.name.localeCompare(b.name, 'ca'));
     };
 
     if (fairId) {
@@ -387,7 +387,7 @@ export class SaleFormComponent implements OnInit {
       this.pendingVariantArticle = this.gridRowAsArticle(row);
       this.variantPickerFromGrid = true;
       this.variantPickerRows = pickerRows;
-      this.variantPickerHeader = `Variants — ${row.description}`;
+      this.variantPickerHeader = `Variants — ${row.name}`;
       this.variantPickerVisible = true;
       this.rememberGridArticle(row);
       return;
@@ -401,7 +401,7 @@ export class SaleFormComponent implements OnInit {
     return {
       id: row.articleId,
       ownReference: row.ownReference,
-      description: row.description,
+      name: row.name,
       cost: null,
       pvp: row.pvp,
       stock: row.stockAtLocation,
@@ -627,7 +627,7 @@ export class SaleFormComponent implements OnInit {
             return;
           }
           this.variantPickerRows = rows;
-          this.variantPickerHeader = `Variants — ${article.description}`;
+          this.variantPickerHeader = `Variants — ${article.name}`;
           this.addItemModalVisible = false;
           this.variantPickerVisible = true;
         },
@@ -947,7 +947,7 @@ export class SaleFormComponent implements OnInit {
     const article =
       this.articleSearchResults().find((a) => a.id === articleId) ??
       this.articles().find((a) => a.id === articleId);
-    const base = article ? `${article.ownReference} - ${article.description}` : '';
+    const base = article ? `${article.ownReference} - ${article.name}` : '';
     if (variantLabel) {
       return `${base} (${variantLabel})`;
     }
@@ -959,7 +959,7 @@ export class SaleFormComponent implements OnInit {
   }
 
   getArticleDisplayLabel(article: Article): string {
-    const parts = [article.ownReference, article.description];
+    const parts = [article.ownReference, article.name];
     if (article.collection?.name) parts.push(`[${article.collection.name}]`);
     if (article.articleType?.name) parts.push(`(${article.articleType.name})`);
     return parts.join(' · ');

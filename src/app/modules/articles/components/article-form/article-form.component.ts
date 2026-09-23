@@ -80,7 +80,7 @@ export class ArticleFormComponent implements OnInit {
   ) {
     this.form = this.fb.group({
       ownReference: ['', [Validators.required, Validators.maxLength(100)]],
-      description: ['', [Validators.required]],
+      name: ['', [Validators.required]],
       cost: [null, [Validators.min(0)]],
       pvp: [0, [Validators.required, Validators.min(0)]],
       stock: [0, [Validators.min(0)]],
