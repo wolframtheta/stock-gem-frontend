@@ -30,7 +30,7 @@
                   {{ row.maxQuantity ?? '—' }}
                 </td>
               }
-              <td>
+              <td class="picker-qty-cell">
                 <label class="sr-only" [for]="inputId(i)">Quantitat per {{ row.label }}</label>
                 <div class="quantity-stepper">
                   <button
@@ -42,6 +42,8 @@
                     −
                   </button>
                   <p-inputNumber
+                    styleClass="picker-qty-inputnumber"
+                    inputStyleClass="picker-qty-input"
                     [inputId]="inputId(i)"
                     [(ngModel)]="row.quantity"
                     (ngModelChange)="onQuantityChange(i)"

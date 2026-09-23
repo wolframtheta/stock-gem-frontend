@@ -68,7 +68,6 @@
                 <th>Referència</th>
                 <th>Descripció</th>
                 <th>Quantitat</th>
-                <th>Accions</th>
               </tr>
             </thead>
             <tbody>
@@ -77,54 +76,74 @@
                   <td>{{ item.article?.ownReference || '-' }}</td>
                   <td>{{ item.article?.description || '-' }}</td>
                   <td class="quantity-cell">
-                    <div class="quantity-stepper">
-                      <button
-                        type="button"
-                        class="btn-stepper"
-                        (click)="decrementQuantity(item)"
-                        [disabled]="getDisplayQuantity(item) <= 1 || loading()"
-                        title="Disminuir"
-                      >
-                        <i class="pi pi-minus"></i>
-                      </button>
-                      <input
-                        type="number"
-                        class="quantity-input"
-                        [value]="getDisplayQuantity(item)"
-                        [min]="1"
-                        [max]="item.maxQuantity ?? item.quantity"
-                        (input)="setQuantityFromInput(item, $any($event.target).value)"
-                      />
-                      <button
-                        type="button"
-                        class="btn-stepper"
-                        (click)="incrementQuantity(item)"
-                        [disabled]="getDisplayQuantity(item) >= (item.maxQuantity ?? item.quantity) || loading()"
-                        title="Augmentar"
-                      >
-                        <i class="pi pi-plus"></i>
-                      </button>
-                      <button
-                        type="button"
-                        class="btn-save"
-                        (click)="saveQuantity(item)"
-                        [disabled]="getDisplayQuantity(item) === item.quantity || loading()"
-                        title="Guardar"
-                      >
-                        <i class="pi pi-check"></i> Guardar
-                      </button>
-                    </div>
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      class="btn-icon btn-danger"
-                      (click)="confirmRemove(item)"
-                      title="Eliminar del punt"
-                      [disabled]="loading()"
-                    >
-                      <i class="pi pi-trash"></i>
-                    </button>
+                    @if (hasVariantStock(item) && item.variants?.length) {
+                      <div class="variant-stock-block">
+                        <span class="variant-stock-total">
+                          Total: <strong>{{ item.quantity }}</strong>
+                        </span>
+                        <ul class="variant-stock-list">
+                          @for (v of item.variants; track v.articleVariantId) {
+                            <li>
+                              <span class="variant-label">{{ v.label }}</span>
+                              <span class="variant-qty">{{ v.quantity }}</span>
+                            </li>
+                          }
+                        </ul>
+                        @if (item.article?.id; as articleId) {
+                          <a
+                            [routerLink]="['/articles', articleId]"
+                            class="variant-edit-link"
+                          >
+                            Ajustar variants
+                          </a>
+                        }
+                      </div>
+                    } @else if (hasVariantStock(item)) {
+                      <div class="variant-stock-block">
+                        <span class="variant-stock-total">
+                          Total: <strong>{{ item.quantity }}</strong>
+                        </span>
+                        <p class="variant-stock-hint">Sense desglossament per variant en aquest punt.</p>
+                      </div>
+                    } @else {
+                      <div class="quantity-stepper">
+                        <button
+                          type="button"
+                          class="btn-stepper"
+                          (click)="decrementQuantity(item)"
+                          [disabled]="getDisplayQuantity(item) <= 1 || loading()"
+                          title="Disminuir"
+                        >
+                          <i class="pi pi-minus"></i>
+                        </button>
+                        <input
+                          type="number"
+                          class="quantity-input"
+                          [value]="getDisplayQuantity(item)"
+                          [min]="1"
+                          [max]="item.maxQuantity ?? item.quantity"
+                          (input)="setQuantityFromInput(item, $any($event.target).value)"
+                        />
+                        <button
+                          type="button"
+                          class="btn-stepper"
+                          (click)="incrementQuantity(item)"
+                          [disabled]="getDisplayQuantity(item) >= (item.maxQuantity ?? item.quantity) || loading()"
+                          title="Augmentar"
+                        >
+                          <i class="pi pi-plus"></i>
+                        </button>
+                        <button
+                          type="button"
+                          class="btn-save"
+                          (click)="saveQuantity(item)"
+                          [disabled]="getDisplayQuantity(item) === item.quantity || loading()"
+                          title="Guardar"
+                        >
+                          <i class="pi pi-check"></i> Guardar
+                        </button>
+                      </div>
+                    }
                   </td>
                 </tr>
               }

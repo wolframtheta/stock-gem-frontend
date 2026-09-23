@@ -175,6 +175,73 @@
 .stock-table .quantity-cell {
   font-weight: 600;
   color: var(--color-brand-secondary);
+  min-width: 12rem;
+}
+
+.variant-stock-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: flex-start;
+  font-weight: normal;
+  color: #334155;
+}
+
+.variant-stock-total {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.variant-stock-total strong {
+  color: var(--color-brand-secondary);
+  font-size: 1rem;
+}
+
+.variant-stock-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 220px;
+}
+
+.variant-stock-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.15rem 0;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.variant-stock-list li:last-child {
+  border-bottom: none;
+}
+
+.variant-label {
+  color: #475569;
+}
+
+.variant-qty {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.variant-edit-link {
+  font-size: 0.8rem;
+  color: var(--color-brand-primary, #6366f1);
+  text-decoration: none;
+}
+
+.variant-edit-link:hover {
+  text-decoration: underline;
+}
+
+.variant-stock-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #94a3b8;
 }
 
 .stock-list-header {

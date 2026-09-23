@@ -8,8 +8,6 @@ import { SelectModule } from 'primeng/select';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
 import { SalesPointsService } from '../../services/sales-points.service';
 import { FairsService } from '../../../fairs/services/fairs.service';
 import { ArticlesService } from '../../../articles/services/articles.service';
@@ -33,7 +31,6 @@ import {
     DialogModule,
     ButtonModule,
     CheckboxModule,
-    ConfirmDialogModule,
     SizeQuantityPickerComponent,
   ],
   providers: [MessageService],
@@ -66,7 +63,6 @@ export class SalesPointStockComponent implements OnInit {
     private articlesService: ArticlesService,
     private fb: FormBuilder,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService,
   ) {
     this.moveForm = this.fb.group({
       toId: [null, Validators.required],
@@ -194,44 +190,6 @@ export class SalesPointStockComponent implements OnInit {
       });
   }
 
-  confirmRemove(item: SalesPointStockItem) {
-    this.confirmationService.confirm({
-      message: `Eliminar "${item.article?.ownReference}" d'aquest punt? El stock anirà al magatzem.`,
-      header: 'Confirmar',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Eliminar',
-      rejectLabel: 'Cancel·lar',
-      accept: () => this.removeItem(item),
-    });
-  }
-
-  removeItem(item: SalesPointStockItem) {
-    const sp = this.salesPoint();
-    if (!sp) return;
-
-    this.loading.set(true);
-    this.salesPointsService
-      .removeFromPoint(sp.id, item.articleId)
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe({
-        next: () => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Èxit',
-            detail: 'Article eliminat del punt',
-          });
-          this.loadStockAndArticles(sp.id);
-        },
-        error: (err) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: err.error?.message || "Error en eliminar",
-          });
-        },
-      });
-  }
-
   openMoveModal() {
     this.moveSelected.set({});
     this.moveVariantByArticle.set({});
@@ -248,6 +206,11 @@ export class SalesPointStockComponent implements OnInit {
       !!item.article?.hasVariants &&
       !!item.variants?.length
     );
+  }
+
+  /** Stock amb desglossament per variant (taula + move). */
+  hasVariantStock(item: SalesPointStockItem): boolean {
+    return !!item.article?.hasVariants;
   }
 
   toggleMoveItem(item: SalesPointStockItem, checked: boolean) {
