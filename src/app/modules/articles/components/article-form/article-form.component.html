@@ -129,12 +129,12 @@
       <div class="stock-controls-row">
         <div class="stock-toggle-cell">
           <div class="has-sizes-toggle">
-            <label for="hasSizes">Article amb talles</label>
+            <label for="hasVariants">Article amb variants</label>
             <p-toggleSwitch
-              inputId="hasSizes"
-              [(ngModel)]="hasSizes"
+              inputId="hasVariants"
+              [(ngModel)]="hasVariants"
               [ngModelOptions]="{ standalone: true }"
-              (ngModelChange)="onHasSizesChange($event)"
+              (ngModelChange)="onHasVariantsChange($event)"
               [disabled]="loading"
             />
           </div>
@@ -150,11 +150,11 @@
             [minFractionDigits]="0"
             [maxFractionDigits]="0"
             locale="ca-ES"
-            [styleClass]="hasSizes ? 'numeric-field stock-readonly' : 'numeric-field'"
-            [attr.aria-describedby]="hasSizes ? 'stockHint' : null"
-            [attr.aria-readonly]="hasSizes ? true : null"
+            [styleClass]="hasVariants ? 'numeric-field stock-readonly' : 'numeric-field'"
+            [attr.aria-describedby]="hasVariants ? 'stockHint' : null"
+            [attr.aria-readonly]="hasVariants ? true : null"
           />
-          @if (hasSizes) {
+          @if (hasVariants) {
             <small id="stockHint" class="field-hint" aria-live="polite">
               Calculat automàticament: {{ computedStockTotal }} unitats
             </small>
@@ -162,33 +162,34 @@
         </div>
       </div>
 
-      @if (hasSizes) {
+      @if (hasVariants) {
         <div
           class="form-group full-width sizes-section"
           role="group"
-          aria-labelledby="sizesLegend"
+          aria-labelledby="variantsLegend"
         >
           <span
-            #sizesSectionTitle
-            id="sizesLegend"
+            #variantsSectionTitle
+            id="variantsLegend"
             class="field-label"
             tabindex="-1"
           >
-            Talles
+            Variants
           </span>
 
-          @if (sizesError) {
-            <p id="sizesError" class="p-error" role="alert">{{ sizesError }}</p>
+          @if (variantsError) {
+            <p id="variantsError" class="p-error" role="alert">{{ variantsError }}</p>
           }
 
-          @if (sizes.length === 0) {
-            <p class="field-hint" aria-live="polite">Afegeix almenys una talla</p>
+          @if (variants.length === 0) {
+            <p class="field-hint" aria-live="polite">Afegeix almenys una variant</p>
           } @else {
+            <div class="sizes-table-scroll">
             <table class="sizes-table">
-              <caption class="sr-only">Talles i quantitats de magatzem</caption>
+              <caption class="sr-only">Variants i quantitats de magatzem</caption>
               <thead>
                 <tr>
-                  <th scope="col">Nom de la talla</th>
+                  <th scope="col">Nom de la variant</th>
                   <th scope="col" class="sizes-qty-col">Quantitat</th>
                   <th scope="col" class="sizes-action-col">
                     <span class="sr-only">Accions</span>
@@ -196,20 +197,20 @@
                 </tr>
               </thead>
               <tbody>
-                @for (size of sizes; track $index; let i = $index) {
+                @for (variant of variants; track $index; let i = $index) {
                   <tr>
                     <td>
                       <div class="size-field-wrap">
-                        <label class="sr-only" [for]="'size-label-' + i">Nom de la talla</label>
+                        <label class="sr-only" [for]="'size-label-' + i">Nom de la variant</label>
                         <input
                           [id]="'size-label-' + i"
                           type="text"
                           class="size-input"
-                          [(ngModel)]="size.label"
+                          [(ngModel)]="variant.label"
                           [ngModelOptions]="{ standalone: true }"
                           maxlength="50"
-                          [attr.aria-invalid]="sizesError ? true : null"
-                          [attr.aria-describedby]="sizesError ? 'sizesError' : null"
+                          [attr.aria-invalid]="variantsError ? true : null"
+                          [attr.aria-describedby]="variantsError ? 'variantsError' : null"
                         />
                       </div>
                     </td>
@@ -222,9 +223,9 @@
                           class="size-input size-input-qty"
                           min="0"
                           step="1"
-                          [(ngModel)]="size.warehouseQuantity"
+                          [(ngModel)]="variant.warehouseQuantity"
                           [ngModelOptions]="{ standalone: true }"
-                          (ngModelChange)="onSizeQuantityChange()"
+                          (ngModelChange)="onVariantQuantityChange()"
                         />
                       </div>
                     </td>
@@ -233,29 +234,24 @@
                         <button
                           type="button"
                           class="btn-remove-size"
-                          (click)="removeSizeRow(i)"
-                          [disabled]="!canRemoveSize(size)"
-                          [attr.aria-label]="'Eliminar talla ' + (size.label || 'sense nom')"
-                          [attr.aria-describedby]="!canRemoveSize(size) ? 'size-remove-hint-' + i : null"
+                          (click)="removeVariantRow(i)"
+                          [disabled]="!canRemoveVariant(variant)"
+                          [attr.aria-label]="'Eliminar variant ' + (variant.label || 'sense nom')"
                         >
                           <i class="pi pi-times" aria-hidden="true"></i>
                         </button>
                       </div>
-                      @if (!canRemoveSize(size)) {
-                        <small [id]="'size-remove-hint-' + i" class="field-hint size-remove-hint">
-                          No es pot eliminar mentre hi hagi stock
-                        </small>
-                      }
                     </td>
                   </tr>
                 }
               </tbody>
             </table>
+            </div>
           }
 
-          <button type="button" class="btn-secondary btn-add-size" (click)="addSizeRow()">
+          <button type="button" class="btn-secondary btn-add-size" (click)="addVariantRow()">
             <i class="pi pi-plus" aria-hidden="true"></i>
-            Afegir talla
+            Afegir variant
           </button>
         </div>
       }

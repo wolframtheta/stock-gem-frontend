@@ -1,4 +1,11 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  signal,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -19,6 +26,11 @@ import {
 import { SalesPoint } from '../../../sales-points/models/sales-point.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { resolveAssetUrl } from '../../../../core/utils/asset-url.util';
+import { SizeQuantityPickerComponent } from '../../../../shared/components/size-quantity-picker/size-quantity-picker.component';
+import {
+  SizeQuantityPickerResult,
+  SizeQuantityPickerRow,
+} from '../../../../shared/components/size-quantity-picker/size-quantity-picker.model';
 
 @Component({
   selector: 'app-article-detail',
@@ -31,6 +43,7 @@ import { resolveAssetUrl } from '../../../../core/utils/asset-url.util';
     DialogModule,
     InputNumberModule,
     ChartModule,
+    SizeQuantityPickerComponent,
   ],
   providers: [MessageService],
   templateUrl: './article-detail.component.html',
@@ -45,10 +58,17 @@ export class ArticleDetailComponent implements OnInit {
   loading = signal(false);
   addStockVisible = false;
   addStockQty = 1;
+  addStockVariants: { articleVariantId: string; label: string; quantity: number }[] =
+    [];
   addStockDate = new Date().toISOString().split('T')[0];
   addStockCost = 0;
   addStockPvp = 0;
   stockHistoryYear = new Date().getFullYear();
+  sizePickerVisible = false;
+  sizePickerRows: SizeQuantityPickerRow[] = [];
+
+  @ViewChild('adjustVariantsBtn')
+  adjustVariantsBtn?: ElementRef<HTMLButtonElement>;
 
   readonly isBotiga = computed(
     () => this.auth.currentUser()?.role === 'botiga',
@@ -181,6 +201,16 @@ export class ArticleDetailComponent implements OnInit {
     return this.salesPointsByCode().get(code) ?? fallback ?? code ?? '-';
   }
 
+  variantMatrixColumnTotal(
+    salesPointId: string,
+    matrix: NonNullable<StockBreakdown['variantMatrix']>,
+  ): number {
+    return matrix.rows.reduce(
+      (sum, row) => sum + (row.quantitiesBySalesPointId[salesPointId] ?? 0),
+      0,
+    );
+  }
+
   formatCurrency(value: number | null | undefined): string {
     if (value == null) {
       return '—';
@@ -210,6 +240,14 @@ export class ArticleDetailComponent implements OnInit {
   openAddStock() {
     const a = this.article();
     this.addStockQty = 1;
+    this.addStockVariants =
+      a?.hasVariants && a.variants?.length
+        ? a.variants.map((variant) => ({
+            articleVariantId: variant.id,
+            label: variant.label,
+            quantity: 0,
+          }))
+        : [];
     this.addStockDate = new Date().toISOString().split('T')[0];
     this.addStockCost = a?.cost ?? 0;
     this.addStockPvp = a?.pvp ?? 0;
@@ -220,18 +258,49 @@ export class ArticleDetailComponent implements OnInit {
     this.addStockQty = Math.max(1, this.addStockQty + delta);
   }
 
+  addStockSizeQtyChange(index: number, delta: number) {
+    const row = this.addStockVariants[index];
+    if (!row) return;
+    row.quantity = Math.max(0, row.quantity + delta);
+  }
+
+  addStockVariantsTotal(): number {
+    return this.addStockVariants.reduce((sum, row) => sum + row.quantity, 0);
+  }
+
+  canSubmitAddStock(): boolean {
+    if (this.addStockPvp < 0 || this.addStockCost < 0) return false;
+    const a = this.article();
+    if (a?.hasVariants) {
+      return this.addStockVariantsTotal() >= 1;
+    }
+    return this.addStockQty >= 1;
+  }
+
   submitAddStock() {
     const a = this.article();
-    if (!a || this.addStockQty < 1) return;
+    if (!a || !this.canSubmitAddStock()) return;
+
+    const payload = a.hasVariants
+      ? {
+          variants: this.addStockVariants.map((row) => ({
+            articleVariantId: row.articleVariantId,
+            quantity: row.quantity,
+          })),
+          date: this.addStockDate,
+          cost: this.addStockCost,
+          pvp: this.addStockPvp,
+        }
+      : {
+          quantity: this.addStockQty,
+          date: this.addStockDate,
+          cost: this.addStockCost,
+          pvp: this.addStockPvp,
+        };
 
     this.loading.set(true);
     this.articlesService
-      .addStock(a.id, {
-        quantity: this.addStockQty,
-        date: this.addStockDate,
-        cost: this.addStockCost,
-        pvp: this.addStockPvp,
-      })
+      .addStock(a.id, payload)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (updated) => {
@@ -259,5 +328,62 @@ export class ArticleDetailComponent implements OnInit {
   onStockHistoryYearChange() {
     const a = this.article();
     if (a) this.loadStockHistory(a.id);
+  }
+
+  openSizePicker(): void {
+    const a = this.article();
+    if (!a?.hasVariants || !a.variants?.length) {
+      return;
+    }
+    this.sizePickerRows = a.variants.map((variant) => ({
+      articleVariantId: variant.id,
+      label: variant.label,
+      quantity: variant.warehouseQuantity ?? 0,
+    }));
+    this.sizePickerVisible = true;
+  }
+
+  onSizePickerCancel(): void {
+    queueMicrotask(() => this.adjustVariantsBtn?.nativeElement.focus());
+  }
+
+  onSizePickerConfirm(results: SizeQuantityPickerResult[]): void {
+    const a = this.article();
+    if (!a?.variants?.length) {
+      return;
+    }
+    const qtyById = new Map(
+      results.map((row) => [row.articleVariantId, row.quantity]),
+    );
+    const variants = a.variants.map((variant) => ({
+      id: variant.id,
+      label: variant.label,
+      sortOrder: variant.sortOrder,
+      warehouseQuantity: qtyById.get(variant.id) ?? variant.warehouseQuantity ?? 0,
+    }));
+
+    this.loading.set(true);
+    this.articlesService
+      .update(a.id, { variants })
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (updated) => {
+          this.article.set(updated);
+          this.loadStockBreakdown(a.id);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Èxit',
+            detail: 'Quantitats de magatzem actualitzades',
+          });
+          queueMicrotask(() => this.adjustVariantsBtn?.nativeElement.focus());
+        },
+        error: (err) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: err.error?.message || 'Error en actualitzar variants',
+          });
+        },
+      });
   }
 }

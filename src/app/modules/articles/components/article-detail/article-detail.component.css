@@ -156,6 +156,7 @@
   margin: 0 auto;
   display: grid;
   gap: 1.5rem;
+  min-width: 0;
 }
 
 .stock-section,
@@ -164,6 +165,8 @@
   padding: 1.5rem 2rem;
   border-radius: 16px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  min-width: 0;
+  overflow-x: clip;
 }
 
 .stock-section h2,
@@ -216,10 +219,21 @@
   font-weight: 700;
 }
 
+.stock-table-wrapper {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .stock-table-wrapper h3 {
   font-size: 1rem;
   color: #475569;
   margin: 0 0 0.75rem 0;
+}
+
+.stock-table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
 }
 
 .stock-table {
@@ -453,10 +467,31 @@
   margin-bottom: 1rem;
 }
 
-.add-stock-form label {
+.add-stock-form label,
+.add-stock-form .field-label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
+}
+
+.fabricar-sizes-table {
+  width: 100%;
+  min-width: 16rem;
+  border-collapse: collapse;
+  margin-bottom: 0.5rem;
+}
+
+.fabricar-sizes-table th,
+.fabricar-sizes-table td {
+  padding: 0.5rem 0.25rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.fabricar-sizes-table thead th {
+  font-size: 0.85rem;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .quantity-stepper {
@@ -505,6 +540,11 @@
   .header-actions {
     width: 100%;
   }
+
+  .stock-section,
+  .prices-section {
+    padding: 1rem 1rem;
+  }
 }
 
 .sr-only {
@@ -517,6 +557,58 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.sizes-matrix-table {
+  width: max-content;
+  min-width: 100%;
+}
+
+.sizes-matrix-table th,
+.sizes-matrix-table td {
+  padding: 0.5rem 0.65rem;
+}
+
+.sizes-matrix-table thead th {
+  max-width: 7.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+
+.sizes-matrix-table th[scope='row'] {
+  font-weight: 600;
+  text-align: left;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fff;
+  box-shadow: 2px 0 0 #e2e8f0;
+}
+
+.sizes-matrix-table thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.sizes-matrix-table .total-row th[scope='row'] {
+  background: #f8fafc;
+}
+
+.sizes-matrix-table .total-row th,
+.variants-section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.variants-section-header h3 {
+  margin: 0;
 }
 
 .sizes-detail .total-row th {

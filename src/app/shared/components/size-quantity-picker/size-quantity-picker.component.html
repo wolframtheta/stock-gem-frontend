@@ -1,0 +1,92 @@
+<p-dialog
+  [header]="header"
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: showAvailableColumn ? '480px' : '420px' }"
+  (visibleChange)="visibleChange.emit($event)"
+  (onHide)="onDialogHide()"
+>
+  <div class="picker-body">
+    <div class="stock-table-scroll">
+      <table class="picker-table">
+        <caption class="sr-only">{{ header }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Variant</th>
+            @if (showAvailableColumn) {
+              <th scope="col">Disponible</th>
+            }
+            <th scope="col">Quantitat</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of editableRows; track row.articleVariantId; let i = $index) {
+            <tr>
+              <th scope="row">{{ row.label }}</th>
+              @if (showAvailableColumn) {
+                <td class="available-cell">
+                  {{ row.maxQuantity ?? '—' }}
+                </td>
+              }
+              <td>
+                <label class="sr-only" [for]="inputId(i)">Quantitat per {{ row.label }}</label>
+                <div class="quantity-stepper">
+                  <button
+                    type="button"
+                    class="btn-stepper"
+                    (click)="stepQuantity(i, -1)"
+                    [attr.aria-label]="'Disminuir quantitat de ' + row.label"
+                  >
+                    −
+                  </button>
+                  <p-inputNumber
+                    [inputId]="inputId(i)"
+                    [(ngModel)]="row.quantity"
+                    (ngModelChange)="onQuantityChange(i)"
+                    [min]="0"
+                    [max]="row.maxQuantity ?? undefined"
+                    [showButtons]="false"
+                    [useGrouping]="false"
+                  />
+                  <button
+                    type="button"
+                    class="btn-stepper"
+                    (click)="stepQuantity(i, 1)"
+                    [attr.aria-label]="'Augmentar quantitat de ' + row.label"
+                  >
+                    +
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p class="picker-total" aria-live="polite">
+      Total seleccionat: <strong>{{ validation.total }}</strong>
+    </p>
+
+    @if (validation.errors.length) {
+      <div class="picker-errors" role="alert" aria-live="assertive">
+        @for (err of validation.errors; track err) {
+          <p>{{ err }}</p>
+        }
+      </div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button type="button" pButton label="Cancel·lar" class="p-button-text" (click)="onCancelClick()"></button>
+    <button
+      type="button"
+      pButton
+      [label]="confirmLabel"
+      [disabled]="!validation.valid"
+      (click)="onConfirmClick()"
+    ></button>
+  </ng-template>
+</p-dialog>

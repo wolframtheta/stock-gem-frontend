@@ -26,7 +26,7 @@ import { CreateArticleDto } from '../../models/article.model';
 import { UploadsService } from '../../../../core/services/uploads.service';
 import { resolveAssetUrl } from '../../../../core/utils/asset-url.util';
 
-interface SizeFormRow {
+interface VariantFormRow {
   id?: string;
   label: string;
   warehouseQuantity: number;
@@ -52,7 +52,7 @@ interface SizeFormRow {
   styleUrl: './article-form.component.css',
 })
 export class ArticleFormComponent implements OnInit {
-  @ViewChild('sizesSectionTitle') sizesSectionTitle?: ElementRef<HTMLElement>;
+  @ViewChild('variantsSectionTitle') variantsSectionTitle?: ElementRef<HTMLElement>;
   @ViewChild('photoInput') photoInput?: ElementRef<HTMLInputElement>;
 
   form: FormGroup;
@@ -65,9 +65,9 @@ export class ArticleFormComponent implements OnInit {
   addModalName = '';
   photoPath: string | null = null;
   uploadingPhoto = false;
-  hasSizes = false;
-  sizes: SizeFormRow[] = [];
-  sizesError: string | null = null;
+  hasVariants = false;
+  variants: VariantFormRow[] = [];
+  variantsError: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -101,10 +101,10 @@ export class ArticleFormComponent implements OnInit {
   }
 
   get computedStockTotal(): number {
-    if (!this.hasSizes) {
+    if (!this.hasVariants) {
       return this.coerceNumber(this.form.get('stock')?.value);
     }
-    return this.sizes.reduce(
+    return this.variants.reduce(
       (sum, s) => sum + Math.max(0, this.coerceNumber(s.warehouseQuantity)),
       0,
     );
@@ -123,8 +123,8 @@ export class ArticleFormComponent implements OnInit {
     return Number.isFinite(parsed) ? parsed : null;
   }
 
-  private updateStockFromSizes(): void {
-    if (!this.hasSizes) {
+  private updateStockFromVariants(): void {
+    if (!this.hasVariants) {
       return;
     }
     this.form
@@ -132,19 +132,19 @@ export class ArticleFormComponent implements OnInit {
       ?.setValue(this.computedStockTotal, { emitEvent: false });
   }
 
-  onSizeQuantityChange(): void {
-    this.sizes = this.sizes.map((size) => ({
-      ...size,
-      warehouseQuantity: this.coerceNumber(size.warehouseQuantity),
+  onVariantQuantityChange(): void {
+    this.variants = this.variants.map((variant) => ({
+      ...variant,
+      warehouseQuantity: this.coerceNumber(variant.warehouseQuantity),
     }));
-    this.updateStockFromSizes();
+    this.updateStockFromVariants();
   }
 
   get canSubmit(): boolean {
     if (this.form.invalid || this.loading) {
       return false;
     }
-    if (this.hasSizes && this.sizes.length === 0) {
+    if (this.hasVariants && this.variants.length === 0) {
       return false;
     }
     return true;
@@ -227,10 +227,10 @@ export class ArticleFormComponent implements OnInit {
           pvp: this.coerceNumber(article.pvp),
           stock: this.coerceNumber(article.stock),
         });
-        this.hasSizes = article.hasSizes ?? false;
-        this.setStockControlState(this.hasSizes);
-        this.updateStockFromSizes();
-        this.sizes = (article.sizes ?? []).map((s) => ({
+        this.hasVariants = article.hasVariants ?? false;
+        this.setStockControlState(this.hasVariants);
+        this.updateStockFromVariants();
+        this.variants = (article.variants ?? []).map((s) => ({
           id: s.id,
           label: s.label,
           warehouseQuantity: this.coerceNumber(s.warehouseQuantity),
@@ -250,97 +250,97 @@ export class ArticleFormComponent implements OnInit {
     });
   }
 
-  private setStockControlState(hasSizes: boolean) {
+  private setStockControlState(hasVariants: boolean) {
     const stockControl = this.form.get('stock');
     if (!stockControl) {
       return;
     }
-    if (hasSizes) {
+    if (hasVariants) {
       stockControl.disable({ emitEvent: false });
     } else {
       stockControl.enable({ emitEvent: false });
     }
   }
 
-  onHasSizesChange(checked: boolean) {
-    this.hasSizes = checked;
+  onHasVariantsChange(checked: boolean) {
+    this.hasVariants = checked;
     this.setStockControlState(checked);
-    this.sizesError = null;
+    this.variantsError = null;
     if (checked) {
       const currentStock = Number(this.form.get('stock')?.value ?? 0);
-      if (this.sizes.length === 0 && currentStock > 0) {
-        this.sizes = [
+      if (this.variants.length === 0 && currentStock > 0) {
+        this.variants = [
           { label: 'Única', warehouseQuantity: currentStock },
         ];
       }
-      this.updateStockFromSizes();
-      setTimeout(() => this.sizesSectionTitle?.nativeElement.focus(), 0);
+      this.updateStockFromVariants();
+      setTimeout(() => this.variantsSectionTitle?.nativeElement.focus(), 0);
     }
   }
 
-  addSizeRow() {
-    this.sizes = [...this.sizes, { label: '', warehouseQuantity: 0 }];
-    this.sizesError = null;
-    this.updateStockFromSizes();
+  addVariantRow() {
+    this.variants = [...this.variants, { label: '', warehouseQuantity: 0 }];
+    this.variantsError = null;
+    this.updateStockFromVariants();
     setTimeout(() => {
-      const index = this.sizes.length - 1;
+      const index = this.variants.length - 1;
       document.getElementById(`size-label-${index}`)?.focus();
     }, 0);
   }
 
-  removeSizeRow(index: number) {
-    const row = this.sizes[index];
+  removeVariantRow(index: number) {
+    const row = this.variants[index];
     if (row.warehouseQuantity > 0) {
       return;
     }
-    this.sizes = this.sizes.filter((_, i) => i !== index);
-    this.sizesError = null;
-    this.updateStockFromSizes();
+    this.variants = this.variants.filter((_, i) => i !== index);
+    this.variantsError = null;
+    this.updateStockFromVariants();
   }
 
-  canRemoveSize(row: SizeFormRow): boolean {
+  canRemoveVariant(row: VariantFormRow): boolean {
     return row.warehouseQuantity <= 0;
   }
 
-  private focusFirstInvalidSizeField(): void {
-    if (!this.hasSizes) {
+  private focusFirstInvalidVariantField(): void {
+    if (!this.hasVariants) {
       return;
     }
-    const emptyIndex = this.sizes.findIndex((s) => !s.label.trim());
+    const emptyIndex = this.variants.findIndex((s) => !s.label.trim());
     if (emptyIndex >= 0) {
       document.getElementById(`size-label-${emptyIndex}`)?.focus();
       return;
     }
-    document.getElementById('sizesLegend')?.focus();
+    document.getElementById('variantsLegend')?.focus();
   }
 
-  private validateSizes(): boolean {
-    if (!this.hasSizes) {
-      this.sizesError = null;
+  private validateVariants(): boolean {
+    if (!this.hasVariants) {
+      this.variantsError = null;
       return true;
     }
-    if (this.sizes.length === 0) {
-      this.sizesError = 'Afegeix almenys una talla';
+    if (this.variants.length === 0) {
+      this.variantsError = 'Afegeix almenys una variant';
       return false;
     }
-    const labels = this.sizes.map((s) => s.label.trim().toLowerCase());
+    const labels = this.variants.map((s) => s.label.trim().toLowerCase());
     if (labels.some((l) => !l)) {
-      this.sizesError = 'Totes les talles han de tenir nom';
+      this.variantsError = 'Totes les variants han de tenir nom';
       return false;
     }
     const unique = new Set(labels);
     if (unique.size !== labels.length) {
-      this.sizesError = 'Les talles han de tenir noms únics';
+      this.variantsError = 'Les variants han de tenir noms únics';
       return false;
     }
-    this.sizesError = null;
+    this.variantsError = null;
     return true;
   }
 
   onSubmit() {
-    if (!this.validateSizes()) {
+    if (!this.validateVariants()) {
       this.form.markAllAsTouched();
-      this.focusFirstInvalidSizeField();
+      this.focusFirstInvalidVariantField();
       return;
     }
     if (this.form.invalid) {
@@ -448,19 +448,19 @@ export class ArticleFormComponent implements OnInit {
       cost: this.coerceOptionalNumber(value['cost']),
       pvp: this.coerceNumber(value['pvp']),
       photoPaths: photoPath ? [photoPath] : [],
-      hasSizes: this.hasSizes,
+      hasVariants: this.hasVariants,
     };
 
-    if (this.hasSizes) {
+    if (this.hasVariants) {
       delete payload.stock;
-      payload.sizes = this.sizes.map((s, index) => ({
+      payload.variants = this.variants.map((s, index) => ({
         id: s.id,
         label: s.label.trim(),
         warehouseQuantity: Math.max(0, this.coerceNumber(s.warehouseQuantity)),
         sortOrder: index,
       }));
     } else {
-      delete payload.sizes;
+      delete payload.variants;
       payload.stock = this.coerceNumber(value['stock']);
     }
 

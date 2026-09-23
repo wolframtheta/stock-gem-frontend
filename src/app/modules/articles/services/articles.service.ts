@@ -69,7 +69,13 @@ export class ArticlesService {
 
   addStock(
     id: string,
-    payload: { quantity: number; date: string; cost: number; pvp: number },
+    payload: {
+      quantity?: number;
+      variants?: { articleVariantId: string; quantity: number }[];
+      date: string;
+      cost: number;
+      pvp: number;
+    },
   ): Observable<Article> {
     return this.apiService.post<Article>(`articles/${id}/add-stock`, payload);
   }

@@ -4,14 +4,14 @@ export interface ArticlePhoto {
   sortOrder: number;
 }
 
-export interface ArticleSize {
+export interface ArticleVariant {
   id: string;
   label: string;
   sortOrder: number;
   warehouseQuantity: number;
 }
 
-export interface ArticleSizeInput {
+export interface ArticleVariantInput {
   id?: string;
   label: string;
   warehouseQuantity?: number;
@@ -25,8 +25,8 @@ export interface Article {
   cost: number | null;
   pvp: number;
   stock: number;
-  hasSizes: boolean;
-  sizes?: ArticleSize[];
+  hasVariants: boolean;
+  variants?: ArticleVariant[];
   /** Quantitat a la fira (només per usuaris botiga) */
   quantityAtFair?: number;
   observations: string | null;
@@ -54,6 +54,20 @@ export interface ArticleStockHistory {
   recordedAt: string;
 }
 
+export interface StockBreakdownSalesPointColumn {
+  salesPointId: string;
+  salesPointCode: string;
+  salesPointName: string;
+}
+
+export interface StockBreakdownVariantRow {
+  articleVariantId: string;
+  label: string;
+  sortOrder: number;
+  quantitiesBySalesPointId: Record<string, number>;
+  total: number;
+}
+
 export interface StockBreakdown {
   total: number;
   bySalesPoint: {
@@ -68,6 +82,10 @@ export interface StockBreakdown {
     quantity: number;
   }[];
   unassigned: number;
+  variantMatrix?: {
+    columns: StockBreakdownSalesPointColumn[];
+    rows: StockBreakdownVariantRow[];
+  };
 }
 
 export interface CreateArticleDto {
@@ -76,8 +94,8 @@ export interface CreateArticleDto {
   cost: number | null;
   pvp: number;
   stock?: number;
-  hasSizes?: boolean;
-  sizes?: ArticleSizeInput[];
+  hasVariants?: boolean;
+  variants?: ArticleVariantInput[];
   observations?: string;
   photo?: string;
   photoPaths?: string[];

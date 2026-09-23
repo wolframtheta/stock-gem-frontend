@@ -65,6 +65,8 @@
   padding: 2rem;
   border-radius: 16px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  min-width: 0;
+  overflow-x: clip;
 }
 
 .form-grid {
@@ -418,10 +420,18 @@
 
 .sizes-section {
   --size-field-height: 2.5rem;
+  min-width: 0;
+}
+
+.sizes-table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
 }
 
 .sizes-table {
   width: 100%;
+  min-width: 18rem;
   border-collapse: collapse;
   margin-top: 0.25rem;
 }
@@ -527,14 +537,6 @@
   cursor: not-allowed;
 }
 
-.size-remove-hint {
-  display: block;
-  margin-top: 0.25rem;
-  font-size: 0.75rem;
-  line-height: 1.2;
-  text-align: center;
-}
-
 .btn-add-size {
   margin-top: 1rem;
   display: inline-flex;
@@ -590,6 +592,10 @@
 
   .stock-controls-row {
     grid-template-columns: 1fr;
+  }
+
+  .article-form {
+    padding: 1.25rem;
   }
 }
 

@@ -90,64 +90,94 @@
             }
           </div>
 
-          @if (article(); as art) {
-            @if (art.hasSizes && art.sizes?.length) {
-              <div class="stock-table-wrapper sizes-detail">
-                <h3>Talles</h3>
-                <table class="stock-table">
-                  <caption class="sr-only">Talles i stock de magatzem</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">Talla</th>
-                      <th scope="col">Quantitat magatzem</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (size of art.sizes; track size.id) {
-                      <tr>
-                        <td>{{ size.label }}</td>
-                        <td class="quantity-cell">{{ size.warehouseQuantity }}</td>
-                      </tr>
-                    }
-                    <tr class="total-row">
-                      <th scope="row">Total</th>
-                      <td class="quantity-cell">{{ art.stock }}</td>
-                    </tr>
-                  </tbody>
-                </table>
+          @if (breakdown.variantMatrix; as matrix) {
+            <div class="stock-table-wrapper sizes-detail">
+              <div class="variants-section-header">
+                <h3>Variants</h3>
+                @if (!isBotiga() && article()?.hasVariants && article()?.variants?.length) {
+                  <button
+                    #adjustVariantsBtn
+                    type="button"
+                    class="btn-secondary"
+                    (click)="openSizePicker()"
+                    [disabled]="loading()"
+                  >
+                    <i class="pi pi-sliders-h" aria-hidden="true"></i>
+                    <span>Ajustar quantitats</span>
+                  </button>
+                }
               </div>
-            }
-          }
-
-          <div class="stock-table-wrapper">
-            <h3>{{ isBotiga() ? 'Stock a la fira' : 'Stock per punt de venta' }}</h3>
-            @if (breakdown.bySalesPoint.length === 0 && !isBotiga()) {
-              <div class="empty-stock">
-                <i class="pi pi-inbox"></i>
-                <p>No hi ha stock assignat a cap punt de venta</p>
-                <a [routerLink]="['/sales-points']" class="link">Gestionar punts de venta</a>
-              </div>
-            } @else if (breakdown.bySalesPoint.length > 0) {
-              <table class="stock-table">
+              <div class="stock-table-scroll">
+              <table class="stock-table sizes-matrix-table">
+                <caption class="sr-only">Stock per variant i punt de venda</caption>
                 <thead>
                   <tr>
-                    <th>Nom del punt de venta</th>
-                    <th>Codi</th>
-                    <th>Quantitat</th>
+                    <th scope="col">Variant</th>
+                    @for (col of matrix.columns; track col.salesPointId) {
+                      <th
+                        scope="col"
+                        [attr.title]="getSalesPointName(col.salesPointCode, col.salesPointName)"
+                      >
+                        {{ getSalesPointName(col.salesPointCode, col.salesPointName) }}
+                      </th>
+                    }
+                    <th scope="col">Total</th>
                   </tr>
                 </thead>
                 <tbody>
-                  @for (item of breakdown.bySalesPoint; track item.salesPointId) {
+                  @for (row of matrix.rows; track row.articleVariantId) {
                     <tr>
-                      <td>{{ getSalesPointName(item.salesPointCode, item.salesPointName) }}</td>
-                      <td><code>{{ item.salesPointCode }}</code></td>
-                      <td class="quantity-cell">{{ item.quantity }}</td>
+                      <th scope="row">{{ row.label }}</th>
+                      @for (col of matrix.columns; track col.salesPointId) {
+                        <td class="quantity-cell">
+                          {{ row.quantitiesBySalesPointId[col.salesPointId] ?? 0 }}
+                        </td>
+                      }
+                      <td class="quantity-cell">{{ row.total }}</td>
                     </tr>
                   }
+                  <tr class="total-row">
+                    <th scope="row">Total</th>
+                    @for (col of matrix.columns; track col.salesPointId) {
+                      <td class="quantity-cell">{{ variantMatrixColumnTotal(col.salesPointId, matrix) }}</td>
+                    }
+                    <td class="quantity-cell">{{ breakdown.total }}</td>
+                  </tr>
                 </tbody>
               </table>
-            }
-          </div>
+              </div>
+            </div>
+          } @else {
+            <div class="stock-table-wrapper">
+              <h3>{{ isBotiga() ? 'Stock a la fira' : 'Stock per punt de venta' }}</h3>
+              @if (breakdown.bySalesPoint.length === 0 && !isBotiga()) {
+                <div class="empty-stock">
+                  <i class="pi pi-inbox"></i>
+                  <p>No hi ha stock assignat a cap punt de venta</p>
+                  <a [routerLink]="['/sales-points']" class="link">Gestionar punts de venta</a>
+                </div>
+              } @else if (breakdown.bySalesPoint.length > 0) {
+                <table class="stock-table">
+                  <thead>
+                    <tr>
+                      <th>Nom del punt de venta</th>
+                      <th>Codi</th>
+                      <th>Quantitat</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of breakdown.bySalesPoint; track item.salesPointId) {
+                      <tr>
+                        <td>{{ getSalesPointName(item.salesPointCode, item.salesPointName) }}</td>
+                        <td><code>{{ item.salesPointCode }}</code></td>
+                        <td class="quantity-cell">{{ item.quantity }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            </div>
+          }
 
           @if (!isBotiga() && breakdown.byFair.length) {
             <div class="stock-table-wrapper">
@@ -220,18 +250,11 @@
               type="button"
               class="btn-primary"
               (click)="openAddStock()"
-              [disabled]="loading() || article()?.hasSizes"
-              [attr.title]="article()?.hasSizes ? 'Article amb talles: ajustar via formulari' : null"
-              [attr.aria-describedby]="article()?.hasSizes ? 'fabricarDisabledHint' : null"
+              [disabled]="loading()"
             >
               <i class="pi pi-plus" aria-hidden="true"></i>
               <span>Fabricar quantitats</span>
             </button>
-            @if (article()?.hasSizes) {
-              <p id="fabricarDisabledHint" class="fabricar-hint">
-                Article amb talles: ajustar quantitats via formulari d'edició
-              </p>
-            }
           </div>
           <div class="year-filter">
             <label>Any:</label>
@@ -281,21 +304,79 @@
   header="Fabricar quantitats"
   [(visible)]="addStockVisible"
   [modal]="true"
-  [style]="{ width: '350px' }"
+  [style]="{ width: article()?.hasVariants ? '480px' : '350px' }"
 >
   <div class="add-stock-form">
-    <div class="form-group">
-      <label>Quantitat</label>
-      <div class="quantity-stepper">
-        <button type="button" class="btn-stepper" (click)="addStockQtyChange(-1)" title="Disminuir">
-          <i class="pi pi-minus"></i>
-        </button>
-        <p-inputNumber [(ngModel)]="addStockQty" [min]="1" [inputStyle]="{ width: '70px', textAlign: 'center' }" />
-        <button type="button" class="btn-stepper" (click)="addStockQtyChange(1)" title="Augmentar">
-          <i class="pi pi-plus"></i>
-        </button>
+    @if (article()?.hasVariants && addStockVariants.length) {
+      <div class="form-group">
+        <span class="field-label" id="fabricarVariantsLegend">Quantitat per variant</span>
+        <div class="stock-table-scroll">
+        <table class="fabricar-sizes-table" aria-labelledby="fabricarVariantsLegend">
+          <thead>
+            <tr>
+              <th scope="col">Variant</th>
+              <th scope="col">A fabricar</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of addStockVariants; track row.articleVariantId; let i = $index) {
+              <tr>
+                <th scope="row">{{ row.label }}</th>
+                <td>
+                  <div class="quantity-stepper">
+                    <button
+                      type="button"
+                      class="btn-stepper"
+                      (click)="addStockSizeQtyChange(i, -1)"
+                      [attr.aria-label]="'Disminuir quantitat variant ' + row.label"
+                    >
+                      <i class="pi pi-minus" aria-hidden="true"></i>
+                    </button>
+                    <p-inputNumber
+                      [(ngModel)]="row.quantity"
+                      [min]="0"
+                      [useGrouping]="false"
+                      [inputStyle]="{ width: '70px', textAlign: 'center' }"
+                      [inputId]="'fabricar-size-qty-' + i"
+                    />
+                    <button
+                      type="button"
+                      class="btn-stepper"
+                      (click)="addStockSizeQtyChange(i, 1)"
+                      [attr.aria-label]="'Augmentar quantitat variant ' + row.label"
+                    >
+                      <i class="pi pi-plus" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        </div>
+        <p class="field-hint" aria-live="polite">
+          Total a fabricar: {{ addStockVariantsTotal() }} unitats
+        </p>
       </div>
-    </div>
+    } @else {
+      <div class="form-group">
+        <label for="addStockQty">Quantitat</label>
+        <div class="quantity-stepper">
+          <button type="button" class="btn-stepper" (click)="addStockQtyChange(-1)" title="Disminuir">
+            <i class="pi pi-minus"></i>
+          </button>
+          <p-inputNumber
+            inputId="addStockQty"
+            [(ngModel)]="addStockQty"
+            [min]="1"
+            [inputStyle]="{ width: '70px', textAlign: 'center' }"
+          />
+          <button type="button" class="btn-stepper" (click)="addStockQtyChange(1)" title="Augmentar">
+            <i class="pi pi-plus"></i>
+          </button>
+        </div>
+      </div>
+    }
     <div class="form-group">
       <label for="addStockCost">Cost</label>
       <p-inputNumber
@@ -330,7 +411,16 @@
       pButton
       label="Fabricar"
       (click)="submitAddStock()"
-      [disabled]="addStockQty < 1 || addStockPvp < 0 || addStockCost < 0"
+      [disabled]="!canSubmitAddStock()"
     ></button>
   </ng-template>
 </p-dialog>
+
+<app-size-quantity-picker
+  [(visible)]="sizePickerVisible"
+  header="Ajustar quantitats per variant"
+  [rows]="sizePickerRows"
+  [options]="{ emitZeroRows: true, minTotal: 1 }"
+  (confirm)="onSizePickerConfirm($event)"
+  (cancel)="onSizePickerCancel()"
+/>
