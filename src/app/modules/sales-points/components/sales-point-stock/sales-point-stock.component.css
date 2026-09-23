@@ -300,6 +300,20 @@
   border-radius: 6px;
 }
 
+.move-variant-total {
+  font-weight: 600;
+  min-width: 3rem;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--color-brand-primary, #6366f1);
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.9rem;
+}
+
 .move-item-max {
   font-size: 0.85rem;
   color: #64748b;

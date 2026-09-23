@@ -169,15 +169,30 @@
             (ngModelChange)="toggleMoveItem(item, $event)"
           />
           <span class="move-item-label">{{ item.article?.ownReference }} - {{ item.article?.description }}</span>
-          <input
-            type="number"
-            [min]="1"
-            [max]="item.quantity"
-            [value]="getMoveQuantity(item.articleId) || (isMoveSelected(item.articleId) ? item.quantity : 0)"
-            (input)="setMoveQuantity(item.articleId, $any($event.target).valueAsNumber)"
-            [disabled]="!isMoveSelected(item.articleId)"
-          />
-          <span class="move-item-max">/ {{ item.quantity }}</span>
+          @if (isVariantArticle(item)) {
+            @if (isMoveSelected(item.articleId)) {
+              <span class="move-variant-total">{{ getVariantMoveTotal(item.articleId) }} u.</span>
+              <button
+                type="button"
+                class="btn-link"
+                (click)="openVariantPicker(item)"
+              >
+                Triar variants
+              </button>
+            } @else {
+              <span class="move-item-max">Variants ({{ item.quantity }} total)</span>
+            }
+          } @else {
+            <input
+              type="number"
+              [min]="1"
+              [max]="item.quantity"
+              [value]="getMoveQuantity(item.articleId) || (isMoveSelected(item.articleId) ? item.quantity : 0)"
+              (input)="setMoveQuantity(item.articleId, $any($event.target).valueAsNumber)"
+              [disabled]="!isMoveSelected(item.articleId)"
+            />
+            <span class="move-item-max">/ {{ item.quantity }}</span>
+          }
         </div>
       }
     </div>
@@ -187,3 +202,10 @@
     <button type="button" pButton label="Moure" (click)="submitMove()" [disabled]="moveForm.invalid || loading()"></button>
   </ng-template>
 </p-dialog>
+
+<app-size-quantity-picker
+  [(visible)]="variantPickerVisible"
+  header="Seleccionar variants a moure"
+  [rows]="variantPickerRows"
+  (confirm)="onVariantPickerConfirm($event)"
+/>

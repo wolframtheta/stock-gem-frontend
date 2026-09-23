@@ -106,7 +106,11 @@ export class SalesPointsService {
     fromId: string,
     toType: 'point' | 'fair',
     toId: string,
-    items: { articleId: string; quantity: number }[],
+    items: {
+      articleId: string;
+      quantity?: number;
+      variants?: { articleVariantId: string; quantity: number }[];
+    }[],
   ): Observable<void> {
     return this.apiService.post<void>(`${this.endpoint}/move-stock`, {
       fromType,

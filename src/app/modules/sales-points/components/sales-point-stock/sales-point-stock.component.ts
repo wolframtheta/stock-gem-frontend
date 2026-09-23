@@ -15,6 +15,11 @@ import { FairsService } from '../../../fairs/services/fairs.service';
 import { ArticlesService } from '../../../articles/services/articles.service';
 import { SalesPoint, SalesPointStockItem } from '../../models/sales-point.model';
 import { Article } from '../../../articles/models/article.model';
+import { SizeQuantityPickerComponent } from '../../../../shared/components/size-quantity-picker/size-quantity-picker.component';
+import {
+  SizeQuantityPickerResult,
+  SizeQuantityPickerRow,
+} from '../../../../shared/components/size-quantity-picker/size-quantity-picker.model';
 
 @Component({
   selector: 'app-sales-point-stock',
@@ -29,6 +34,7 @@ import { Article } from '../../../articles/models/article.model';
     ButtonModule,
     CheckboxModule,
     ConfirmDialogModule,
+    SizeQuantityPickerComponent,
   ],
   providers: [MessageService],
   templateUrl: './sales-point-stock.component.html',
@@ -45,6 +51,12 @@ export class SalesPointStockComponent implements OnInit {
   moveModalVisible = signal(false);
   moveForm: FormGroup;
   moveSelected = signal<Record<string, number>>({});
+  moveVariantByArticle = signal<
+    Record<string, { articleVariantId: string; quantity: number }[]>
+  >({});
+  variantPickerVisible = false;
+  variantPickerArticleId: string | null = null;
+  variantPickerRows: SizeQuantityPickerRow[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -222,6 +234,7 @@ export class SalesPointStockComponent implements OnInit {
 
   openMoveModal() {
     this.moveSelected.set({});
+    this.moveVariantByArticle.set({});
     this.moveForm.reset({ toId: null });
     this.moveModalVisible.set(true);
   }
@@ -230,7 +243,24 @@ export class SalesPointStockComponent implements OnInit {
     this.moveModalVisible.set(false);
   }
 
+  isVariantArticle(item: SalesPointStockItem): boolean {
+    return (
+      !!item.article?.hasVariants &&
+      !!item.variants?.length
+    );
+  }
+
   toggleMoveItem(item: SalesPointStockItem, checked: boolean) {
+    if (this.isVariantArticle(item)) {
+      const variants = { ...this.moveVariantByArticle() };
+      if (checked) {
+        this.openVariantPicker(item);
+      } else {
+        delete variants[item.articleId];
+        this.moveVariantByArticle.set(variants);
+      }
+      return;
+    }
     const sel = { ...this.moveSelected() };
     if (checked) {
       sel[item.articleId] = item.quantity;
@@ -238,6 +268,42 @@ export class SalesPointStockComponent implements OnInit {
       delete sel[item.articleId];
     }
     this.moveSelected.set(sel);
+  }
+
+  openVariantPicker(item: SalesPointStockItem): void {
+    this.variantPickerArticleId = item.articleId;
+    this.variantPickerRows = (item.variants ?? []).map((v) => ({
+      articleVariantId: v.articleVariantId,
+      label: v.label,
+      quantity: 0,
+      maxQuantity: v.maxQuantity,
+    }));
+    this.variantPickerVisible = true;
+  }
+
+  onVariantPickerConfirm(results: SizeQuantityPickerResult[]): void {
+    const articleId = this.variantPickerArticleId;
+    if (!articleId) {
+      return;
+    }
+    const variants = { ...this.moveVariantByArticle() };
+    variants[articleId] = results.map((r) => ({
+      articleVariantId: r.articleVariantId,
+      quantity: r.quantity,
+    }));
+    this.moveVariantByArticle.set(variants);
+  }
+
+  onVariantPickerCancel(): void {
+    const articleId = this.variantPickerArticleId;
+    if (articleId && !this.moveVariantByArticle()[articleId]) {
+      // deseleccionar si cancel·len sense confirmar
+    }
+  }
+
+  getVariantMoveTotal(articleId: string): number {
+    const lines = this.moveVariantByArticle()[articleId] ?? [];
+    return lines.reduce((sum, line) => sum + line.quantity, 0);
   }
 
   setMoveQuantity(articleId: string, qty: number) {
@@ -252,7 +318,10 @@ export class SalesPointStockComponent implements OnInit {
   }
 
   isMoveSelected(articleId: string): boolean {
-    return articleId in this.moveSelected();
+    return (
+      articleId in this.moveSelected() ||
+      articleId in this.moveVariantByArticle()
+    );
   }
 
   submitMove() {
@@ -280,9 +349,18 @@ export class SalesPointStockComponent implements OnInit {
       return;
     }
 
-    const items = Object.entries(this.moveSelected())
+    const simpleItems = Object.entries(this.moveSelected())
       .filter(([, qty]) => qty > 0)
       .map(([articleId, quantity]) => ({ articleId, quantity }));
+
+    const variantItems = Object.entries(this.moveVariantByArticle())
+      .map(([articleId, variants]) => ({
+        articleId,
+        variants: variants.filter((v) => v.quantity > 0),
+      }))
+      .filter((entry) => entry.variants.length > 0);
+
+    const items = [...simpleItems, ...variantItems];
 
     if (items.length === 0) {
       this.messageService.add({

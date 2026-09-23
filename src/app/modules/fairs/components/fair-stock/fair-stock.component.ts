@@ -11,6 +11,11 @@ import {
   FairStockItem,
   FairStatistics,
 } from '../../services/fairs.service';
+import { SizeQuantityPickerComponent } from '../../../../shared/components/size-quantity-picker/size-quantity-picker.component';
+import {
+  SizeQuantityPickerResult,
+  SizeQuantityPickerRow,
+} from '../../../../shared/components/size-quantity-picker/size-quantity-picker.model';
 import { SalesPointsService } from '../../../sales-points/services/sales-points.service';
 import { DialogModule } from 'primeng/dialog';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -46,6 +51,7 @@ const MONTH_LABELS: Record<string, string> = {
     ButtonModule,
     ConfirmDialogModule,
     ChartModule,
+    SizeQuantityPickerComponent,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './fair-stock.component.html',
@@ -60,6 +66,12 @@ export class FairStockComponent implements OnInit {
   moveModalVisible = signal(false);
   moveToId = signal<string | null>(null);
   moveSelected = signal<Record<string, number>>({});
+  moveVariantByArticle = signal<
+    Record<string, { articleVariantId: string; quantity: number }[]>
+  >({});
+  variantPickerVisible = false;
+  variantPickerArticleId: string | null = null;
+  variantPickerRows: SizeQuantityPickerRow[] = [];
   stats = signal<FairStatistics | null>(null);
   finalizing = signal(false);
   reopening = signal(false);
@@ -301,6 +313,7 @@ export class FairStockComponent implements OnInit {
 
   openMoveModal() {
     this.moveSelected.set({});
+    this.moveVariantByArticle.set({});
     this.moveToId.set(null);
     this.moveModalVisible.set(true);
   }
@@ -309,11 +322,54 @@ export class FairStockComponent implements OnInit {
     this.moveModalVisible.set(false);
   }
 
+  isVariantArticle(item: FairStockItem): boolean {
+    return !!item.article?.hasVariants && !!item.variants?.length;
+  }
+
   toggleMoveItem(item: FairStockItem, checked: boolean) {
+    if (this.isVariantArticle(item)) {
+      const variants = { ...this.moveVariantByArticle() };
+      if (checked) {
+        this.openVariantPicker(item);
+      } else {
+        delete variants[item.articleId];
+        this.moveVariantByArticle.set(variants);
+      }
+      return;
+    }
     const sel = { ...this.moveSelected() };
     if (checked) sel[item.articleId] = item.quantity;
     else delete sel[item.articleId];
     this.moveSelected.set(sel);
+  }
+
+  openVariantPicker(item: FairStockItem): void {
+    this.variantPickerArticleId = item.articleId;
+    this.variantPickerRows = (item.variants ?? []).map((v) => ({
+      articleVariantId: v.articleVariantId,
+      label: v.label,
+      quantity: 0,
+      maxQuantity: v.maxQuantity,
+    }));
+    this.variantPickerVisible = true;
+  }
+
+  onVariantPickerConfirm(results: SizeQuantityPickerResult[]): void {
+    const articleId = this.variantPickerArticleId;
+    if (!articleId) {
+      return;
+    }
+    const variants = { ...this.moveVariantByArticle() };
+    variants[articleId] = results.map((r) => ({
+      articleVariantId: r.articleVariantId,
+      quantity: r.quantity,
+    }));
+    this.moveVariantByArticle.set(variants);
+  }
+
+  getVariantMoveTotal(articleId: string): number {
+    const lines = this.moveVariantByArticle()[articleId] ?? [];
+    return lines.reduce((sum, line) => sum + line.quantity, 0);
   }
 
   setMoveQuantity(articleId: string, qty: number) {
@@ -328,7 +384,10 @@ export class FairStockComponent implements OnInit {
   }
 
   isMoveSelected(articleId: string): boolean {
-    return articleId in this.moveSelected();
+    return (
+      articleId in this.moveSelected() ||
+      articleId in this.moveVariantByArticle()
+    );
   }
 
   submitMove() {
@@ -345,9 +404,18 @@ export class FairStockComponent implements OnInit {
     const [toType, toId] = toValue.startsWith('fair:')
       ? (['fair', toValue.slice(5)] as const)
       : (['point', toValue] as const);
-    const items = Object.entries(this.moveSelected())
+    const simpleItems = Object.entries(this.moveSelected())
       .filter(([, qty]) => qty > 0)
       .map(([articleId, quantity]) => ({ articleId, quantity }));
+
+    const variantItems = Object.entries(this.moveVariantByArticle())
+      .map(([articleId, variants]) => ({
+        articleId,
+        variants: variants.filter((v) => v.quantity > 0),
+      }))
+      .filter((entry) => entry.variants.length > 0);
+
+    const items = [...simpleItems, ...variantItems];
     if (items.length === 0) {
       this.messageService.add({
         severity: 'warn',

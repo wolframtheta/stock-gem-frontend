@@ -12,17 +12,27 @@ export interface Fair {
   updatedAt: string;
 }
 
+export interface FairStockVariantLine {
+  articleVariantId: string;
+  label: string;
+  sortOrder: number;
+  quantity: number;
+  maxQuantity: number;
+}
+
 export interface FairStockItem {
   id: string;
   fairId: string;
   articleId: string;
   quantity: number;
   maxQuantity?: number;
+  variants?: FairStockVariantLine[];
   article?: {
     id: string;
     ownReference: string;
     description: string;
     stock: number;
+    hasVariants?: boolean;
   };
 }
 
