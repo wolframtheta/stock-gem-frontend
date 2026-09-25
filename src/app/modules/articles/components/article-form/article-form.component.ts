@@ -416,8 +416,8 @@ export class ArticleFormComponent implements OnInit {
   uploadPhoto(file: File) {
     this.uploadingPhoto = true;
     this.uploadsService.uploadImage(file).subscribe({
-      next: ({ path }) => {
-        this.photoPath = path;
+      next: ({ filename }) => {
+        this.photoPath = filename;
         this.uploadingPhoto = false;
       },
       error: (err) => {

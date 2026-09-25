@@ -53,6 +53,7 @@ config({ path: path.join(projectRoot, envRel) });
 
 const defaultProd = envRel === '.env.pro';
 process.env.NG_APP_API_URL ??= 'http://localhost:3500/api';
+process.env.NG_APP_UPLOAD_PUBLIC_PATH ??= '/uploads/images';
 process.env.NG_APP_PRODUCTION ??= defaultProd ? 'true' : 'false';
 
 const defineArgs = [];

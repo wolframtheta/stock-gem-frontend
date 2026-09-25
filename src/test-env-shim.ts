@@ -5,6 +5,7 @@ if (!g.process) {
     env: {
       NG_APP_API_URL: 'http://localhost:3500/api',
       NG_APP_PRODUCTION: 'false',
+      NG_APP_UPLOAD_PUBLIC_PATH: '/uploads/images',
     },
   };
 }

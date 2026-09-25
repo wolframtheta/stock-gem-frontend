@@ -1,4 +1,6 @@
-/** Resolves API-relative upload paths to absolute URLs for <img src>. */
+import { uploadPublicPath } from './upload-public-path.util';
+
+/** Resolves stored filename or legacy public path to absolute URL for <img src>. */
 export function resolveAssetUrl(path: string | null | undefined): string {
   if (!path) {
     return '';
@@ -8,5 +10,9 @@ export function resolveAssetUrl(path: string | null | undefined): string {
   }
   const apiUrl = process.env.NG_APP_API_URL ?? 'http://localhost:3500/api';
   const origin = apiUrl.replace(/\/api\/?$/, '');
-  return `${origin}${path.startsWith('/') ? path : `/${path}`}`;
+  const publicPath = uploadPublicPath();
+  const urlPath = path.startsWith('/')
+    ? path
+    : `${publicPath}/${path.replace(/^\/+/, '')}`;
+  return `${origin}${urlPath}`;
 }

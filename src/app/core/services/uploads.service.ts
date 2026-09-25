@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { uploadPublicPath } from '../utils/upload-public-path.util';
 
 export interface UploadImageResponse {
-  path: string;
+  filename: string;
 }
 
 @Injectable({
@@ -18,7 +19,7 @@ export class UploadsService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<UploadImageResponse>(
-      `${this.apiUrl}/uploads/images`,
+      `${this.apiUrl}${uploadPublicPath()}`,
       formData,
     );
   }
