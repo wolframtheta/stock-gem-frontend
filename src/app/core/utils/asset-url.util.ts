@@ -1,3 +1,4 @@
+import { assetPublicBaseUrl } from './asset-public-base-url.util';
 import { uploadPublicPath } from './upload-public-path.util';
 
 /** Resolves stored filename or legacy public path to absolute URL for <img src>. */
@@ -8,6 +9,19 @@ export function resolveAssetUrl(path: string | null | undefined): string {
   if (path.startsWith('http://') || path.startsWith('https://')) {
     return path;
   }
+
+  const base = assetPublicBaseUrl();
+  if (base) {
+    if (path.startsWith('/')) {
+      try {
+        return `${new URL(base).origin}${path}`;
+      } catch {
+        return `${base}${path}`;
+      }
+    }
+    return `${base}/${path.replace(/^\/+/, '')}`;
+  }
+
   const apiUrl = process.env.NG_APP_API_URL ?? 'http://localhost:3500/api';
   const origin = apiUrl.replace(/\/api\/?$/, '');
   const publicPath = uploadPublicPath();
