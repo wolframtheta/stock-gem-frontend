@@ -196,7 +196,7 @@
             </div>
           } @else if (capturedImage) {
             <div class="photo-preview-container">
-              <img [src]="capturedImage" alt="Foto capturada" class="photo-preview" />
+              <img [src]="capturedImage | assetUrl" alt="Foto capturada" class="photo-preview" />
               <button type="button" class="btn-remove-photo" (click)="removePhoto()">
                 <i class="pi pi-trash"></i>
                 Eliminar foto

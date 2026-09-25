@@ -24,7 +24,7 @@ import { ArticlesService } from '../../services/articles.service';
 import { ConfigService } from '../../../config/services/config.service';
 import { CreateArticleDto } from '../../models/article.model';
 import { UploadsService } from '../../../../core/services/uploads.service';
-import { resolveAssetUrl } from '../../../../core/utils/asset-url.util';
+import { AssetUrlPipe } from '../../../../core/pipes/asset-url.pipe';
 
 interface VariantFormRow {
   id?: string;
@@ -46,6 +46,7 @@ interface VariantFormRow {
     InputTextModule,
     ToggleSwitchModule,
     InputNumberModule,
+    AssetUrlPipe,
   ],
   providers: [MessageService],
   templateUrl: './article-form.component.html',
@@ -433,10 +434,6 @@ export class ArticleFormComponent implements OnInit {
 
   removePhoto() {
     this.photoPath = null;
-  }
-
-  photoUrl(path: string): string {
-    return resolveAssetUrl(path);
   }
 
   private normalizePayload(

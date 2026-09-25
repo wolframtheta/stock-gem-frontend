@@ -11,6 +11,7 @@ import { ConfigService } from '../../../config/services/config.service';
 import { Personalization, CreatePersonalizationDto } from '../../models/personalization.model';
 import { Client } from '../../../clients/models/client.model';
 import { Workshop } from '../../../workshops/models/workshop.model';
+import { AssetUrlPipe } from '../../../../core/pipes/asset-url.pipe';
 
 @Component({
   selector: 'app-personalization-form',
@@ -20,6 +21,7 @@ import { Workshop } from '../../../workshops/models/workshop.model';
     ReactiveFormsModule,
     RouterModule,
     SelectModule,
+    AssetUrlPipe,
   ],
   providers: [MessageService],
   templateUrl: './personalization-form.component.html',

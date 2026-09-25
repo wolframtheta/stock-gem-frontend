@@ -46,7 +46,7 @@
     </div>
   } @else {
     <div class="content-wrapper">
-      @if (articlePhotoUrl(); as photoUrl) {
+      @if (articlePhotoPath(); as photoPath) {
         <div class="photos-section">
           <h2>
             <i class="pi pi-image"></i>
@@ -54,7 +54,7 @@
           </h2>
           <img
             class="article-photo"
-            [src]="photoUrl"
+            [src]="photoPath | assetUrl"
             [alt]="'Foto de ' + article()!.name"
           />
         </div>

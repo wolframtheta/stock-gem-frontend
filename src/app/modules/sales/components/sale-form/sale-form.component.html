@@ -198,8 +198,8 @@
                   (click)="onGridArticleClick(article)"
                   [attr.aria-label]="article.name"
                 >
-                  @if (articlePhotoUrl(article.photoPath); as src) {
-                    <img [src]="src" [alt]="article.name" class="article-grid-photo" loading="lazy" />
+                  @if (article.photoPath) {
+                    <img [src]="article.photoPath | assetUrl" [alt]="article.name" class="article-grid-photo" loading="lazy" />
                   } @else {
                     <span class="article-grid-photo article-grid-photo--name-fallback">
                       {{ article.name }}

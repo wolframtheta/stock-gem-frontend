@@ -21,7 +21,7 @@ import {
   SizeQuantityPickerRow,
 } from '../../../../shared/components/size-quantity-picker/size-quantity-picker.model';
 import { map } from 'rxjs/operators';
-import { resolveAssetUrl } from '../../../../core/utils/asset-url.util';
+import { AssetUrlPipe } from '../../../../core/pipes/asset-url.pipe';
 import { StockVariantLineItem } from '../../../sales-points/models/sales-point.model';
 
 type SalesPointStockItemLike = {
@@ -63,6 +63,7 @@ export interface SaleGridArticle {
     DialogModule,
     ButtonModule,
     SizeQuantityPickerComponent,
+    AssetUrlPipe,
   ],
   providers: [MessageService],
   templateUrl: './sale-form.component.html',
@@ -455,10 +456,6 @@ export class SaleFormComponent implements OnInit {
     }
     ctrl.patchValue({ quantity: next });
     this.calculateItemTotal(ctrl);
-  }
-
-  articlePhotoUrl(path: string | null): string {
-    return path ? resolveAssetUrl(path) : '';
   }
 
   private hasSaleLocation(): boolean {

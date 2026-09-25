@@ -271,7 +271,7 @@
           />
           @if (photoPath) {
             <div class="photo-preview-single">
-              <img [src]="photoUrl(photoPath)" alt="Foto de l'article" />
+              <img [src]="photoPath | assetUrl" alt="Foto de l'article" />
               <div class="photo-preview-actions">
                 <button
                   type="button"

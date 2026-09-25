@@ -25,7 +25,7 @@ import {
 } from '../../models/article.model';
 import { SalesPoint } from '../../../sales-points/models/sales-point.model';
 import { AuthService } from '../../../../core/services/auth.service';
-import { resolveAssetUrl } from '../../../../core/utils/asset-url.util';
+import { AssetUrlPipe } from '../../../../core/pipes/asset-url.pipe';
 import { SizeQuantityPickerComponent } from '../../../../shared/components/size-quantity-picker/size-quantity-picker.component';
 import {
   SizeQuantityPickerResult,
@@ -44,6 +44,7 @@ import {
     InputNumberModule,
     ChartModule,
     SizeQuantityPickerComponent,
+    AssetUrlPipe,
   ],
   providers: [MessageService],
   templateUrl: './article-detail.component.html',
@@ -74,13 +75,12 @@ export class ArticleDetailComponent implements OnInit {
     () => this.auth.currentUser()?.role === 'botiga',
   );
 
-  readonly articlePhotoUrl = computed(() => {
+  readonly articlePhotoPath = computed(() => {
     const a = this.article();
     if (!a) {
       return null;
     }
-    const path = a.photos?.[0]?.path ?? a.photo ?? null;
-    return path ? resolveAssetUrl(path) : null;
+    return a.photos?.[0]?.path ?? a.photo ?? null;
   });
 
   manufacturingByDay = computed(() => {
