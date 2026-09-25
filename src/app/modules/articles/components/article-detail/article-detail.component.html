@@ -82,12 +82,6 @@
               <span class="label">{{ isBotiga() ? 'A la fira' : 'Total en stock' }}</span>
               <span class="value">{{ breakdown.total }} unitats</span>
             </div>
-            @if (!isBotiga()) {
-              <div class="summary-card unassigned">
-                <span class="label">Sense assignar</span>
-                <span class="value">{{ breakdown.unassigned }} unitats</span>
-              </div>
-            }
           </div>
 
           @if (breakdown.variantMatrix; as matrix) {
