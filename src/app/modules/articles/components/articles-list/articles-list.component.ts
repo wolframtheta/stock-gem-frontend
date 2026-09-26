@@ -10,6 +10,7 @@ import { Article } from '../../models/article.model';
 import { Router } from '@angular/router';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { AuthService } from '../../../../core/services/auth.service';
+import { AssetUrlPipe } from '../../../../core/pipes/asset-url.pipe';
 
 @Component({
   selector: 'app-articles-list',
@@ -20,6 +21,7 @@ import { AuthService } from '../../../../core/services/auth.service';
     RouterModule,
     ConfirmDialogModule,
     EmptyStateComponent,
+    AssetUrlPipe,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './articles-list.component.html',
@@ -161,6 +163,10 @@ export class ArticlesListComponent implements OnInit {
 
   getDisplayQuantity(article: Article): number {
     return article.quantityAtFair ?? article.stock;
+  }
+
+  getArticlePhotoPath(article: Article): string | null {
+    return article.photos?.[0]?.path ?? article.photo ?? null;
   }
 }
 
