@@ -81,7 +81,7 @@ export class ArticlesListComponent implements OnInit {
     this.loading.set(true);
     this.articlesService
       .search({
-        ownReference: this.searchOwnRef.trim() || undefined,
+        q: this.searchOwnRef.trim(),
       })
       .pipe(
         catchError(() => of([])),
