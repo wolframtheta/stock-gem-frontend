@@ -9,11 +9,13 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
 import { SalesPointsService } from '../../services/sales-points.service';
 import { SalesPoint } from '../../models/sales-point.model';
+import { ArticleThumbComponent } from '../../../../shared/components/article-thumb/article-thumb.component';
 
 interface AddStockRow {
   articleId: string;
   ownReference: string;
   name: string;
+  photo?: string | null;
   quantityAvailable: number;
   quantityAtDestination: number;
   selected: boolean;
@@ -29,6 +31,7 @@ interface AddStockRow {
     FormsModule,
     CheckboxModule,
     ButtonModule,
+    ArticleThumbComponent,
   ],
   providers: [MessageService],
   templateUrl: './sales-point-add-stock.component.html',
@@ -98,6 +101,7 @@ export class SalesPointAddStockComponent implements OnInit {
                   articleId: it.articleId,
                   ownReference: it.ownReference,
                   name: it.name,
+                  photo: it.photo ?? null,
                   quantityAvailable: it.quantityAvailable,
                   quantityAtDestination: it.quantityAtDestination,
                   selected: false,

@@ -14,6 +14,7 @@ import { ArticlesService } from '../../../articles/services/articles.service';
 import { SalesPoint, SalesPointStockItem } from '../../models/sales-point.model';
 import { Article } from '../../../articles/models/article.model';
 import { SizeQuantityPickerComponent } from '../../../../shared/components/size-quantity-picker/size-quantity-picker.component';
+import { ArticleThumbComponent } from '../../../../shared/components/article-thumb/article-thumb.component';
 import {
   SizeQuantityPickerResult,
   SizeQuantityPickerRow,
@@ -32,6 +33,7 @@ import {
     ButtonModule,
     CheckboxModule,
     SizeQuantityPickerComponent,
+    ArticleThumbComponent,
   ],
   providers: [MessageService],
   templateUrl: './sales-point-stock.component.html',

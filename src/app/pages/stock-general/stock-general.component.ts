@@ -8,6 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ArticlesService } from '../../modules/articles/services/articles.service';
 import { Article } from '../../modules/articles/models/article.model';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { ArticleThumbComponent } from '../../shared/components/article-thumb/article-thumb.component';
 
 @Component({
   selector: 'app-stock-general',
@@ -19,6 +20,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
     TableModule,
     InputTextModule,
     EmptyStateComponent,
+    ArticleThumbComponent,
   ],
   templateUrl: './stock-general.component.html',
   styleUrl: './stock-general.component.css',

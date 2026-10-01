@@ -59,11 +59,10 @@
       >
         <ng-template pTemplate="header">
           <tr>
-            <th pSortableColumn="ownReference">
-              Referència
-              <p-sortIcon [field]="'ownReference'" />
+            <th pSortableColumn="name">
+              Article
+              <p-sortIcon [field]="'name'" />
             </th>
-            <th>Descripció</th>
             <th pSortableColumn="pvp">
               Preu actual
               <p-sortIcon [field]="'pvp'" />
@@ -81,10 +80,9 @@
           <tr>
             <td>
               <a [routerLink]="['/articles', article.id]" class="ref-link">
-                {{ article.ownReference }}
+                <app-article-thumb [photo]="article.photos?.[0]?.path ?? article.photo" [name]="article.name" />
               </a>
             </td>
-            <td>{{ article.name }}</td>
             <td class="price-cell">{{ formatCurrency(article.pvp) }}</td>
             <td>
               <span

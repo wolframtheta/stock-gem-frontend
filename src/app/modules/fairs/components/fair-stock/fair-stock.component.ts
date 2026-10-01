@@ -12,6 +12,7 @@ import {
   FairStatistics,
 } from '../../services/fairs.service';
 import { SizeQuantityPickerComponent } from '../../../../shared/components/size-quantity-picker/size-quantity-picker.component';
+import { ArticleThumbComponent } from '../../../../shared/components/article-thumb/article-thumb.component';
 import {
   SizeQuantityPickerResult,
   SizeQuantityPickerRow,
@@ -52,6 +53,7 @@ const MONTH_LABELS: Record<string, string> = {
     ConfirmDialogModule,
     ChartModule,
     SizeQuantityPickerComponent,
+    ArticleThumbComponent,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './fair-stock.component.html',

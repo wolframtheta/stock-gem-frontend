@@ -145,7 +145,7 @@
         <tbody>
           @for (item of stockItems(); track item.id) {
             <tr>
-              <td>{{ item.article?.ownReference }} - {{ item.article?.name }}</td>
+              <td><app-article-thumb [photo]="item.article?.photo" [name]="item.article?.name" /></td>
               <td>{{ item.quantity }}</td>
             </tr>
           }
@@ -189,7 +189,7 @@
             [ngModelOptions]="{ standalone: true }"
             (ngModelChange)="toggleMoveItem(item, $event)"
           />
-          <span class="move-item-label">{{ item.article?.ownReference }} - {{ item.article?.name }}</span>
+          <span class="move-item-label"><app-article-thumb [photo]="item.article?.photo" [name]="item.article?.name" /></span>
           @if (isVariantArticle(item)) {
             @if (isMoveSelected(item.articleId)) {
               <span class="move-variant-total">{{ getVariantMoveTotal(item.articleId) }} u.</span>

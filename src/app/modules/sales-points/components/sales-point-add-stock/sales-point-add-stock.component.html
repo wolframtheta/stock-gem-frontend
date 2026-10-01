@@ -36,7 +36,6 @@
             <tr>
               <th style="width: 48px"></th>
               <th>Article</th>
-              <th>Ref.</th>
               <th class="qty-col">{{ isWarehouse() ? 'Disponible (sense assignar)' : 'Al magatzem' }}</th>
               <th class="qty-col">{{ isWarehouse() ? 'Al magatzem' : 'A la botiga' }}</th>
               <th class="qty-col">Quantitat a afegir</th>
@@ -53,8 +52,7 @@
                     [ngModelOptions]="{ standalone: true }"
                   />
                 </td>
-                <td>{{ row.name }}</td>
-                <td><code>{{ row.ownReference }}</code></td>
+                <td><app-article-thumb [photo]="row.photo" [name]="row.name" /></td>
                 <td class="qty-col">{{ row.quantityAvailable }}</td>
                 <td class="qty-col">{{ row.quantityAtDestination }}</td>
                 <td class="qty-col">

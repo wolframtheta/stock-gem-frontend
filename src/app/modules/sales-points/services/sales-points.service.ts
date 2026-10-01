@@ -51,6 +51,7 @@ export class SalesPointsService {
       articleId: string;
       ownReference: string;
       name: string;
+      photo?: string | null;
       quantityAvailable: number;
       quantityAtDestination: number;
     }[]
