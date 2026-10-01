@@ -26,6 +26,7 @@
   "packageManager": "pnpm@10.26.2",
   "dependencies": {
     "@angular/animations": "^21.0.0",
+    "@angular/cdk": "^21.2.14",
     "@angular/common": "^21.0.0",
     "@angular/compiler": "^21.0.0",
     "@angular/core": "^21.0.0",
