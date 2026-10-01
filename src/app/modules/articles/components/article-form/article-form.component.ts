@@ -5,6 +5,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import {
   FormBuilder,
   FormGroup,
@@ -24,9 +25,14 @@ import { ArticlesService } from '../../services/articles.service';
 import { ConfigService } from '../../../config/services/config.service';
 import { CreateArticleDto } from '../../models/article.model';
 import { UploadsService } from '../../../../core/services/uploads.service';
+import { moveVariant, withSortOrder } from '../../utils/variant-order.util';
 import { AssetUrlPipe } from '../../../../core/pipes/asset-url.pipe';
 
+let variantRowSeq = 0;
+
 interface VariantFormRow {
+  /** Clau client estable per `track` (no es persisteix). */
+  key: string;
   id?: string;
   label: string;
   warehouseQuantity: number;
@@ -46,6 +52,7 @@ interface VariantFormRow {
     InputTextModule,
     ToggleSwitchModule,
     InputNumberModule,
+    DragDropModule,
     AssetUrlPipe,
   ],
   providers: [MessageService],
@@ -69,6 +76,7 @@ export class ArticleFormComponent implements OnInit {
   hasVariants = false;
   variants: VariantFormRow[] = [];
   variantsError: string | null = null;
+  variantMoveAnnouncement = '';
 
   constructor(
     private fb: FormBuilder,
@@ -231,7 +239,11 @@ export class ArticleFormComponent implements OnInit {
         this.hasVariants = article.hasVariants ?? false;
         this.setStockControlState(this.hasVariants);
         this.updateStockFromVariants();
-        this.variants = (article.variants ?? []).map((s) => ({
+        this.variants = (article.variants ?? [])
+          .slice()
+          .sort((a, b) => a.sortOrder - b.sortOrder)
+          .map((s) => ({
+          key: this.newVariantKey(),
           id: s.id,
           label: s.label,
           warehouseQuantity: this.coerceNumber(s.warehouseQuantity),
@@ -271,7 +283,11 @@ export class ArticleFormComponent implements OnInit {
       const currentStock = Number(this.form.get('stock')?.value ?? 0);
       if (this.variants.length === 0 && currentStock > 0) {
         this.variants = [
-          { label: 'Única', warehouseQuantity: currentStock },
+          {
+            key: this.newVariantKey(),
+            label: 'Única',
+            warehouseQuantity: currentStock,
+          },
         ];
       }
       this.updateStockFromVariants();
@@ -280,7 +296,10 @@ export class ArticleFormComponent implements OnInit {
   }
 
   addVariantRow() {
-    this.variants = [...this.variants, { label: '', warehouseQuantity: 0 }];
+    this.variants = [
+      ...this.variants,
+      { key: this.newVariantKey(), label: '', warehouseQuantity: 0 },
+    ];
     this.variantsError = null;
     this.updateStockFromVariants();
     setTimeout(() => {
@@ -297,6 +316,26 @@ export class ArticleFormComponent implements OnInit {
     this.variants = this.variants.filter((_, i) => i !== index);
     this.variantsError = null;
     this.updateStockFromVariants();
+  }
+
+  private newVariantKey(): string {
+    return `variant-row-${++variantRowSeq}`;
+  }
+
+  onVariantDrop(event: CdkDragDrop<VariantFormRow[]>): void {
+    this.reorderVariant(event.previousIndex, event.currentIndex);
+  }
+
+  private reorderVariant(from: number, to: number): void {
+    if (from === to) {
+      return;
+    }
+    const moved = this.variants[from];
+    this.variants = moveVariant(this.variants, from, to);
+    if (moved && this.variants[to] === moved) {
+      const name = moved.label.trim() || 'sense nom';
+      this.variantMoveAnnouncement = `Variant ${name} a la posició ${to + 1} de ${this.variants.length}`;
+    }
   }
 
   canRemoveVariant(row: VariantFormRow): boolean {
@@ -450,12 +489,13 @@ export class ArticleFormComponent implements OnInit {
 
     if (this.hasVariants) {
       delete payload.stock;
-      payload.variants = this.variants.map((s, index) => ({
-        id: s.id,
-        label: s.label.trim(),
-        warehouseQuantity: Math.max(0, this.coerceNumber(s.warehouseQuantity)),
-        sortOrder: index,
-      }));
+      payload.variants = withSortOrder(
+        this.variants.map((s) => ({
+          id: s.id,
+          label: s.label.trim(),
+          warehouseQuantity: Math.max(0, this.coerceNumber(s.warehouseQuantity)),
+        })),
+      );
     } else {
       delete payload.variants;
       payload.stock = this.coerceNumber(value['stock']);
