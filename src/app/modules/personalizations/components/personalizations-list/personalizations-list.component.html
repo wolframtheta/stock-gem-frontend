@@ -24,7 +24,7 @@
       <i class="pi pi-search"></i>
       <input
         type="text"
-        placeholder="Cercar per codi..."
+        placeholder="Cercar per descripció..."
         [(ngModel)]="searchText"
         (keyup.enter)="search()"
         class="search-input"
@@ -42,22 +42,20 @@
     </div>
   </div>
 
-  @if (loading) {
+  @if (loading()) {
     <div class="loading-state">
       <i class="pi pi-spin pi-spinner text-brand-primary" style="font-size: 2rem"></i>
       <p>Carregant personalitzacions...</p>
     </div>
-  } @else if (personalizations.length === 0) {
+  } @else if (personalizations().length === 0) {
     <app-empty-state
       icon="pi pi-hammer"
       title="No hi ha personalitzacions"
       description="Comença afegint la teva primera personalització"
-      buttonText="Afegir Primera Personalization"
-      [buttonRoute]="'/personalizaciones/new'"
     ></app-empty-state>
   } @else {
     <div class="personalizations-grid">
-      @for (personalization of personalizations; track personalization.id) {
+      @for (personalization of personalizations(); track personalization.id) {
         <div class="personalization-card">
           <div class="card-header-section">
             <div class="personalization-icon">
@@ -74,19 +72,13 @@
           </div>
           
           <div class="card-body">
-            <h3>{{ personalization.code }}</h3>
-            <p class="description">{{ personalization.description }}</p>
+            <h3>{{ personalization.description }}</h3>
             
             <div class="personalization-details">
-              <div class="detail-item">
-                <i class="pi pi-user"></i>
-                <span>{{ personalization.client.name }} {{ personalization.client.surname }}</span>
-              </div>
-              
-              @if (personalization.workshop) {
+              @if (personalization.client) {
                 <div class="detail-item">
-                  <i class="pi pi-wrench"></i>
-                  <span>{{ personalization.workshop.name }}</span>
+                  <i class="pi pi-user"></i>
+                  <span>{{ personalization.client.name }} {{ personalization.client.surname }}</span>
                 </div>
               }
               

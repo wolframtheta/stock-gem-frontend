@@ -1,18 +1,12 @@
 export interface Personalization {
   id: string;
-  code: string;
-  clientId: string;
+  clientId: string | null;
   client: {
     id: string;
     name: string;
     surname: string | null;
     mobilePhone: string | null;
     email: string | null;
-  };
-  workshopId: string | null;
-  workshop: {
-    id: string;
-    name: string;
   } | null;
   personalizationTypeId: string | null;
   personalizationType: {
@@ -34,9 +28,7 @@ export interface Personalization {
 }
 
 export interface CreatePersonalizationDto {
-  code: string;
-  clientId: string;
-  workshopId?: string;
+  clientId?: string | null;
   personalizationTypeId?: string;
   description: string;
   workToDo?: string;

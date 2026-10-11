@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -23,8 +23,8 @@ import { EmptyStateComponent } from '../../../../shared/components/empty-state/e
   styleUrl: './personalizations-list.component.css',
 })
 export class PersonalizationsListComponent implements OnInit {
-  personalizations: Personalization[] = [];
-  loading = false;
+  personalizations = signal<Personalization[]>([]);
+  loading = signal(false);
   searchText = '';
 
   constructor(
@@ -39,11 +39,11 @@ export class PersonalizationsListComponent implements OnInit {
   }
 
   loadPersonalizations() {
-    this.loading = true;
+    this.loading.set(true);
     this.personalizationsService.getAll().subscribe({
       next: (data) => {
-        this.personalizations = data;
-        this.loading = false;
+        this.personalizations.set(data);
+        this.loading.set(false);
       },
       error: (error) => {
         console.error('Error loading personalizations:', error);
@@ -52,7 +52,7 @@ export class PersonalizationsListComponent implements OnInit {
           summary: 'Error',
           detail: 'Error en carregar les personalitzacions',
         });
-        this.loading = false;
+        this.loading.set(false);
       },
     });
   }
@@ -63,11 +63,11 @@ export class PersonalizationsListComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
-    this.personalizationsService.search({ code: this.searchText }).subscribe({
+    this.loading.set(true);
+    this.personalizationsService.search({ description: this.searchText }).subscribe({
       next: (data) => {
-        this.personalizations = data;
-        this.loading = false;
+        this.personalizations.set(data);
+        this.loading.set(false);
       },
       error: (error) => {
         console.error('Error searching personalizations:', error);
@@ -76,7 +76,7 @@ export class PersonalizationsListComponent implements OnInit {
           summary: 'Error',
           detail: 'Error en cercar personalitzacions',
         });
-        this.loading = false;
+        this.loading.set(false);
       },
     });
   }
@@ -92,7 +92,7 @@ export class PersonalizationsListComponent implements OnInit {
 
   confirmDelete(personalization: Personalization) {
     this.confirmationService.confirm({
-      message: `Estàs segur d'eliminar la personalization "${personalization.code}"?`,
+      message: `Estàs segur d'eliminar la personalization "${personalization.description}"?`,
       header: 'Confirmar eliminació',
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',

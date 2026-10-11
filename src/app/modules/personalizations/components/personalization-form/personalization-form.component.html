@@ -21,45 +21,14 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="personalization-form">
       <div class="form-grid">
         <div class="form-group">
-          <label for="code">Codi *</label>
-          <input
-            id="code"
-            type="text"
-            formControlName="code"
-            [class.ng-invalid]="form.get('code')?.invalid && form.get('code')?.touched"
-            placeholder="Ex: C2024001"
-          />
-          @if (form.get('code')?.invalid && form.get('code')?.touched) {
-            <small class="p-error">El codi és obligatori</small>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="clientId">Client *</label>
+          <label for="clientId">Client</label>
           <select
             id="clientId"
             formControlName="clientId"
-            [class.ng-invalid]="form.get('clientId')?.invalid && form.get('clientId')?.touched"
           >
-            <option value="">Selecciona un client</option>
+            <option value="">Sense client</option>
             @for (client of clients; track client.id) {
               <option [value]="client.id">{{ client.name }} {{ client.surname }}</option>
-            }
-          </select>
-          @if (form.get('clientId')?.invalid && form.get('clientId')?.touched) {
-            <small class="p-error">El client és obligatori</small>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="workshopId">Taller</label>
-          <select
-            id="workshopId"
-            formControlName="workshopId"
-          >
-            <option value="">Sense taller</option>
-            @for (workshop of workshops; track workshop.id) {
-              <option [value]="workshop.id">{{ workshop.name }}</option>
             }
           </select>
         </div>

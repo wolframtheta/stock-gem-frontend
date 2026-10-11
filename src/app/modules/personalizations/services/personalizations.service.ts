@@ -21,11 +21,9 @@ export class PersonalizationsService {
   }
 
   search(params: {
-    code?: string;
+    description?: string;
     clientId?: string;
-    workshopId?: string;
     clientName?: string;
-    workshopName?: string;
     entryDateFrom?: string;
     entryDateTo?: string;
   }): Observable<Personalization[]> {

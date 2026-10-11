@@ -6,11 +6,9 @@ import { MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { PersonalizationsService } from '../../services/personalizations.service';
 import { ClientsService } from '../../../clients/services/clients.service';
-import { WorkshopsService } from '../../../workshops/services/workshops.service';
 import { ConfigService } from '../../../config/services/config.service';
 import { Personalization, CreatePersonalizationDto } from '../../models/personalization.model';
 import { Client } from '../../../clients/models/client.model';
-import { Workshop } from '../../../workshops/models/workshop.model';
 import { AssetUrlPipe } from '../../../../core/pipes/asset-url.pipe';
 
 @Component({
@@ -34,7 +32,6 @@ export class PersonalizationFormComponent implements OnInit, OnDestroy, AfterVie
   personalizationId: string | null = null;
   loading = false;
   clients: Client[] = [];
-  workshops: Workshop[] = [];
   personalizationTypes: { id: string; name: string }[] = [];
   
   // Webcam properties
@@ -49,14 +46,11 @@ export class PersonalizationFormComponent implements OnInit, OnDestroy, AfterVie
     public router: Router,
     private personalizationsService: PersonalizationsService,
     private clientsService: ClientsService,
-    private workshopsService: WorkshopsService,
     private configService: ConfigService,
     private messageService: MessageService,
   ) {
     this.form = this.fb.group({
-      code: ['', [Validators.required, Validators.maxLength(50)]],
-      clientId: ['', [Validators.required]],
-      workshopId: [''],
+      clientId: [''],
       personalizationTypeId: [''],
       description: ['', [Validators.required]],
       workToDo: [''],
@@ -73,7 +67,6 @@ export class PersonalizationFormComponent implements OnInit, OnDestroy, AfterVie
 
   ngOnInit() {
     this.loadClients();
-    this.loadWorkshops();
     this.loadPersonalizationTypes();
     
     this.personalizationId = this.route.snapshot.paramMap.get('id');
@@ -102,17 +95,6 @@ export class PersonalizationFormComponent implements OnInit, OnDestroy, AfterVie
     });
   }
 
-  loadWorkshops() {
-    this.workshopsService.getAll().subscribe({
-      next: (data) => {
-        this.workshops = data;
-      },
-      error: (error) => {
-        console.error('Error loading workshops:', error);
-      },
-    });
-  }
-
   loadPersonalization() {
     if (!this.personalizationId) return;
 
@@ -120,9 +102,7 @@ export class PersonalizationFormComponent implements OnInit, OnDestroy, AfterVie
     this.personalizationsService.getById(this.personalizationId).subscribe({
       next: (personalization) => {
         this.form.patchValue({
-          code: personalization.code,
-          clientId: personalization.client.id,
-          workshopId: personalization.workshop?.id || '',
+          clientId: personalization.client?.id || '',
           personalizationTypeId: personalization.personalizationTypeId || '',
           description: personalization.description,
           workToDo: personalization.workToDo || '',
@@ -185,9 +165,7 @@ export class PersonalizationFormComponent implements OnInit, OnDestroy, AfterVie
     this.loading = true;
     const formValue = this.form.value;
     const personalizationDto: CreatePersonalizationDto = {
-      code: formValue.code,
-      clientId: formValue.clientId,
-      workshopId: formValue.workshopId || undefined,
+      clientId: formValue.clientId || (this.personalizationId && this.personalizationId !== 'new' ? null : undefined),
       personalizationTypeId: formValue.personalizationTypeId || undefined,
       description: formValue.description,
       workToDo: formValue.workToDo || undefined,
