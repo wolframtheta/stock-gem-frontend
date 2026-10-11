@@ -78,25 +78,25 @@
               @if (personalization.client) {
                 <div class="detail-item">
                   <i class="pi pi-user"></i>
-                  <span>Client: {{ personalization.client.name }} {{ personalization.client.surname }}</span>
+                  <span>{{ personalization.client.name }} {{ personalization.client.surname }}</span>
                 </div>
               }
               
               <div class="detail-item">
                 <i class="pi pi-calendar"></i>
-                <span>Entrada: {{ formatDate(personalization.entryDate) }}</span>
+                <span>{{ formatDate(personalization.entryDate) }}</span>
               </div>
               
               @if (personalization.deliveryToClientDate) {
                 <div class="detail-item">
                   <i class="pi pi-check-circle"></i>
-                  <span>Lliurada: {{ formatDate(personalization.deliveryToClientDate) }}</span>
+                  <span>{{ formatDate(personalization.deliveryToClientDate) }}</span>
                 </div>
               }
               
               <div class="detail-item price">
                 <i class="pi pi-euro"></i>
-                <span>PVP: {{ formatPrice(personalization.pvp) }}€</span>
+                <span>{{ formatPrice(personalization.pvp) }}€</span>
               </div>
             </div>
           </div>
