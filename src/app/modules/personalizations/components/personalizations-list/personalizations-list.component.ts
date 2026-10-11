@@ -123,6 +123,10 @@ export class PersonalizationsListComponent implements OnInit {
     });
   }
 
+  formatPrice(value: number | string | null): string {
+    return Number(value ?? 0).toFixed(2);
+  }
+
   formatDate(date: string | null): string {
     if (!date) return '-';
     return new Date(date).toLocaleDateString('ca-ES');
