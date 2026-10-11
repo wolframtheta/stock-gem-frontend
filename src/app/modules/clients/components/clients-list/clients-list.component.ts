@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -24,8 +24,8 @@ import { EmptyStateComponent } from '../../../../shared/components/empty-state/e
   styleUrl: './clients-list.component.css',
 })
 export class ClientsListComponent implements OnInit {
-  clients: Client[] = [];
-  loading = false;
+  clients = signal<Client[]>([]);
+  loading = signal(false);
   searchText = '';
 
   constructor(
@@ -40,11 +40,11 @@ export class ClientsListComponent implements OnInit {
   }
 
   loadClients() {
-    this.loading = true;
+    this.loading.set(true);
     this.clientsService.getAll().subscribe({
       next: (data) => {
-        this.clients = data;
-        this.loading = false;
+        this.clients.set(data);
+        this.loading.set(false);
       },
       error: (error) => {
         console.error('Error loading clients:', error);
@@ -53,7 +53,7 @@ export class ClientsListComponent implements OnInit {
           summary: 'Error',
           detail: 'Error en carregar els clients',
         });
-        this.loading = false;
+        this.loading.set(false);
       },
     });
   }
@@ -64,11 +64,11 @@ export class ClientsListComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
+    this.loading.set(true);
     this.clientsService.search(this.searchText).subscribe({
       next: (data) => {
-        this.clients = data;
-        this.loading = false;
+        this.clients.set(data);
+        this.loading.set(false);
       },
       error: (error) => {
         console.error('Error searching clients:', error);
@@ -77,7 +77,7 @@ export class ClientsListComponent implements OnInit {
           summary: 'Error',
           detail: 'Error en cercar clients',
         });
-        this.loading = false;
+        this.loading.set(false);
       },
     });
   }

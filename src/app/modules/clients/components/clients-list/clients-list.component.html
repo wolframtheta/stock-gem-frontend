@@ -42,22 +42,20 @@
     </div>
   </div>
 
-  @if (loading) {
+  @if (loading()) {
     <div class="loading-state">
       <i class="pi pi-spin pi-spinner text-brand-primary" style="font-size: 2rem"></i>
       <p>Carregant clients...</p>
     </div>
-  } @else if (clients.length === 0) {
+  } @else if (clients().length === 0) {
     <app-empty-state
       icon="pi pi-user"
       title="No hi ha clients"
       description="Comença afegint el teu primer client"
-      buttonText="Afegir Primer Client"
-      [buttonRoute]="'/clients/new'"
     ></app-empty-state>
   } @else {
     <div class="clients-grid">
-      @for (client of clients; track client.id) {
+      @for (client of clients(); track client.id) {
         <div class="client-card">
           <div class="card-header-section">
             <div class="client-icon">
